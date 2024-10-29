@@ -2120,7 +2120,7 @@ RIpfit <- function(dfin, model = "PCM", pointsize = 2.5, alpha = 0.5, bins = 30,
       ))  +
       facet_wrap(~grp) +
       guides(color = "none") +
-      theme_minimal(fontfamily = "Arial") +
+      theme_minimal(base_family = "Arial") +
       theme(strip.text = element_text(size = 12))
   }
 }

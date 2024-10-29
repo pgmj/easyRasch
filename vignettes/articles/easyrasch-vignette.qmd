@@ -4,12 +4,11 @@ subtitle: "An R package for Rasch analysis"
 author: 
   name: 'Magnus Johansson'
   affiliation: 'RISE Research Institutes of Sweden'
-  affiliation-url: 'https://www.ri.se/en/what-we-do/expertises/category-based-measurements'
+  affiliation-url: 'https://www.ri.se/en/shic'
   orcid: '0000-0003-1669-592X'
 date: last-modified
-google-scholar: true
-citation: true
 execute: 
+  echo: true
   cache: true
   warning: false
   message: false
@@ -19,10 +18,18 @@ bibliography:
 csl: apa.csl
 editor_options: 
   chunk_output_type: console
+format: 
+  html:
+    toc: true
+    code-overflow: wrap
+    code-tools: true
+    code-fold: show
+    code-link: true
+    number-sections: true
 vignette: >
   %\VignetteIndexEntry{Vignette's Title}
-  %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{quarto::html}
 ---
 
 This is an introduction to using the [`easyRasch` R package](https://github.com/pgmj/easyRasch). A changelog for package updates is available [here](https://github.com/pgmj/easyRasch/blob/main/NEWS.md).
@@ -41,7 +48,7 @@ This vignette will walk through a sample analysis using an open dataset with pol
 
 One of the aims with this package is to simplify reproducible psychometric analysis to shed light on the measurement properties of a scale, questionnaire or test. In a paper recently made available as a preprint [@johansson], our [research group](https://www.ri.se/en/what-we-do/projects/center-for-categorically-based-measurements) propose that the basic aspects of a psychometric analysis should include information about:
 
--   Unidimensionality
+-   Unidimensionality & local independence
 -   Response categories
 -   Invariance
 -   Targeting
@@ -101,8 +108,8 @@ Quarto automatically adds links to R packages and functions throughout this docu
 We will use data from a recent paper investigating the "initial elevation effect" [@anvari2022], and focus on the 10 negative items from the PANAS. The data is available at the OSF website.
 
 ```{r}
-#df.all <- read_csv("https://osf.io/download/6fbr5/") # you can use this line to load the data directly from the OSF website
-df.all <- read_csv("anvari2022data.csv") # or this line if you have downloaded the datafile in the /vignettes folder
+df.all <- read_csv("https://osf.io/download/6fbr5/") # you can use this line to load the data directly from the OSF website
+#df.all <- read_csv("vignettes/anvari2022data.csv") # or this line if you have downloaded the datafile in the /vignettes/articles folder
 # if you have issues with the link, please try downloading manually using the same URL as above
 # and read the file from your local drive.
 
