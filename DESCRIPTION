@@ -35,7 +35,7 @@ Depends:
     doParallel
 VignetteBuilder:
     quarto
-License: `use_ccby_license()`
+License: CC BY 4.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2

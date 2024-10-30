@@ -1,6 +1,6 @@
 ---
-title: "easyRasch vignette"
-subtitle: "An R package for Rasch analysis"
+title: "easyRasch package vignette"
+subtitle: "Simplifying Rasch Measurement Theory in R"
 author: 
   name: 'Magnus Johansson'
   affiliation: 'RISE Research Institutes of Sweden'
@@ -12,62 +12,57 @@ execute:
   cache: true
   warning: false
   message: false
-bibliography: 
-  - references.bib
-  - grateful-refs.bib
-csl: apa.csl
 editor_options: 
   chunk_output_type: console
 format: 
   html:
     toc: true
-    code-overflow: wrap
-    code-tools: true
-    code-fold: show
-    code-link: true
-    number-sections: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
 vignette: >
-  %\VignetteIndexEntry{Vignette's Title}
+  %\VignetteIndexEntry{'Vignette'}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{quarto::html}
 ---
 
-This is an introduction to using the [`easyRasch` R package](https://github.com/pgmj/easyRasch). A changelog for package updates is available [here](https://github.com/pgmj/easyRasch/blob/main/NEWS.md).
+## Preamble
 
-::: {.callout-note icon="true"}
-## Note
-This package was previously known as `RISEkbmRasch`
-:::
+This page contains a sample Rasch analysis to showcase most of the core functions in the `easyRasch` package. A more extensive guide that also helps to show the benefits of the Quarto publishing system, is available here: <https://pgmj.github.io/raschrvignette/RaschRvign.html>
 
-Details on package installation are available at the [package GitHub page](https://github.com/pgmj/easyRasch).
+It is strongly recommended to go to the link above. I've become rather addicted to the convenience of panel-tabsets that Quarto offers that allow side-by-side viewing of output. These are unfortunately 
+not available when generating this package article/vignette using `pkgdown` (AFAIK). Lacking panel-tabsets, this page will become quite long (not to say that the other one is short either...).
+
+**NOTE: This package was previously known as `RISEkbmRasch`**
 
 If you are new to Rasch Measurement Theory, you may find this intro presentation useful:
 <https://pgmj.github.io/RaschIRTlecture/slides.html>
 
-This vignette will walk through a sample analysis using an open dataset with polytomous questionnaire data. This will include some data wrangling to structure the item data and itemlabels, then provide examples of the different functions. The full source code of this document can be found either [in this repository](https://github.com/pgmj/pgmj.github.io/blob/main/raschrvignette/RaschRvign.qmd) or by clicking on **\</\> CODE** at the top of this page. You should be able to use the source code "as is" and reproduce this document locally, as long as you have the required packages installed. This page and this website are built using the open source publishing tool [Quarto](https://www.quarto.org).
+There is a separate GitHub repository containing a template R-project to simplify getting started with the `easyRasch` package and conducting a reproducible Rasch analysis in R: <https://github.com/pgmj/RISEraschTemplate>
 
-One of the aims with this package is to simplify reproducible psychometric analysis to shed light on the measurement properties of a scale, questionnaire or test. In a paper recently made available as a preprint [@johansson], our [research group](https://www.ri.se/en/what-we-do/projects/center-for-categorically-based-measurements) propose that the basic aspects of a psychometric analysis should include information about:
+## Introduction
+
+This vignette will walk through a sample analysis using an open dataset with polytomous questionnaire data.
+
+One of the aims with this package is to simplify reproducible psychometric analysis to shed light on the measurement properties of a scale, questionnaire or test. In a preprint [@johansson], our [research group](https://www.ri.se/en/what-we-do/projects/center-for-categorically-based-measurements) propose that the basic aspects of a psychometric analysis should include information about:
 
 -   Unidimensionality & local independence
--   Response categories
--   Invariance
+-   Response categories (monotonicity)
+-   Invariance (Differential Item Functioning)
 -   Targeting
 -   Measurement uncertainties (reliability)
 
-We'll include several ways to investigate these measurement properties, using Rasch Measurement Theory. There are also functions in the package less directly related to the criteria above, that will be demonstrated in this vignette.
+We'll include several ways to investigate these measurement properties using Rasch Measurement Theory. There are also functions in the package less directly related to the criteria above that will be demonstrated in this vignette.
 
 Please note that this is just a sample analysis to showcase the R package. It is not intended as a "best practice" psychometric analysis example.
 
 You can skip ahead to the Rasch analysis part in @sec-rasch if you are eager to look at the package output :)
 
-There is a separate GitHub repository containing a suggested template to simplify using the `easyRasch` package when conducting a reproducible Rasch analysis in R: <https://github.com/pgmj/RISEraschTemplate>
-
-
 ## Getting started
 
 Since the package is intended for use with Quarto, this vignette has also been created with Quarto. A "template" .qmd file [is available](https://github.com/pgmj/RISEraschTemplate/blob/main/analysis.qmd) that can be useful to have handy for copy&paste when running a new analysis.  You can also download a complete copy of the Quarto/R code to produce this document [here](https://github.com/pgmj/pgmj.github.io/blob/main/raschrvignette/RaschRvign.qmd).
 
-Loading the `easyRasch` package will automatically load all the packages it depends on. However, it could be desirable to explicitly load all packages used, to simplify the automatic creation of citations for them, using the `grateful` package (see @sec-grateful).
+Loading the `easyRasch` package will automatically load all the packages it depends on. However, it could be desirable to explicitly load all packages used to enable the automatic creation of citations for them, using the `grateful` package (see @sec-grateful).
 
 ```{r}
 library(easyRasch) # devtools::install_github("pgmj/easyRasch")
@@ -90,6 +85,7 @@ library(patchwork)
 library(formattable) 
 library(glue)
 library(foreach)
+library(doParallel)
 
 ### some commands exist in multiple packages, here we define preferred ones that are frequently used
 select <- dplyr::select
@@ -97,11 +93,6 @@ count <- dplyr::count
 recode <- car::recode
 rename <- dplyr::rename
 ```
-
-::: {.callout-note icon="true"}
-## Note
-Quarto automatically adds links to R packages and functions throughout this document. However, this feature only works properly for packages available on [CRAN](https://cran.r-project.org/). Since the `easyRasch` package is not available on CRAN the links related to functions starting with **RI** will not work.
-:::
 
 ### Loading data
 
@@ -224,7 +215,6 @@ ggplot(df) +
        caption = glue("Note. Mean age is {round(mean(df$age, na.rm = T),1)} years with a standard deviation of {round(sd(df$age, na.rm = T),1)}. Age range is {min(df$age)} to {max(df$age)}.")
        ) +
   theme(plot.caption = element_text(hjust = 0, face = "italic"))
-
 ```
 
 Age also needs to be a separate vector, and removed from the item dataframe.
@@ -313,18 +303,12 @@ Kudos to [Solomon Kurz](https://solomonkurz.netlify.app/blog/2021-05-11-yes-you-
 
 Most people will be familiar with the barplot, and this is probably most intuitive to understand the response distribution within each item. However, if there are many items it will take a while to review, and does not provide the same overview as a tileplot or stacked bars.
 
-```{r}
-#| column: margin
-#| code-fold: true
-#| echo: fenced
+For this section, when using Quarto, I like to have the items available in the margin, but now we'll have to settle for a table inline.
 
-# This code chunk creates a small table in the margin beside the panel-tabset output below, showing all items currently in the df dataframe.
-# The Quarto code chunk option "#| column: margin" is necessary for the layout to work as intended.
-RIlistItemsMargin(df, fontsize = 13)
+```{r}
+RIlistitems(df)
 ```
 
-::: column-page-left
-::: panel-tabset
 #### Tile plot
 
 ```{r}
@@ -347,8 +331,7 @@ RIbarstack(df) +
 #| layout-ncol: 2
 RIbarplot(df)
 ```
-:::
-:::
+
 
 
 ## Rasch analysis 1 {#sec-rasch}
@@ -367,17 +350,6 @@ We will begin by looking at unidimensionality, response categories, and targetin
 
 When unidimensionality and response categories are found to work adequately, we will move on to invariance testing (Differential Item Functioning, DIF). It should be noted that DIF should be evaluated in parallel with all other psychometric aspects, but since it is a more complex issue it is kept in a separate section in this vignette (as is person fit). Finally, when/if invariance/DIF also looks acceptable, we can investigate reliability/measurement uncertainties.
 
-::: {.callout-note}
-In the tabset-panel below, each tab contains explanatory text, which is sometimes a bit lengthy. Remember to **scroll back up and click on all tabs**.
-:::
-
-```{r}
-#| column: margin
-#| echo: false
-RIlistItemsMargin(df, fontsize = 13)
-```
-
-::: panel-tabset
 ### Conditional item fit
 
 ```{r}
@@ -523,7 +495,7 @@ The numbers displayed in the plot can be disabled using the option `numbers = FA
 #| fig-height: 6
 RIitemHierarchy(df)
 ```
-:::
+
 
 ### Analysis 1 comments
 
@@ -538,7 +510,6 @@ Two item-pairs show residual correlations far above the cutoff value:
 
 Since item 15 also has a residual correlation with item 19, we will remove it. In the second pair, item 18 will be removed since it also has problems with disordered response categories.
 
-::: {.callout-note icon="true"}
 We have multiple "diagnostics" to review when deciding which item to remove if there are strong residual correlations between two items. Here is a list of commonly used criteria:
 
 - item fit
@@ -546,7 +517,7 @@ We have multiple "diagnostics" to review when deciding which item to remove if t
 - ordering of response categories
 - DIF
 - and whether there are residual correlations between one item and multiple other items
-:::
+
 
 ```{r}
 removed.items <- c("PANAS_15","PANAS_18")
@@ -569,7 +540,6 @@ With items 15 and 18 removed.
 RIlistItemsMargin(df, fontsize = 13)
 ```
 
-::: panel-tabset
 ### Conditional item fit
 
 ```{r}
@@ -609,7 +579,7 @@ RItargeting(df, xlim = c(-4,4), bins = 45)
 #| fig-height: 5
 RIitemHierarchy(df)
 ```
-:::
+
 
 ### Analysis 2 comments
 
@@ -627,9 +597,7 @@ The structure of DIF is also an important and complex aspect, particularly for p
 
 A recent preprint [@henninger_partial_2024] does a great job illustrating "differential step functioning" (DSF), which is when item threshold locations in polytomous data show varying levels of DIF. It also describes a forthcoming development of the `psychotree` where one can use DIF effect size and purification functions to evaluate DIF/DSF. When the updated package is available, I will work to implement these new functions into the `easyRasch` package as well.
 
-::: {.callout-note icon="true"}
 It is important to ensure that no cells in the data are empty for subgroups when conducting a DIF analysis. Split the data using the DIF-variable and create separate tileplots to review the response distribution in the DIF-groups.
-:::
 
 ```{r}
 #| fig-height: 5
@@ -649,7 +617,6 @@ difPlots$Female + difPlots$Male # the actual name of the plots (in this case Mal
 RIlistItemsMargin(df, fontsize = 13)
 ```
 
-::: panel-tabset
 #### Table
 
 ```{r}
@@ -668,7 +635,6 @@ RIdifFigure(df, dif.sex)
 ```{r}
 RIdifFigThresh(df, dif.sex)
 ```
-:::
 
 While no item shows problematic levels of DIF regarding item location, as shown by the table, there is an interesting pattern in the thresholds figure. The lowest threshold seems to be slightly lower for node 3 (Male) for all items. Also, item 11 shows a much wider spread of item locations for node 3 compared to node 2.
 
@@ -698,7 +664,6 @@ The `psychotree` package also allows for DIF interaction analysis with multiple 
 
 ```{r}
 RIdifTable2(df, dif.sex, dif.age)
-
 ```
 
 No interaction effect found for sex and age. The analysis only shows the previously identified DIF for sex.
@@ -714,13 +679,6 @@ LRtest(erm.out, splitcr = dif.group)
 
 Review the documentation for further details, using `?LRtest` in your R console panel in Rstudio. There is also a plotting function, `plotGOF()` that may be of interest.
 
-```{r}
-#| column: margin
-#| echo: false
-RIlistItemsMargin(df, fontsize = 13)
-```
-
-::: panel-tabset
 #### Item location table
 ```{r}
 RIdifTableLR(df, dif.group)
@@ -739,7 +697,7 @@ RIdifThreshTblLR(df, dif.group)
 #| fig-height: 7
 RIdifThreshFigLR(df, dif.group) + theme_rise()
 ```
-:::
+
 
 The item threshold table shows that the top threshold for item 13 differs more than 0.5 logits between groups. In this set of 8 items with 4 thresholds each, it is unlikely to result in problematic differences in estimated person scores.
 
@@ -856,7 +814,6 @@ df <- df_backup2 %>%
 RIlistItemsMargin(df, fontsize = 13)
 ```
 
-::: panel-tabset
 ### Item fit
 
 ```{r}
@@ -893,7 +850,7 @@ RItargeting(df, bins = 45)
 #| fig-height: 5
 RIitemHierarchy(df)
 ```
-:::
+
 
 ### Analysis 3 comments
 
@@ -938,7 +895,6 @@ While none of the functions in the `PerFit` package has been implemented in `eas
 
 For this example, we'll use the non-parametric U3 statistic generalized to polytomous items [@emons_nonparametric_2008].
 
-::: panel-tabset
 #### U3poly
 ```{r}
 library(PerFit)
@@ -957,7 +913,7 @@ flagged.resp(pfit_u3poly) %>%
   as.data.frame() %>% 
   arrange(desc(PFscores))
 ```
-:::
+
 
 The dataframe shown under the tab `Flagged respondents` above contains a variable named `FlaggedID` which represents the row id's. This variable is useful if one wants to filter out respondents with deviant response patterns (person misfit). There are indications that persons with misfit may affect results of Andersen's LR-test for DIF [@artner_simulation_2016].
 
@@ -974,7 +930,6 @@ misfits <- flagged.resp(pfit_u3poly) %>%
 misfits2 <- RIpfit(df, output = "rowid")
 ```
 
-::: panel-tabset
 #### All respondents
 ```{r}
 RIitemfit(df, simcut = simfit3)
@@ -987,7 +942,7 @@ RIitemfit(df[-misfits,], simcut = simfit3)
 ```{r}
 RIitemfit(df[-misfits2,], simcut = simfit3)
 ```
-:::
+
 
 ## Item parameters
 
@@ -1046,12 +1001,12 @@ hist(thetas$WLE,
 If you would like to use an existing item threshold location matrix, this code may be helpful:
 
 ```{r}
+#| eval: false
 itemParameters <- read_csv("itemParameters.csv") %>% 
   as.matrix()
-itemParameters
 ```
 
-As you can see, this is a matrix object (not a dataframe), with each item as a row, and the threshold locations as columns.
+This creates a matrix object (not a dataframe), with each item as a row, and the threshold locations as columns.
 
 ## Figure design
 
