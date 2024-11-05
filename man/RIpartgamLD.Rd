@@ -17,5 +17,5 @@ statistically significant relationships and sorts the table on the absolute
 value of partial gamma.
 }
 \details{
-Conditional highlighting in HTML table output set to partial gamma > +/-0.21.
+Conditional highlighting in HTML table output set to partial gamma > 0.21.
 }

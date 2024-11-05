@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,24 @@
       <small>Source: <a href="https://github.com/pgmj/easyRasch/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.1" id="easyrasch-031">easyRasch 0.3.1<a class="anchor" aria-label="anchor" href="#easyrasch-031"></a></h2>
+<ul><li>
+<code><a href="../reference/RIpartgamLD.html">RIpartgamLD()</a></code> no longer shows negative gamma values.</li>
+<li>
+<code><a href="../reference/RIitemfit.html">RIitemfit()</a></code>: new option to set upper/lower cutoff values when calculating quantile cutoff values for conditional highlighting based on simulations from <code><a href="../reference/RIgetfit.html">RIgetfit()</a></code>
+<ul><li>new default setting for <code>cutoff</code> is <code>c(.001,.999)</code>. The old default was <code>c(.005,.995)</code>, which according to preliminary simulation studies resulted in increased rates of false positives.</li>
+</ul></li>
+<li>
+<code><a href="../reference/RIestThetas.html">RIestThetas()</a></code>: added note in documentation that it is not advisable to use this function with incomplete response data.
+<ul><li>
+<code><a href="../reference/RIestThetasOLD.html">RIestThetasOLD()</a></code> or <code><a href="../reference/RIestThetasOLD2.html">RIestThetasOLD2()</a></code> are recommended when there are missing responses for some items for some respondents.</li>
+</ul></li>
+<li>
+<code>RItargeting(model = "RM")</code> now sorts items according to order in data.</li>
+<li>
+<code><a href="../reference/RIrestscore.html">RIrestscore()</a></code> and <code><a href="../reference/RIitemfit.html">RIitemfit()</a></code> now also output a column with item (average for polytomous items) location. This is due to preliminary simulation studies indicating that misfitting items &gt; 1.5 logits from person mean require a larger sample to identify reliably.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3" id="easyrasch-03">easyRasch 0.3<a class="anchor" aria-label="anchor" href="#easyrasch-03"></a></h2>
 <ul><li>package name changed from <code>RISEkbmRasch</code> to <code>easyRasch</code>.</li>

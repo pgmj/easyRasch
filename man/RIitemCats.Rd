@@ -2,17 +2,19 @@
 % Please edit documentation in R/easyRasch.R
 \name{RIitemCats}
 \alias{RIitemCats}
-\title{Individual ICC plots.}
+\title{Individual item category probability plots}
 \usage{
-RIitemCats(dfin, items = "all", xlims = c(-6, 6), legend = FALSE)
+RIitemCats(data, items = "all", xlims = c(-6, 6), legend = FALSE)
 }
 \arguments{
-\item{dfin}{Dataframe with item data only}
+\item{data}{Dataframe with item data only}
 
-\item{items}{A single item (e.g. "q4"), or a vector with multiple items (e.g. c("q4","q2"))}
+\item{items}{Optionally a single item \code{"q4"}, or a vector \code{c("q4","q2")}}
 
 \item{xlims}{Start/end point for x-axis}
+
+\item{legend}{Set to a position such as "left" if desired}
 }
 \description{
-Individual ICC plots.
+Uses \code{eRm::PCM()} and \code{eRm::plotICC()}.
 }

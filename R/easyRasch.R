@@ -723,15 +723,20 @@ RIrmPCA <- function(dfin, no.table, fontsize = 15) {
   }
 }
 
-#' Individual ICC plots.
-#' @param dfin Dataframe with item data only
-#' @param items A single item (e.g. "q4"), or a vector with multiple items (e.g. c("q4","q2"))
+#' Individual item category probability plots
+#'
+#' Uses `eRm::PCM()` and `eRm::plotICC()`.
+#'
+#' @param data Dataframe with item data only
+#' @param items Optionally a single item `"q4"`, or a vector `c("q4","q2")`
 #' @param xlims Start/end point for x-axis
+#' @param legend Set to a position such as "left" if desired
 #' @export
-RIitemCats <- function(dfin, items = "all", xlims = c(-6,6), legend = FALSE) {
-  # individual plots for those two items:
-  df.erm <- PCM(dfin) # run PCM, partial credit model
-  plotICC(df.erm,
+RIitemCats <- function(data, items = "all", xlims = c(-6,6), legend = FALSE) {
+
+  erm_out <- PCM(data) # run PCM(), Rasch partial credit model
+
+  plotICC(erm_out,
     xlim = xlims, # change the x axis theta interval to display
     legpos = legend, # change legpos to TRUE if you want the legend displayed
     ylab = "Probability",
@@ -1726,8 +1731,9 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
       theme(legend.position = 'none')
 
     # Plot with each item's thresholds shown as dots
-    targeting_plots$p3 <- ggplot(itemloc.long, aes(x = names, y = item.estimates, label = names, color = names)) +
-      geom_point() +
+    targeting_plots$p3 <- itemloc.long %>%
+      mutate(names = factor(names, levels = names(dfin), labels = names(dfin))) %>%
+      ggplot(aes(x = fct_rev(names), y = item.estimates, label = names, color = names)) +      geom_point() +
       geom_text(hjust = 1.2, vjust = 1) +
       scale_y_continuous(limits = xlim, breaks = scales::breaks_extended(n = 10)) +
       theme_bw() +
@@ -3159,13 +3165,16 @@ RIestThetasOLD <- function(dfin, itemParams, model = "PCM", method = "WL",
 #'
 #' Outputs a dataframe of person locations and measurement error (SEM) for each person
 #'
+#' IMPORTANT: only use with complete response data. If you have missing responses,
+#' `RIestThetasOLD()` or `RIestThetasOLD2()` are recommended instead.
+#'
 #' Uses `iarm::person_estimates()` to estimate person locations
 #' (thetas) for a dataframe with item data as columns and persons as rows.
 #'
 #' Defaults to use WLE estimation (lower bias than MLE, see Warm, 1989) and PCM.
 #'
 #' Note: If you want to use a pre-specified set of item parameters, please use
-#' `RIestThetasOLD()`.
+#' `RIestThetasOLD()` or `RIestThetasOLD2()`.
 #'
 #' @param dfin Dataframe with response data only (no demographics etc), items as columns
 #' @param model Rasch model to use ("RM" for dichotomous data)
@@ -4077,7 +4086,7 @@ RIgetResidCor <- function (data, iterations, cpu = 4) {
 #' table caption text.
 #'
 #' Cutoff threshold values from simulation data (using option `simcut`) are
-#' used with the `quantile()` function with .005 and .995 values to filter out
+#' used with the `quantile()` function with .001 and .999 values to filter out
 #' extremes. Actual cutoff values are shown in the output.
 #'
 #' Simulated datasets that have zero responses in any response category that
@@ -4090,23 +4099,26 @@ RIgetResidCor <- function (data, iterations, cpu = 4) {
 #' Optional conditional highlighting of misfit based on rule-of-thumb values for
 #' infit MSQ according to Smith et al. (1998), since Müller (2020) showed that
 #' these can be fairly accurate for conditional infit and thus useful for a
-#' quick look at item fit.
+#' quick look at item fit. Set `cutoff = "Smith98` to use.
 #'
 #' @param data Dataframe with response data
 #' @param simcut Object output from `RIgetfit()`
 #' @param output Optional "dataframe" or "quarto"
 #' @param sort Optional "infit" or "outfit"
-#' @param cutoff Optional "Smith98" for infit rule-of-thumb
+#' @param cutoff Default `c(.001,.999)`
 #' @param ... Options passed on to `kbl_rise()` for table creation
 #' @export
-RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff, ...) {
+RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c(.001,.999), ...) {
 
   if(min(as.matrix(data), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
   } else if(max(as.matrix(data), na.rm = T) == 1 && min(as.matrix(data), na.rm = T) == 0) {
     erm_out <- eRm::RM(data)
+    item_avg_locations <- coef(erm_out, "beta")*-1 # item locations
   } else if(max(as.matrix(data), na.rm = T) > 1 && min(as.matrix(data), na.rm = T) == 0) {
     erm_out <- eRm::PCM(data)
+    item_avg_locations <- RIitemparams(data, output = "dataframe") %>%
+      pull(Location)
   }
 
   # get conditional MSQ
@@ -4118,7 +4130,8 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff, ..
   item.fit.table <- data.frame(InfitMSQ = cfit$Infit,
                                OutfitMSQ = cfit$Outfit) %>%
     round(3) %>%
-    rownames_to_column("Item")
+    rownames_to_column("Item") %>%
+    add_column(Location = round(item_avg_locations,2))
 
   if (!missing(simcut)) {
 
@@ -4135,19 +4148,19 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff, ..
       lo_hi <-
         bind_rows(simcut[1:iterations]) %>%
         group_by(Item) %>%
-        summarise(min_infit_msq = quantile(InfitMSQ, .005),
-                  max_infit_msq = quantile(InfitMSQ, .995),
-                  min_outfit_msq = quantile(OutfitMSQ, .005),
-                  max_outfit_msq = quantile(OutfitMSQ, .995)
+        summarise(min_infit_msq = quantile(InfitMSQ, cutoff[1]),
+                  max_infit_msq = quantile(InfitMSQ, cutoff[2]),
+                  min_outfit_msq = quantile(OutfitMSQ, cutoff[1]),
+                  max_outfit_msq = quantile(OutfitMSQ, cutoff[2])
         )
     } else {
       lo_hi <-
         bind_rows(simcut[1:iterations][-iterations_nodata]) %>%
         group_by(Item) %>%
-        summarise(min_infit_msq = quantile(InfitMSQ, .005),
-                  max_infit_msq = quantile(InfitMSQ, .995),
-                  min_outfit_msq = quantile(OutfitMSQ, .005),
-                  max_outfit_msq = quantile(OutfitMSQ, .995)
+        summarise(min_infit_msq = quantile(InfitMSQ, cutoff[1]),
+                  max_infit_msq = quantile(InfitMSQ, cutoff[2]),
+                  min_outfit_msq = quantile(OutfitMSQ, cutoff[1]),
+                  max_outfit_msq = quantile(OutfitMSQ, cutoff[2])
         )
     }
 
@@ -4158,15 +4171,15 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff, ..
       fit_table <-
         bind_rows(simcut[1:iterations]) %>%
         group_by(Item) %>%
-        summarise(inf_thresh = paste0("[",round(quantile(InfitMSQ, .005),3),", ",round(quantile(InfitMSQ, .995),3),"]"),
-                  outf_thresh = paste0("[",round(quantile(OutfitMSQ, .005),3),", ",round(quantile(OutfitMSQ, .995),3),"]")
+        summarise(inf_thresh = paste0("[",round(quantile(InfitMSQ, cutoff[1]),3),", ",round(quantile(InfitMSQ, cutoff[2]),3),"]"),
+                  outf_thresh = paste0("[",round(quantile(OutfitMSQ, cutoff[1]),3),", ",round(quantile(OutfitMSQ, cutoff[2]),3),"]")
         )
     } else {
       fit_table <-
         bind_rows(simcut[1:iterations][-iterations_nodata]) %>%
         group_by(Item) %>%
-        summarise(inf_thresh = paste0("[",round(quantile(InfitMSQ, .005),3),", ",round(quantile(InfitMSQ, .995),3),"]"),
-                  outf_thresh = paste0("[",round(quantile(OutfitMSQ, .005),3),", ",round(quantile(OutfitMSQ, .995),3),"]")
+        summarise(inf_thresh = paste0("[",round(quantile(InfitMSQ, cutoff[1]),3),", ",round(quantile(InfitMSQ, cutoff[2]),3),"]"),
+                  outf_thresh = paste0("[",round(quantile(OutfitMSQ, cutoff[1]),3),", ",round(quantile(OutfitMSQ, cutoff[2]),3),"]")
         )
     }
     # add thresholds to dataframe and calculate differences between thresholds and observed values
@@ -4184,7 +4197,8 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff, ..
       ) %>%
       mutate(`Infit diff` = ifelse(yes = "no misfit", no = `Infit diff`, InfitMSQ > min_infit_msq & InfitMSQ < max_infit_msq),
              `Outfit diff` = ifelse(yes = "no misfit", no = `Outfit diff`, OutfitMSQ > min_outfit_msq & OutfitMSQ < max_outfit_msq)) %>%
-      dplyr::select(!contains(c("lo","hi","min","max")))
+      dplyr::select(!contains(c("lo","hi","min","max"))) %>%
+      add_column(Location = round(item_avg_locations,2))
 
     if (output == "table" & sort == "items") {
       # set conditional highlighting based on cutoffs
@@ -4292,11 +4306,11 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff, ..
 #' numbers should be more comparable using this method.
 #'
 #' @param data Dataframe with response data
-#' @param iterations Number of simulation iterations (use at least 1000)
+#' @param iterations Number of simulation iterations (use 200-400)
 #' @param cpu Number of CPU cores to use
 #' @param na.omit Defaults to TRUE to produce conditional fit comparable values
 #' @export
-RIgetfit <- function(data, iterations, cpu = 4, na.omit = TRUE) {
+RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
   # since we want comparable values to conditional item fit, which only uses
   # complete cases, we remove any missing responses by default
   if (na.omit == TRUE) {
@@ -4692,7 +4706,9 @@ RIpboot <- function(data, iterations, cpu = 4) {
 
 #' Item-restscore
 #'
-#' A simple wrapper for `iarm::item_restscore()`
+#' A simple wrapper for `iarm::item_restscore()`, adding information about
+#' absolute difference in expected and observed values, and item (average)
+#' location.
 #'
 #' @param data A dataframe with response data
 #' @param output Defaults to a HTML table, optional "quarto" and "dataframe"
@@ -4707,8 +4723,11 @@ RIrestscore <- function(data, output = "table", sort, p.adj = "BH") {
     stop("No complete cases in data.")
   } else if(max(as.matrix(data), na.rm = T) == 1 && min(as.matrix(data), na.rm = T) == 0) {
     erm_out <- eRm::RM(data)
+    item_avg_locations <- coef(erm_out, "beta")*-1 # item coefficients
   } else if(max(as.matrix(data), na.rm = T) > 1 && min(as.matrix(data), na.rm = T) == 0) {
     erm_out <- eRm::PCM(data)
+    item_avg_locations <- RIitemparams(data, output = "dataframe") %>%
+      pull(Location)
   }
 
   i1 <- item_restscore(erm_out, p.adj = p.adj)
@@ -4726,7 +4745,8 @@ RIrestscore <- function(data, output = "table", sort, p.adj = "BH") {
     dplyr::rename(!!paste0("Adjusted p-value (",p.adj,")") := p_adj,
                   `Significance level` = sig,
                   `Observed value` = Observed,
-                  `Model expected value` = Expected)
+                  `Model expected value` = Expected) %>%
+    add_column(Location = round(item_avg_locations,2))
 
   if (output == "table" & missing(sort)) {
     kbl_rise(i2)
@@ -4745,14 +4765,13 @@ RIrestscore <- function(data, output = "table", sort, p.adj = "BH") {
   }
 }
 
-
 #' Partial gamma analysis of local dependence
 #'
 #' A simple wrapper for `iarm::partgam_LD()`. Filters results to only show
 #' statistically significant relationships and sorts the table on the absolute
 #' value of partial gamma.
 #'
-#' Conditional highlighting in HTML table output set to partial gamma > +/-0.21.
+#' Conditional highlighting in HTML table output set to partial gamma > 0.21.
 #'
 #' @param data A dataframe with response data
 #' @param output Defaults to a HTML table, optional "quarto" and "dataframe"
@@ -4786,36 +4805,36 @@ RIpartgamLD <- function(data, output = "table") {
     dplyr::filter(str_detect(sig,"\\*")) %>%
     arrange(desc(abs(gamma))) %>%
     dplyr::select(!c(pvalue,sig)) %>%
-    relocate(padj_bh, .after = "upper")
+    relocate(padj_bh, .after = "upper") %>%
+    filter(gamma > 0)
 
   if (output == "table") {
     ld2 %>%
       mutate(gamma = cell_spec(gamma, color = ifelse(abs(gamma) > 0.21, "red", "black"))) %>%
       dplyr::rename(`Item 1` = item1,
-             `Item 2` = item2,
-             `Partial gamma` = gamma,
-             SE = se,
-             `Lower CI` = lower,
-             `Upper CI` = upper,
-             `Adjusted p-value (BH)` = padj_bh) %>%
+                    `Item 2` = item2,
+                    `Partial gamma` = gamma,
+                    SE = se,
+                    `Lower CI` = lower,
+                    `Upper CI` = upper,
+                    `Adjusted p-value (BH)` = padj_bh) %>%
       kbl_rise()
 
   } else if (output == "quarto") {
     ld2 %>%
       dplyr::rename(`Item 1` = item1,
-             `Item 2` = item2,
-             `Partial gamma` = gamma,
-             SE = se,
-             `Lower CI` = lower,
-             `Upper CI` = upper,
-             `Adjusted p-value (BH)` = padj_bh) %>%
+                    `Item 2` = item2,
+                    `Partial gamma` = gamma,
+                    SE = se,
+                    `Lower CI` = lower,
+                    `Upper CI` = upper,
+                    `Adjusted p-value (BH)` = padj_bh) %>%
       knitr::kable()
   } else if (output == "dataframe") {
 
     return(as.data.frame(ld2))
   }
 }
-
 
 #' Partial gamma analysis of Differential Item Functioning
 #'

@@ -19,11 +19,14 @@ RIestThetas(data, model = "PCM", method = "WLE")
 Outputs a dataframe of person locations and measurement error (SEM) for each person
 }
 \details{
+IMPORTANT: only use with complete response data. If you have missing responses,
+\code{RIestThetasOLD()} or \code{RIestThetasOLD2()} are recommended instead.
+
 Uses \code{iarm::person_estimates()} to estimate person locations
 (thetas) for a dataframe with item data as columns and persons as rows.
 
 Defaults to use WLE estimation (lower bias than MLE, see Warm, 1989) and PCM.
 
 Note: If you want to use a pre-specified set of item parameters, please use
-\code{RIestThetasOLD()}.
+\code{RIestThetasOLD()} or \code{RIestThetasOLD2()}.
 }

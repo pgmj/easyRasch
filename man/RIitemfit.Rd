@@ -4,7 +4,14 @@
 \alias{RIitemfit}
 \title{Calculate conditional outfit & infit MSQ statistics}
 \usage{
-RIitemfit(data, simcut, output = "table", sort = "items", cutoff, ...)
+RIitemfit(
+  data,
+  simcut,
+  output = "table",
+  sort = "items",
+  cutoff = c(0.001, 0.999),
+  ...
+)
 }
 \arguments{
 \item{data}{Dataframe with response data}
@@ -15,7 +22,7 @@ RIitemfit(data, simcut, output = "table", sort = "items", cutoff, ...)
 
 \item{sort}{Optional "infit" or "outfit"}
 
-\item{cutoff}{Optional "Smith98" for infit rule-of-thumb}
+\item{cutoff}{Default \code{c(.001,.999)}}
 
 \item{...}{Options passed on to \code{kbl_rise()} for table creation}
 }
@@ -30,7 +37,7 @@ Note: only uses complete cases! This is explicitly mentioned in the automatic
 table caption text.
 
 Cutoff threshold values from simulation data (using option \code{simcut}) are
-used with the \code{quantile()} function with .005 and .995 values to filter out
+used with the \code{quantile()} function with .001 and .999 values to filter out
 extremes. Actual cutoff values are shown in the output.
 
 Simulated datasets that have zero responses in any response category that
@@ -43,5 +50,5 @@ on simulation cutoff values, either \code{sort = "infit"} or \verb{sort = "outfi
 Optional conditional highlighting of misfit based on rule-of-thumb values for
 infit MSQ according to Smith et al. (1998), since Müller (2020) showed that
 these can be fairly accurate for conditional infit and thus useful for a
-quick look at item fit.
+quick look at item fit. Set \verb{cutoff = "Smith98} to use.
 }

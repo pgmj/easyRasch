@@ -16,5 +16,7 @@ RIrestscore(data, output = "table", sort, p.adj = "BH")
 \item{p.adj}{See \code{?item_restscore()} for options (BH is default)}
 }
 \description{
-A simple wrapper for \code{iarm::item_restscore()}
+A simple wrapper for \code{iarm::item_restscore()}, adding information about
+absolute difference in expected and observed values, and item (average)
+location.
 }

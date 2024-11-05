@@ -4,12 +4,12 @@
 \alias{RIgetfit}
 \title{Get simulation based cutoff values for item fit values}
 \usage{
-RIgetfit(data, iterations, cpu = 4, na.omit = TRUE)
+RIgetfit(data, iterations = 250, cpu = 4, na.omit = TRUE)
 }
 \arguments{
 \item{data}{Dataframe with response data}
 
-\item{iterations}{Number of simulation iterations (use at least 1000)}
+\item{iterations}{Number of simulation iterations (use 200-400)}
 
 \item{cpu}{Number of CPU cores to use}
 

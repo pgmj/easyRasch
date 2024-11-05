@@ -1,3 +1,13 @@
+# easyRasch 0.3.1
+
+- `RIpartgamLD()` no longer shows negative gamma values.
+- `RIitemfit()`: new option to set upper/lower cutoff values when calculating quantile cutoff values for conditional highlighting based on simulations from `RIgetfit()`
+  - new default setting for `cutoff` is `c(.001,.999)`. The old default was `c(.005,.995)`, which according to preliminary simulation studies resulted in increased rates of false positives.
+- `RIestThetas()`: added note in documentation that it is not advisable to use this function with incomplete response data.
+  - `RIestThetasOLD()` or `RIestThetasOLD2()` are recommended when there are missing responses for some items for some respondents.
+- `RItargeting(model = "RM")` now sorts items according to order in data.
+- `RIrestscore()` and `RIitemfit()` now also output a column with item (average for polytomous items) location. This is due to preliminary simulation studies indicating that misfitting items > 1.5 logits from person mean require a larger sample to identify reliably.
+
 # easyRasch 0.3
 
 - package name changed from `RISEkbmRasch` to `easyRasch`.
