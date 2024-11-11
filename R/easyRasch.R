@@ -4500,7 +4500,7 @@ RIgetfitPlot <- function(simcut, data) {
       ggplot(aes(x = Value, y = factor(Item, levels = rev(simcut[[first_iteration]][["Item"]])), slab_fill = after_stat(level))) +
       stat_dotsinterval(quantiles = iterations, point_interval = median_qi,
                         layout = "weave", slab_color = NA,
-                        .width = c(0.66, 0.99)) +
+                        .width = c(0.666, 0.999)) +
       labs(x = "Conditional MSQ",
            y = "Item") +
       scale_color_manual(values = scales::brewer_pal()(3)[-1], aesthetics = "slab_fill", guide = "none") +
@@ -4568,7 +4568,7 @@ RIgetfitPlot <- function(simcut, data) {
       stat_dotsinterval(aes(slab_fill = after_stat(level)),
                         quantiles = iterations, point_interval = median_qi,
                         layout = "weave", slab_color = NA,
-                        .width = c(0.66, 0.99)) +
+                        .width = c(0.666, 0.999)) +
       geom_point(aes(x = observed),
                  color = "sienna2", shape = 18,
                  position = position_nudge(y = -0.1), size = 4) +
@@ -4609,7 +4609,7 @@ RIgetfitPlot <- function(simcut, data) {
       stat_dotsinterval(aes(slab_fill = after_stat(level)),
                         quantiles = iterations, point_interval = median_qi,
                         layout = "weave", slab_color = NA,
-                        .width = c(0.66, 0.99)) +
+                        .width = c(0.666, 0.999)) +
       geom_point(aes(x = observed),
                  color = "sienna2", shape = 18,
                  position = position_nudge(y = -0.1), size = 4) +

@@ -1,3 +1,7 @@
+# easyRasch 0.3.1.1
+
+- `RIgetfitPlot()` now uses the same `c(.001,.999)` intervals as `RIitemfit()`.
+
 # easyRasch 0.3.1
 
 - `RIpartgamLD()` no longer shows negative gamma values.
