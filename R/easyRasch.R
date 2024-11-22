@@ -3968,7 +3968,8 @@ RIgetResidCor <- function (data, iterations, cpu = 4) {
           dplyr::select(!value) %>%
           # mark missing cells with NA for later logical examination
           mutate(across(everything(), ~ car::recode(.x, "0=NA", as.factor = FALSE))) %>%
-          as.data.frame()
+          as.data.frame() %>%
+          select(all_of(names(data))) # get item sorting correct
 
         # match response data generated with itemlength
         item_ccount <- list()
@@ -4321,10 +4322,6 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
   require(doParallel)
   registerDoParallel(cores = cpu)
 
-  if (missing(iterations)) {
-    stop("Please set a number of iterations (at least 500-1000 is recommended).")
-  }
-
   if (min(as.matrix(data), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
   } else if (max(as.matrix(data), na.rm = T) == 1 && min(as.matrix(data), na.rm = T) == 0) {
@@ -4424,7 +4421,8 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
         dplyr::select(!value) %>%
         # mark missing cells with NA for later logical examination with if(is.na)
         mutate(across(everything(), ~ car::recode(.x, "0=NA", as.factor = FALSE))) %>%
-        as.data.frame()
+        as.data.frame() %>%
+        select(all_of(names(data))) # get item sorting correct
 
       # match response data generated with itemlength
       item_ccount <- list()
@@ -4724,10 +4722,18 @@ RIrestscore <- function(data, output = "table", sort, p.adj = "BH") {
   } else if(max(as.matrix(data), na.rm = T) == 1 && min(as.matrix(data), na.rm = T) == 0) {
     erm_out <- eRm::RM(data)
     item_avg_locations <- coef(erm_out, "beta")*-1 # item coefficients
+    person_avg_locations <- RIestThetas(data, model = "RM") %>%
+      pull(WLE) %>%
+      mean(na.rm = TRUE)
+    relative_item_avg_locations <- item_avg_locations - person_avg_locations
   } else if(max(as.matrix(data), na.rm = T) > 1 && min(as.matrix(data), na.rm = T) == 0) {
     erm_out <- eRm::PCM(data)
     item_avg_locations <- RIitemparams(data, output = "dataframe") %>%
       pull(Location)
+    person_avg_locations <- RIestThetas(data) %>%
+      pull(WLE) %>%
+      mean(na.rm = TRUE)
+    relative_item_avg_locations <- item_avg_locations - person_avg_locations
   }
 
   i1 <- item_restscore(erm_out, p.adj = p.adj)
@@ -4746,7 +4752,8 @@ RIrestscore <- function(data, output = "table", sort, p.adj = "BH") {
                   `Significance level` = sig,
                   `Observed value` = Observed,
                   `Model expected value` = Expected) %>%
-    add_column(Location = round(item_avg_locations,2))
+    add_column(Location = round(item_avg_locations,2),
+               `Relative location` = round(relative_item_avg_locations,2))
 
   if (output == "table" & missing(sort)) {
     kbl_rise(i2)

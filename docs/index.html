@@ -18,11 +18,11 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,7 +56,7 @@
 <div class="page-header"><h1 id="easyrasch">easyRasch<a class="anchor" aria-label="anchor" href="#easyrasch"></a>
 </h1></div>
 <p>R package for Rasch Measurement Theory based psychometric analysis, intended for use with <a href="https://quarto.org" class="external-link">Quarto</a> for documentation and presentation of analysis process and results.</p>
-<p>This package largely functions as a wrapper for other packages for the Rasch analyses, primarily <a href="https://cran.r-project.org/web/packages/eRm/" class="external-link">eRm</a>, <a href="https://cran.r-project.org/web/packages/mirt/" class="external-link">mirt</a>, <a href="https://cran.r-project.org/web/packages/psychotree/" class="external-link">psychotree</a>, <a href="https://cran.r-project.org/web/packages/iarm/" class="external-link">iarm</a>, and <a href="https://cran.r-project.org/web/packages/catR/index.html" class="external-link">catR</a>.</p>
+<p>This package largely functions as a wrapper for other packages for the Rasch analyses, primarily <a href="https://cran.r-project.org/web/packages/eRm/" class="external-link">eRm</a>, <a href="https://cran.r-project.org/web/packages/mirt/" class="external-link">mirt</a>, <a href="https://cran.r-project.org/web/packages/psychotree/" class="external-link">psychotree</a>, <a href="https://cran.r-project.org/web/packages/iarm/" class="external-link">iarm</a>, and <a href="https://cran.r-project.org/web/packages/catR/index.html" class="external-link">catR</a>. If you use <code>easyRasch</code> for a publication, please also cite these packages.</p>
 <p>The package is intended to simplify the Rasch analysis process and provides easy creation of tables and figures with functions that have few options. The package has been tested on MacOS and Windows with R 4.1 to 4.4.</p>
 <p><strong>NOTE: this package was formerly known as <code>RISEkbmRasch</code>. The old GitHub page will remain available but not receive any updates.</strong></p>
 <p>Please regularly check the <a href="https://pgmj.github.io/easyRasch/news/index.html">Changelog</a> for notes on updates.</p>
@@ -72,7 +72,11 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"pgmj/easyRasch"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>One user has reported having to cancel the installation and restart R several times before being able to install and load the library. This may be a local issue, but I thought it worth mentioning. If others have the same experience, please let me know.</p>
-<p>While not strictly necessary, it is highly recommended to install Quarto (and update your Rstudio and R installation if needed): - <a href="https://quarto.org/docs/get-started/" class="external-link uri">https://quarto.org/docs/get-started/</a> - <a href="https://posit.co/download/rstudio-desktop/" class="external-link uri">https://posit.co/download/rstudio-desktop/</a></p>
+<p>While not strictly necessary, it is highly recommended to install Quarto (and update your Rstudio and R installation if needed):</p>
+<ul>
+<li><a href="https://quarto.org/docs/get-started/" class="external-link uri">https://quarto.org/docs/get-started/</a></li>
+<li><a href="https://posit.co/download/rstudio-desktop/" class="external-link uri">https://posit.co/download/rstudio-desktop/</a></li>
+</ul>
 <div class="section level3">
 <h3 id="upgrading">Upgrading<a class="anchor" aria-label="anchor" href="#upgrading"></a>
 </h3>

@@ -2,7 +2,7 @@
 
 R package for Rasch Measurement Theory based psychometric analysis, intended for use with [Quarto](https://quarto.org) for documentation and presentation of analysis process and results. 
 
-This package largely functions as a wrapper for other packages for the Rasch analyses, primarily [eRm](https://cran.r-project.org/web/packages/eRm/), [mirt](https://cran.r-project.org/web/packages/mirt/), [psychotree](https://cran.r-project.org/web/packages/psychotree/), [iarm](https://cran.r-project.org/web/packages/iarm/), and [catR](https://cran.r-project.org/web/packages/catR/index.html). 
+This package largely functions as a wrapper for other packages for the Rasch analyses, primarily [eRm](https://cran.r-project.org/web/packages/eRm/), [mirt](https://cran.r-project.org/web/packages/mirt/), [psychotree](https://cran.r-project.org/web/packages/psychotree/), [iarm](https://cran.r-project.org/web/packages/iarm/), and [catR](https://cran.r-project.org/web/packages/catR/index.html). If you use `easyRasch` for a publication, please also cite these packages.
 
 The package is intended to simplify the Rasch analysis process and provides easy creation of tables and figures with functions that have few options. The package has been tested on MacOS and Windows with R 4.1 to 4.4.
 

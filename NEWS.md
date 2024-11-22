@@ -1,3 +1,8 @@
+# easyRasch 0.3.1.2
+
+- Bug fix for `RIgetfit()` and `RIgetResidCor()` when using PCM that could result in all simulations returning empty.
+- `RIrestscore()` has an additional output column indicating the item location relative to person mean location to better reflect targeting properties.
+
 # easyRasch 0.3.1.1
 
 - `RIgetfitPlot()` now uses the same `c(.001,.999)` intervals as `RIitemfit()`.
