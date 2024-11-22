@@ -1,3 +1,8 @@
+# easyRasch 0.3.2
+
+- New function `RIbootRestscore()`, particularly intended for those working with sample sizes of ~ 500 and up.
+  - more details in [documentation on this site](https://pgmj.github.io/easyRasch/reference/RIbootRestscore.html) or by using `?RIbootRestscore` in your console after installing the new version.
+
 # easyRasch 0.3.1.2
 
 - Bug fix for `RIgetfit()` and `RIgetResidCor()` when using PCM that could result in all simulations returning empty.

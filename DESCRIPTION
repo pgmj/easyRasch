@@ -1,6 +1,6 @@
 Package: easyRasch
 Title: Psychometric Analysis in R with Rasch Measurement Theory
-Version: 0.3.1.2
+Version: 0.3.2
 Date: 2024-11-22
 URL: https://github.com/pgmj/easyRasch, https://pgmj.github.io/easyRasch/
 Authors@R:

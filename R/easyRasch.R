@@ -4912,6 +4912,96 @@ RIpartgamDIF <- function(data, dif.var, output = "table") {
   }
 }
 
+#' Item-restscore bootstrapped
+#'
+#' The text below is based on an ongoing simulation study, as of 2024-10-22.
+#'
+#' Item-restscore will often indicate false positives (item misfit when it is not
+#' misfitting) if the sample size is above 400 and there is one truly misfitting
+#' item in the data. If there is more than one misfitting item, false positives
+#' can occur at sample sizes of n = 150-200.
+#'
+#' Conversely, when sample size is below n = 800, the detection rate of truly
+#' misfitting items is below 90%, particularly if misfitting items have
+#' location > 1.5 logits from the sample mean.
+#'
+#' Thus, if one has a large dataset it may be useful to be able to use
+#' non-parametric bootstrapping with replacement to get a more nuanced view of
+#' the probability of items actually being misfit.
+#'
+#' @param data Dataframe with only response data, with 0 as lowest response
+#' @param iterations How many bootstrap samples to run
+#' @param samplesize How large sample to use in each bootstrap
+#' @param cpu How many CPU's to use
+#' @param output Optional "dataframe", or "quarto" for `knitr::kable()` output
+#' @export
+RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
+                            output = "table", model) {
+
+  if(min(as.matrix(dat), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
+  } else if (samplesize > nrow(dat)) {
+    stop(paste0("`samplesize` (",samplesize,") cannot be larger than the number of rows in your data (",
+                nrow(dat),")."))
+  } else if (max(as.matrix(dat), na.rm = T) == 1) {
+    model <- "RM"
+  } else if (max(as.matrix(dat), na.rm = T) > 1) {
+    model <- "PCM"
+  }
+  require(doParallel)
+  registerDoParallel(cores = cpu)
+
+  fit <- data.frame()
+  fit <- foreach(i = 1:iterations, .combine = rbind) %dopar% {
+
+    data <- dat[sample(1:nrow(dat), samplesize, replace = TRUE), ]
+
+    if (model == "PCM") {
+      erm_out <- PCM(data)
+    } else if (model == "RM") {
+      erm_out <- RM(data)
+    }
+    i1 <- item_restscore(erm_out)
+    i1 <- as.data.frame(i1)
+
+    i1d <- data.frame("observed" = as.numeric(i1[[1]][1:ncol(data),1]),
+                      "expected" = as.numeric(i1[[1]][1:ncol(data),2]),
+                      "se" = as.numeric(i1[[1]][1:ncol(data),3]),
+                      "p.value" = as.numeric(i1[[1]][1:ncol(data),4]),
+                      "p.adj.BH" = as.numeric(i1[[1]][1:ncol(data),5])
+    ) %>%
+      mutate(diff_abs = abs(expected - observed),
+             diff = expected - observed,
+             item_restscore = case_when(p.adj.BH < .05 & diff < 0 ~ "overfit",
+                                        p.adj.BH < .05 & diff > 0 ~ "underfit",
+                                        TRUE ~"no misfit")) %>%
+      select(item_restscore, diff, diff_abs) %>%
+      mutate(item = names(data))
+
+    i1d
+  }
+
+  fit_tbl <- fit %>%
+    group_by(item) %>%
+    count(item_restscore) %>%
+    mutate(percent = round(n*100/sum(n),1)) %>%
+    ungroup()
+
+  if (output == "table") {
+    fit_tbl %>%
+      mutate(item_restscore = cell_spec(item_restscore,
+                                        color = ifelse(item_restscore != "no misfit", "red", "black"))) %>%
+      kbl_rise() %>%
+      footnote(general = paste0("Results based on ",iterations," bootstrap iterations with a sample size of ",samplesize,"."))
+
+  } else if (output == "dataframe") {
+    return(fit_tbl)
+
+  } else if (output == "quarto") {
+    knitr::kable(fit_tbl)
+  }
+}
+
 
 #' Temporary fix for upstream bug in `iarm::person_estimates()`
 #'
