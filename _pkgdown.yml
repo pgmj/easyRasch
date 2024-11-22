@@ -1,5 +1,5 @@
 url: https://pgmj.github.io/easyRasch/
 template:
   bootstrap: 5
-  bootswatch: materia
+  bootswatch: lumen
 
