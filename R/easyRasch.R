@@ -4936,7 +4936,7 @@ RIpartgamDIF <- function(data, dif.var, output = "table") {
 #' @param output Optional "dataframe", or "quarto" for `knitr::kable()` output
 #' @export
 RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
-                            output = "table", model) {
+                            output = "table") {
 
   if(min(as.matrix(dat), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
