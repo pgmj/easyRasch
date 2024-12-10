@@ -4768,14 +4768,14 @@ RIrestscore <- function(data, output = "table", sort, p.adj = "BH") {
   } else if(max(as.matrix(data), na.rm = T) == 1) {
     erm_out <- eRm::RM(data)
     item_avg_locations <- coef(erm_out, "beta")*-1 # item coefficients
-    person_avg_locations <- RIestThetasCATr(dat) %>%
+    person_avg_locations <- RIestThetasCATr(data) %>%
       mean(na.rm = TRUE)
     relative_item_avg_locations <- item_avg_locations - person_avg_locations
   } else if(max(as.matrix(data), na.rm = T) > 1) {
     erm_out <- eRm::PCM(data)
     item_avg_locations <- RIitemparams(data, output = "dataframe") %>%
       pull(Location)
-    person_avg_locations <- RIestThetasCATr(dat) %>%
+    person_avg_locations <- RIestThetasCATr(data) %>%
       mean(na.rm = TRUE)
     relative_item_avg_locations <- item_avg_locations - person_avg_locations
   }
