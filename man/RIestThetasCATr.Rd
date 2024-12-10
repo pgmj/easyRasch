@@ -13,6 +13,8 @@ RIestThetasCATr(
 )
 }
 \arguments{
+\item{data}{Dataframe with response data only (no demographics etc), items as columns}
+
 \item{itemParams}{Optional item (threshold) location matrix}
 
 \item{method}{Estimation method (defaults to \code{"WL"})}
@@ -20,10 +22,6 @@ RIestThetasCATr(
 \item{cpu}{Number of CPUs/cores to utilize (default is 4)}
 
 \item{theta_range}{Range of theta (person location) values}
-
-\item{dfin}{Dataframe with response data only (no demographics etc), items as columns}
-
-\item{model}{Rasch model to use (use \code{NULL} for dichotomous data)}
 }
 \description{
 Yields about 2-3x speed increase when using 4-8 CPU cores.

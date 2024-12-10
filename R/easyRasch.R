@@ -3257,9 +3257,8 @@ RIestThetas <- function(data, method = "WLE") {
 #' (thetas) for a dataframe with item data as columns and persons as rows.
 #' Defaults to use WL estimation (lower bias than ML, see Warm, 1989).
 #'
-#' @param dfin Dataframe with response data only (no demographics etc), items as columns
+#' @param data Dataframe with response data only (no demographics etc), items as columns
 #' @param itemParams Optional item (threshold) location matrix
-#' @param model Rasch model to use (use `NULL` for dichotomous data)
 #' @param method Estimation method (defaults to `"WL"`)
 #' @param cpu Number of CPUs/cores to utilize (default is 4)
 #' @param theta_range Range of theta (person location) values
