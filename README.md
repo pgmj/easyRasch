@@ -16,26 +16,27 @@ Most functions have been developed for analysis of polytomous data (more than tw
 
 ## Installation
 
-First, install the [`devtools`](https://devtools.r-lib.org/) package:
+First, install the [`pak`](https://pak.r-lib.org/) package:
 ```r
-install.packages('devtools')
+install.packages('pak')
 ```
+
+(If you have the `devtools` package installed, you can instead use `devtools::install_github("pgmj/easyRasch")`)
 
 Then install the package and its dependencies: 
 ```r
-devtools::install_github("pgmj/easyRasch", dependencies = TRUE)
+pak::pkg_install("pgmj/easyRasch")
 ```
-One user has reported having to cancel the installation and restart R several times before being able to install and load the library. This may be a local issue, but I thought it worth mentioning. If others have the same experience, please let me know.
 
 While not strictly necessary, it is highly recommended to install Quarto (and update your Rstudio and R installation if needed):
-
-- https://quarto.org/docs/get-started/
-- https://posit.co/download/rstudio-desktop/
-
+  
+  - https://quarto.org/docs/get-started/
+  - https://posit.co/download/rstudio-desktop/
+  
 ### Upgrading
 ```r
 detach("package:easyRasch", unload = TRUE) # not needed if you haven't loaded the package in your current session
-devtools::install_github("pgmj/easyRasch")
+pak::pkg_install("pgmj/easyRasch")
 ```
 
 ## Using the package

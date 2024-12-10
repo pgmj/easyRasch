@@ -850,6 +850,8 @@ RIrawdist <- function(dfin) {
 #' It is recommended to use sample size 200-500, based on
 #' Hagell & Westergren (2016) & Müller (2020).
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
 #' @param dfin Dataframe with item data only
 #' @param samplesize Desired sample size in multisampling (recommended range 200-500)
 #' @param nsamples Desired number of samples (recommended range 10-50)
@@ -1093,6 +1095,8 @@ RIitemfitPCM <- function(dfin, samplesize, nsamples, zstd_min = -1.96, zstd_max 
 #'
 #' See documentation for `RIitemfitPCM()` for more complete information.
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
 #' @param dfin Dataframe with item data only
 #' @param samplesize Desired sample size in multisampling (recommended range 200-500)
 #' @param nsamples Desired number of samples (recommended range 8-50)
@@ -1225,6 +1229,7 @@ RIitemfitPCM2 <- function(dfin, samplesize = 200, nsamples = 8, cpu = 4,
 #' sufficient for a quick look at the approximate ZSTD statistics. It is recommended
 #' to use sample size 200-500, based on Hagell & Westergren, 2016.
 #'
+#' @description `r lifecycle::badge("deprecated")`
 #' @param dfin Dataframe with item data only
 #' @param samplesize Desired sample size in multisampling (recommended range 250-500)
 #' @param nsamples Desired number of samples (recommended range 10-50)
@@ -2137,7 +2142,7 @@ RIpfit <- function(dfin, model = "PCM", pointsize = 2.5, alpha = 0.5, bins = 30,
 #' Item parameters summary
 #'
 #' Displays a table with item threshold locations. Can also output a dataframe or
-#' a CSV file. Set `detail = "all"` to get more detailed output.
+#' a CSV file.
 #'
 #' Currently only works with the Partial Credit Model (polytomous data).
 #'
@@ -3101,27 +3106,32 @@ RIscoreSE <- function(data, output = "table", point_size = 3,
 }
 
 
-#' Person location estimation (old version)
-#'
-#' NOTE: Does not work with dichotomous data
+#' Person location estimation (`catR` version)
 #'
 #' Outputs a vector of person locations, one for each row in the dataframe.
 #'
-#' Uses thetaEst function from catR package to estimate person locations
+#' Uses `thetaEst()` function from `catR` package to estimate person locations
 #' (thetas) for a dataframe with item data as columns and persons as rows.
-#' Defaults to use WL estimation (lower bias than ML) and PCM.
-#' See ?thetaEst for options available.
+#' Defaults to use WL estimation (lower bias than ML, see Warm, 1989).
 #'
-#' A version for multi-core processing is available as `RIestThetasOLD2()`.
+#' A version for multi-core processing is available as `RIestThetasCATr2()`.
 #'
-#' @param dfin Dataframe with response data only (no demographics etc), items as columns
+#' @param data Dataframe with response data only (no demographics etc), items as columns
 #' @param itemParams Optional item (threshold) location matrix
-#' @param model Rasch model to use (currently only default PCM works)
 #' @param method Estimation method (defaults to "WL")
 #' @param theta_range Range of theta (person location) values
 #' @export
-RIestThetasOLD <- function(dfin, itemParams, model = "PCM", method = "WL",
-                        theta_range = c(-7,7)) {
+RIestThetasOLD <- function(data, itemParams, method = "WL",
+                            theta_range = c(-10,10)) {
+
+  if (min(as.matrix(data), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
+
+  } else if (max(as.matrix(data), na.rm = T) == 1) {
+    model <- "RM"
+  } else if (max(as.matrix(data), na.rm = T) > 1) {
+    model <- "PCM"
+  }
 
   # define function to call from purrr::map_dbl later.
   estTheta <- function(personResponse, itemParameters = itemParams, rmod = model,
@@ -3131,42 +3141,53 @@ RIestThetasOLD <- function(dfin, itemParams, model = "PCM", method = "WL",
   }
   # if no itemParams are given, calculate them based on input dataframe
   if (missing(itemParams) & model == "PCM") {
-    erm_out <- PCM(dfin)
+    erm_out <- PCM(data)
     itemParams <- thresholds(erm_out)[[3]][[1]][, -1] - mean(thresholds(erm_out)[[3]][[1]][, -1], na.rm=T)
 
     # Transpose dataframe to make persons to columns, then output a vector with thetas
-    dfin %>%
+    data %>%
       t() %>%
       as.data.frame() %>%
       map_dbl(., estTheta)
 
-  } else if (missing(itemParams) & is.null(model)) {
-    df.erm <- RM(dfin)
+  } else if (missing(itemParams) & model == "RM") {
+    df.erm <- RM(data)
     itemParams <- as.matrix(coef(df.erm, "beta")*-1)
 
     # Transpose dataframe to make persons to columns, then output a vector with thetas
-    dfin %>%
+    data %>%
+      t() %>%
+      as.data.frame() %>%
+      map_dbl(., ~ estTheta(.x, rmod = NULL))
+
+  } else if (!missing(itemParams) & model == "PCM") {
+
+    # Transpose dataframe to make persons to columns, then output a vector with thetas
+    data %>%
       t() %>%
       as.data.frame() %>%
       map_dbl(., estTheta)
 
-  } else {
+  } else if (!missing(itemParams) & model == "RM") {
+    df.erm <- RM(data)
+    itemParams <- as.matrix(coef(df.erm, "beta")*-1)
 
-# Transpose dataframe to make persons to columns, then output a vector with thetas
-  dfin %>%
-    t() %>%
-    as.data.frame() %>%
-    map_dbl(., estTheta)
+    # Transpose dataframe to make persons to columns, then output a vector with thetas
+    data %>%
+      t() %>%
+      as.data.frame() %>%
+      map_dbl(., ~ estTheta(.x, rmod = NULL))
+
   }
 }
 
 #' Person location estimation
 #'
-#'
-#' Outputs a dataframe of person locations and measurement error (SEM) for each person
+#' Outputs a dataframe of person locations (theta) and measurement error (SEM)
+#' for each person
 #'
 #' IMPORTANT: only use with complete response data. If you have missing responses,
-#' `RIestThetasOLD()` or `RIestThetasOLD2()` are recommended instead.
+#' `RIestThetasCATr()` or `RIestThetasCATr2()` are recommended instead.
 #'
 #' Uses `iarm::person_estimates()` to estimate person locations
 #' (thetas) for a dataframe with item data as columns and persons as rows.
@@ -3174,14 +3195,23 @@ RIestThetasOLD <- function(dfin, itemParams, model = "PCM", method = "WL",
 #' Defaults to use WLE estimation (lower bias than MLE, see Warm, 1989) and PCM.
 #'
 #' Note: If you want to use a pre-specified set of item parameters, please use
-#' `RIestThetasOLD()` or `RIestThetasOLD2()`.
+#' `RIestThetasCATr()` or `RIestThetasCATr2()`.
 #'
-#' @param dfin Dataframe with response data only (no demographics etc), items as columns
-#' @param model Rasch model to use ("RM" for dichotomous data)
+#' @param data Dataframe with response data only (no demographics etc), items as columns
 #' @param method Estimation method (defaults to "WLE")
-#' @param theta_range Range of theta (person location) values
 #' @export
-RIestThetas <- function(data, model = "PCM", method = "WLE") {
+RIestThetas <- function(data, method = "WLE") {
+
+  if(min(as.matrix(data), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
+  } else if (any(is.na(as.matrix(data)))) {
+    stop("You have missing responses in your data. Use `RIestThetasCATr()` instead")
+
+  } else if (max(as.matrix(data), na.rm = T) == 1) {
+    model <- "RM"
+  } else if (max(as.matrix(data), na.rm = T) > 1) {
+    model <- "PCM"
+  }
 
   if (model == "PCM") {
     erm_out <- PCM(data)
@@ -3216,20 +3246,16 @@ RIestThetas <- function(data, model = "PCM", method = "WLE") {
   }
 }
 
-
 #' Person location estimation with parallel processing
 #'
 #' Yields about 2-3x speed increase when using 4-8 CPU cores.
 #' Requires `library(furrr)`
 #'
-#' NOTE: Does not yet work with dichotomous data
-#'
 #' Outputs a vector of person locations, one for each row in the dataframe.
 #'
 #' Uses thetaEst function from catR package to estimate person locations
 #' (thetas) for a dataframe with item data as columns and persons as rows.
-#' Defaults to use WL estimation (lower bias than ML, see Warm, 1989) and PCM.
-#' See ?thetaEst for options available.
+#' Defaults to use WL estimation (lower bias than ML, see Warm, 1989).
 #'
 #' @param dfin Dataframe with response data only (no demographics etc), items as columns
 #' @param itemParams Optional item (threshold) location matrix
@@ -3238,8 +3264,18 @@ RIestThetas <- function(data, model = "PCM", method = "WLE") {
 #' @param cpu Number of CPUs/cores to utilize (default is 4)
 #' @param theta_range Range of theta (person location) values
 #' @export
-RIestThetasOLD2 <- function(dfin, itemParams, model = "PCM", method = "WL", cpu = 4,
-                         theta_range = c(-7,7)) {
+RIestThetasCATr <- function(data, itemParams, method = "WL", cpu = 4,
+                             theta_range = c(-10,10)) {
+
+  if (min(as.matrix(data), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
+
+  } else if (max(as.matrix(data), na.rm = T) == 1) {
+    model <- "RM"
+  } else if (max(as.matrix(data), na.rm = T) > 1) {
+    model <- "PCM"
+  }
+
   library(furrr)
   plan(multisession, workers = cpu)
   # define function to call from purrr::map_dbl later.
@@ -3250,34 +3286,42 @@ RIestThetasOLD2 <- function(dfin, itemParams, model = "PCM", method = "WL", cpu 
   }
   # if no itemParams are given, calculate them based on input dataframe
   if (missing(itemParams) & model == "PCM") {
-    erm_out <- PCM(dfin)
+    erm_out <- PCM(data)
     itemParams <- thresholds(erm_out)[[3]][[1]][, -1] - mean(thresholds(erm_out)[[3]][[1]][, -1], na.rm=T)
 
     # Transpose dataframe to make persons to columns, then output a vector with thetas
-    dfin %>%
+    data %>%
       t() %>%
       as.data.frame() %>%
       future_map_dbl(., estTheta)
 
-  } else if (missing(itemParams) & is.null(model)) {
-    df.erm <- RM(dfin)
+  } else if (missing(itemParams) & model == "RM") {
+    df.erm <- RM(data)
     itemParams <- as.matrix(coef(df.erm, "beta")*-1)
 
     # Transpose dataframe to make persons to columns, then output a vector with thetas
-    dfin %>%
+    data %>%
       t() %>%
       as.data.frame() %>%
-      future_map_dbl(., estTheta)
+      future_map_dbl(., ~ estTheta(.x, rmod = NULL))
 
-  } else {
+  } else if (!missing(itemParams) & model == "PCM") {
 
     # Transpose dataframe to make persons to columns, then output a vector with thetas
-    dfin %>%
+    data %>%
       t() %>%
       as.data.frame() %>%
       future_map_dbl(., estTheta)
+
+  } else if (!missing(itemParams) & model == "RM") {
+    # Transpose dataframe to make persons to columns, then output a vector with thetas
+    data %>%
+      t() %>%
+      as.data.frame() %>%
+      future_map_dbl(., ~ estTheta(.x, rmod = NULL))
   }
 }
+
 
 
 #' DIF PCM analysis with table output for item locations
@@ -4708,6 +4752,9 @@ RIpboot <- function(data, iterations, cpu = 4) {
 #' absolute difference in expected and observed values, and item (average)
 #' location.
 #'
+#' Please note that item-restscore is likely to produce false positives when sample
+#' size is > 600. It is recommended to use `RIbootRestscore()` with large samples.
+#'
 #' @param data A dataframe with response data
 #' @param output Defaults to a HTML table, optional "quarto" and "dataframe"
 #' @param sort Optional sorting on absolute difference (descending)
@@ -4719,14 +4766,14 @@ RIrestscore <- function(data, output = "table", sort, p.adj = "BH") {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
   } else if(na.omit(data) %>% nrow() == 0) {
     stop("No complete cases in data.")
-  } else if(max(as.matrix(data), na.rm = T) == 1 && min(as.matrix(data), na.rm = T) == 0) {
+  } else if(max(as.matrix(data), na.rm = T) == 1) {
     erm_out <- eRm::RM(data)
     item_avg_locations <- coef(erm_out, "beta")*-1 # item coefficients
     person_avg_locations <- RIestThetas(data, model = "RM") %>%
       pull(WLE) %>%
       mean(na.rm = TRUE)
     relative_item_avg_locations <- item_avg_locations - person_avg_locations
-  } else if(max(as.matrix(data), na.rm = T) > 1 && min(as.matrix(data), na.rm = T) == 0) {
+  } else if(max(as.matrix(data), na.rm = T) > 1) {
     erm_out <- eRm::PCM(data)
     item_avg_locations <- RIitemparams(data, output = "dataframe") %>%
       pull(Location)
@@ -4749,7 +4796,7 @@ RIrestscore <- function(data, output = "table", sort, p.adj = "BH") {
     mutate("Absolute difference" = abs(Expected - Observed), .before = "p_adj") %>%
     add_column(Item = names(data), .before = "Observed") %>%
     dplyr::rename(!!paste0("Adjusted p-value (",p.adj,")") := p_adj,
-                  `Significance level` = sig,
+                  `Statistical significance level` = sig,
                   `Observed value` = Observed,
                   `Model expected value` = Expected) %>%
     add_column(Location = round(item_avg_locations,2),
@@ -4934,20 +4981,46 @@ RIpartgamDIF <- function(data, dif.var, output = "table") {
 #' @param samplesize How large sample to use in each bootstrap
 #' @param cpu How many CPU's to use
 #' @param output Optional "dataframe", or "quarto" for `knitr::kable()` output
+#' @param cutoff Filter to include only rows with % of results above this value
 #' @export
 RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
-                            output = "table") {
+                             output = "table", cutoff = 5) {
 
   if(min(as.matrix(dat), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
   } else if (samplesize > nrow(dat)) {
     stop(paste0("`samplesize` (",samplesize,") cannot be larger than the number of rows in your data (",
                 nrow(dat),")."))
-  } else if (max(as.matrix(dat), na.rm = T) == 1) {
+  } else if(max(as.matrix(dat), na.rm = T) == 1) {
     model <- "RM"
-  } else if (max(as.matrix(dat), na.rm = T) > 1) {
+    erm_out <- eRm::RM(dat)
+    item_avg_locations <- coef(erm_out, "beta")*-1 # item coefficients
+    person_avg_locations <- RIestThetasCATr(dat) %>%
+      mean(na.rm = TRUE)
+    relative_item_avg_locations <- item_avg_locations - person_avg_locations
+  } else if(max(as.matrix(dat), na.rm = T) > 1) {
     model <- "PCM"
+    erm_out <- PCM(dat)
+    item_avg_locations <- RIitemparams(dat, output = "dataframe") %>%
+      pull(Location)
+    person_avg_locations <- RIestThetasCATr(dat) %>%
+      mean(na.rm = TRUE)
+    relative_item_avg_locations <- item_avg_locations - person_avg_locations
   }
+
+  itemlocs <- data.frame(rel_loc = round(relative_item_avg_locations,2),
+                         item = names(dat))
+
+  # get conditional MSQ
+  cfit <- iarm::out_infit(erm_out)
+
+  # get count of complete cases
+  n_complete <- nrow(na.omit(dat))
+
+  # create df for later join
+  cfit_df <- data.frame(item = names(dat),
+                        infit = round(cfit$Infit,2))
+
   require(doParallel)
   registerDoParallel(cores = cpu)
 
@@ -4985,14 +5058,23 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
     group_by(item) %>%
     count(item_restscore) %>%
     mutate(percent = round(n*100/sum(n),1)) %>%
+    left_join(cfit_df, by = "item") %>%
     ungroup()
 
   if (output == "table") {
     fit_tbl %>%
       mutate(item_restscore = cell_spec(item_restscore,
                                         color = ifelse(item_restscore != "no misfit", "red", "black"))) %>%
+      left_join(itemlocs, by = "item") %>%
+      filter(percent > cutoff) %>%
+      select(!n) %>%
+      set_names(c("Item","Item-restscore result","% of iterations","Conditional MSQ infit",
+                  "Relative average item location")) %>%
       kbl_rise() %>%
-      footnote(general = paste0("Results based on ",iterations," bootstrap iterations with a sample size of ",samplesize,"."))
+      footnote(general = paste0("Results based on ",iterations,
+                                " bootstrap iterations with a sample size of ",samplesize,
+                                ". Conditional mean-square infit based on complete responders only, n = ",
+                                n_complete,"."))
 
   } else if (output == "dataframe") {
     return(fit_tbl)
@@ -5001,6 +5083,7 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
     knitr::kable(fit_tbl)
   }
 }
+
 
 
 #' Temporary fix for upstream bug in `iarm::person_estimates()`

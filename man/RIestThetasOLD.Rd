@@ -2,37 +2,26 @@
 % Please edit documentation in R/easyRasch.R
 \name{RIestThetasOLD}
 \alias{RIestThetasOLD}
-\title{Person location estimation (old version)}
+\title{Person location estimation (\code{catR} version)}
 \usage{
-RIestThetasOLD(
-  dfin,
-  itemParams,
-  model = "PCM",
-  method = "WL",
-  theta_range = c(-7, 7)
-)
+RIestThetasOLD(data, itemParams, method = "WL", theta_range = c(-10, 10))
 }
 \arguments{
-\item{dfin}{Dataframe with response data only (no demographics etc), items as columns}
+\item{data}{Dataframe with response data only (no demographics etc), items as columns}
 
 \item{itemParams}{Optional item (threshold) location matrix}
-
-\item{model}{Rasch model to use (currently only default PCM works)}
 
 \item{method}{Estimation method (defaults to "WL")}
 
 \item{theta_range}{Range of theta (person location) values}
 }
 \description{
-NOTE: Does not work with dichotomous data
+Outputs a vector of person locations, one for each row in the dataframe.
 }
 \details{
-Outputs a vector of person locations, one for each row in the dataframe.
-
-Uses thetaEst function from catR package to estimate person locations
+Uses \code{thetaEst()} function from \code{catR} package to estimate person locations
 (thetas) for a dataframe with item data as columns and persons as rows.
-Defaults to use WL estimation (lower bias than ML) and PCM.
-See ?thetaEst for options available.
+Defaults to use WL estimation (lower bias than ML, see Warm, 1989).
 
-A version for multi-core processing is available as \code{RIestThetasOLD2()}.
+A version for multi-core processing is available as \code{RIestThetasCATr2()}.
 }

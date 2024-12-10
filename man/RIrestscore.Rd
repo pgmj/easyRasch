@@ -20,3 +20,7 @@ A simple wrapper for \code{iarm::item_restscore()}, adding information about
 absolute difference in expected and observed values, and item (average)
 location.
 }
+\details{
+Please note that item-restscore is likely to produce false positives when sample
+size is > 600. It is recommended to use \code{RIbootRestscore()} with large samples.
+}

@@ -28,7 +28,7 @@ RIitemparams(
 }
 \description{
 Displays a table with item threshold locations. Can also output a dataframe or
-a CSV file. Set \code{detail = "all"} to get more detailed output.
+a CSV file.
 }
 \details{
 Currently only works with the Partial Credit Model (polytomous data).

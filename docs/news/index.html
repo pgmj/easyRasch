@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,21 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.3" id="easyrasch-033">easyRasch 0.3.3<a class="anchor" aria-label="anchor" href="#easyrasch-033"></a></h2>
+<ul><li>
+<code><a href="../reference/RIbootRestscore.html">RIbootRestscore()</a></code> now also displays conditional MSQ infit and relative item location in “table” output.
+<ul><li>also, a new option <code>cutoff = 5</code>, which filters to only include rows with percentage of results above the cutoff.</li>
+</ul></li>
+<li>Since <code><a href="../reference/RIestThetas.html">RIestThetas()</a></code> does not handle incomplete responses as expected, an error message will now be produced if one has incomplete responses in data and uses the <code><a href="../reference/RIestThetas.html">RIestThetas()</a></code> function, recommending the use of the <code><a href="https://rdrr.io/pkg/catR/man/thetaEst.html" class="external-link">catR::thetaEst()</a></code>-based function <code><a href="../reference/RIestThetasCATr.html">RIestThetasCATr()</a></code> instead.</li>
+<li>
+<code><a href="../reference/RIestThetas.html">RIestThetas()</a></code> now automatically chooses model between RM and PCM.</li>
+<li>The “old” functions for estimating person locations/thetas have been renamed from <code><a href="../reference/RIestThetasOLD.html">RIestThetasOLD()</a></code> and <code>RIestThetasOLD2()</code> to only <code><a href="../reference/RIestThetasCATr.html">RIestThetasCATr()</a></code>.
+<ul><li>The updated <code><a href="../reference/RIestThetasCATr.html">RIestThetasCATr()</a></code> function now works with both polytomous (PCM) and dichotomous data, and automatically chooses between PCM and RM.</li>
+<li>
+<code><a href="../reference/RIestThetasCATr.html">RIestThetasCATr()</a></code> defaults to use multiple cores, <code>cpu = 4</code>. Set this value to something appropriate for your computer, such as <code>parallel::detectCores() -1</code>.</li>
+</ul></li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.2" id="easyrasch-032">easyRasch 0.3.2<a class="anchor" aria-label="anchor" href="#easyrasch-032"></a></h2>
 <ul><li>New function <code><a href="../reference/RIbootRestscore.html">RIbootRestscore()</a></code>, particularly intended for those working with sample sizes of ~ 500 and up.
 <ul><li>more details in <a href="https://pgmj.github.io/easyRasch/reference/RIbootRestscore.html">documentation on this site</a> or by using <code><a href="../reference/RIbootRestscore.html">?RIbootRestscore</a></code> in your console after installing the new version.</li>
@@ -64,7 +79,7 @@
 <li>
 <code><a href="../reference/RIestThetas.html">RIestThetas()</a></code>: added note in documentation that it is not advisable to use this function with incomplete response data.
 <ul><li>
-<code><a href="../reference/RIestThetasOLD.html">RIestThetasOLD()</a></code> or <code><a href="../reference/RIestThetasOLD2.html">RIestThetasOLD2()</a></code> are recommended when there are missing responses for some items for some respondents.</li>
+<code><a href="../reference/RIestThetasOLD.html">RIestThetasOLD()</a></code> or <code>RIestThetasOLD2()</code> are recommended when there are missing responses for some items for some respondents.</li>
 </ul></li>
 <li>
 <code>RItargeting(model = "RM")</code> now sorts items according to order in data.</li>

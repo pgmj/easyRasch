@@ -10,7 +10,7 @@ RIbootRestscore(
   samplesize = 600,
   cpu = 4,
   output = "table",
-  model
+  cutoff = 5
 )
 }
 \arguments{
@@ -21,6 +21,8 @@ RIbootRestscore(
 \item{cpu}{How many CPU's to use}
 
 \item{output}{Optional "dataframe", or "quarto" for \code{knitr::kable()} output}
+
+\item{cutoff}{Filter to include only rows with \% of results above this value}
 
 \item{data}{Dataframe with only response data, with 0 as lowest response}
 }

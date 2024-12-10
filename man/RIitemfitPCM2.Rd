@@ -48,11 +48,13 @@ RIitemfitPCM2(
 \item{method}{Defaults to "conditional". Optional "unconditional"}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+}
+\details{
 Special version of \code{RIitemfitPCM()} that utilizes multiple CPU cores to improve
 performance. Requires \code{library(doParallel)}. To find how many cores you
 have on your computer, use \code{parallel::detectCores()}, but remember to keep
 some cores free.
-}
-\details{
+
 See documentation for \code{RIitemfitPCM()} for more complete information.
 }

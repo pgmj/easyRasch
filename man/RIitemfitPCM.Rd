@@ -51,11 +51,13 @@ RIitemfitPCM(
 \item{gf}{The output object from \code{RIgetfit()} is needed when \code{simcut = TRUE}}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+}
+\details{
 Defaults to using conditional estimates for MSQ values (Müller, 2020)
 estimated using the \code{iarm} package. Use \code{method = "unconditional"} for the
 "old" unconditional MSQ values (using \code{eRm}).
-}
-\details{
+
 Since version 0.2.0 (2024-08-15), it is highly recommended to replace
 rule-of-thumb cutoff values with simulation based cutoffs. See details in
 \code{?RIgetfit()} for an easy way to get and set appropriate cutoff values.

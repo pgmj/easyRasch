@@ -45,11 +45,13 @@ RIitemfitRM(
 \item{method}{Defaults to "conditional". Optional "unconditional"}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+}
+\details{
 Defaults to using conditional estimates for MSQ values (Müller, 2020)
 estimated using the \code{iarm} package. Use \code{method = "unconditional"} for the
 "old" unconditional MSQ values (using \code{eRm}).
-}
-\details{
+
 ZSTD is inflated with large samples (N > 500). Optional function to reduce
 sample size and run analysis using multiple random samples to get average ZSTD
 If you are using Quarto/Rmarkdown, "cache: yes" will be a useful chunk option to

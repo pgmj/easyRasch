@@ -1,3 +1,13 @@
+# easyRasch 0.3.3
+
+- `RIbootRestscore()` now also displays conditional MSQ infit and relative item location in "table" output.
+  - also, a new option `cutoff = 5`, which filters to only include rows with percentage of results above the cutoff.
+- Since `RIestThetas()` does not handle incomplete responses as expected, an error message will now be produced if one has incomplete responses in data and uses the `RIestThetas()` function, recommending the use of the `catR::thetaEst()`-based function `RIestThetasCATr()` instead.
+- `RIestThetas()` now automatically chooses model between RM and PCM.
+- The "old" functions for estimating person locations/thetas have been renamed from `RIestThetasOLD()` and `RIestThetasOLD2()` to only `RIestThetasCATr()`.
+  - The updated `RIestThetasCATr()` function now works with both polytomous (PCM) and dichotomous data, and automatically chooses between PCM and RM.
+  - `RIestThetasCATr()` defaults to use multiple cores, `cpu = 4`. Set this value to something appropriate for your computer, such as `parallel::detectCores() -1`.
+
 # easyRasch 0.3.2
 
 - New function `RIbootRestscore()`, particularly intended for those working with sample sizes of ~ 500 and up.
