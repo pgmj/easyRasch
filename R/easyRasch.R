@@ -4045,7 +4045,7 @@ RIgetResidCor <- function (data, iterations, cpu = 4) {
     names(item_locations) <- names(data)
 
     # estimate theta values from data using WLE
-    thetas <- RIestThetas(data, model = "RM")
+    thetas <- RIestThetas(data)
 
     # create object to store results from multicore loop
     residcor <- list()
@@ -4374,7 +4374,7 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
     names(item_locations) <- names(data)
 
     # estimate theta values from data using WLE
-    thetas <- RIestThetas(data, model = "RM")
+    thetas <- RIestThetas(data)
 
     fitstats <- list()
     fitstats <- foreach(icount(iterations)) %dopar% {
@@ -4699,7 +4699,7 @@ RIpboot <- function(data, iterations, cpu = 4) {
     names(item_locations) <- names(data)
 
     # estimate theta values from data using WLE
-    thetas <- RIestThetas(data, model = "RM")
+    thetas <- RIestThetas(data)
 
     datasets <- list()
     datasets <- foreach(icount(iterations)) %dopar% {
@@ -4768,16 +4768,14 @@ RIrestscore <- function(data, output = "table", sort, p.adj = "BH") {
   } else if(max(as.matrix(data), na.rm = T) == 1) {
     erm_out <- eRm::RM(data)
     item_avg_locations <- coef(erm_out, "beta")*-1 # item coefficients
-    person_avg_locations <- RIestThetas(data, model = "RM") %>%
-      pull(WLE) %>%
+    person_avg_locations <- RIestThetasCATr(dat) %>%
       mean(na.rm = TRUE)
     relative_item_avg_locations <- item_avg_locations - person_avg_locations
   } else if(max(as.matrix(data), na.rm = T) > 1) {
     erm_out <- eRm::PCM(data)
     item_avg_locations <- RIitemparams(data, output = "dataframe") %>%
       pull(Location)
-    person_avg_locations <- RIestThetas(data) %>%
-      pull(WLE) %>%
+    person_avg_locations <- RIestThetasCATr(dat) %>%
       mean(na.rm = TRUE)
     relative_item_avg_locations <- item_avg_locations - person_avg_locations
   }
