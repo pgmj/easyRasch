@@ -425,7 +425,7 @@ Based on rule of thumb, the first eigenvalue should be below 2.0 to support unid
 
 ### Residual correlations
 
-Similarly to item fit, we need to run simulations to get a useful cutoff threshold value for when residual correlations amongst item pairs are too large to show model fit [@christensen2017].
+Similarly to item fit, we need to run simulations to get a useful cutoff threshold value for when residual correlations amongst item pairs are too large to support the local independence assumption [@christensen2017].
 
 And again, the simulation can take a bit of time, but it is necessary to set the appropriate cutoff value.
 

@@ -3270,7 +3270,8 @@ RIestThetasCATr <- function(data, itemParams, method = "WL", cpu = 4,
     stop("The lowest response category needs to coded as 0. Please recode your data.")
 
   } else if (max(as.matrix(data), na.rm = T) == 1) {
-    model <- "RM"
+    #model <- "RM"
+    stop("Dichotomous models not yet supported.")
   } else if (max(as.matrix(data), na.rm = T) > 1) {
     model <- "PCM"
   }
@@ -4768,7 +4769,7 @@ RIrestscore <- function(data, output = "table", sort, p.adj = "BH") {
   } else if(max(as.matrix(data), na.rm = T) == 1) {
     erm_out <- eRm::RM(data)
     item_avg_locations <- coef(erm_out, "beta")*-1 # item coefficients
-    person_avg_locations <- RIestThetasCATr(data) %>%
+    person_avg_locations <- RIestThetas(data) %>%
       mean(na.rm = TRUE)
     relative_item_avg_locations <- item_avg_locations - person_avg_locations
   } else if(max(as.matrix(data), na.rm = T) > 1) {
@@ -4992,7 +4993,7 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
     model <- "RM"
     erm_out <- eRm::RM(dat)
     item_avg_locations <- coef(erm_out, "beta")*-1 # item coefficients
-    person_avg_locations <- RIestThetasCATr(dat) %>%
+    person_avg_locations <- RIestThetas(dat) %>%
       mean(na.rm = TRUE)
     relative_item_avg_locations <- item_avg_locations - person_avg_locations
   } else if(max(as.matrix(dat), na.rm = T) > 1) {

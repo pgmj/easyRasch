@@ -1,3 +1,8 @@
+# easyRasch 0.3.3.1
+
+- `RIestThetasCATr()` still has bugs with dichotomous data (RM models). It will now stop if used with such data.
+  - functions using `RIestThetasCATr()` have been temporarily modified to use `RIestThetas()` for RM data.
+
 # easyRasch 0.3.3
 
 - `RIbootRestscore()` now also displays conditional MSQ infit and relative item location in "table" output.
