@@ -4,14 +4,18 @@
 \alias{RIgetfitPlot}
 \title{Creates a plot with distribution of simulation based item fit values}
 \usage{
-RIgetfitPlot(simcut, data)
+RIgetfitPlot(simcut, data, cutoff = c(0.001, 0.999), output = "infit")
 }
 \arguments{
 \item{simcut}{Output object from \code{RIgetfit()}}
 
 \item{data}{Optional response dataframe for plotting observed item fit}
+
+\item{cutoff}{Defaults to quantile(.001) and .999 to match \code{RIitemfit()}}
+
+\item{output}{Optional setting "both" for infit and outfit}
 }
 \description{
-Uses the output from \code{RIgetfit()} as input. Uses \code{median_qi}
-and \code{.width = c(.66,.99)} with \code{ggdist::stat_dotsinterval()}.
+Uses the output from \code{RIgetfit()} as input. Uses
+and \code{.width = c(.66,.99)} with \code{ggdist::stat_dots()}.
 }

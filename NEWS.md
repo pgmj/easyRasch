@@ -1,7 +1,13 @@
+# easyRasch 0.3.3.2
+
+- `RIitemfit()` now shows item location relative to sample mean theta.
+- `RIgetfitPlot()` now uses `quantile()` to calculate values for the black horizontal lines to align with `RIitemfit()` cutoff values.
+- Since I still haven't had time to fix the issues with `RIestThetasCATr()`, `RIrestscore()` and `RIitemfit()` both use `eRm::person.parameter()` to estimate person locations for the relative item locations variable. This change was made since `RIestThetas()` does not handle missing item responses properly.
+
 # easyRasch 0.3.3.1
 
 - `RIestThetasCATr()` still has bugs with dichotomous data (RM models). It will now stop if used with such data.
-  - functions using `RIestThetasCATr()` have been temporarily modified to use `RIestThetas()` for RM data.
+  - functions using `RIestThetasCATr()` have been temporarily modified to use `RIestThetas()` for RM data. These functions are `RIrestscore()` and `RIitemfit()`
 
 # easyRasch 0.3.3
 

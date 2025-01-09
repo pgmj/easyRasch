@@ -4144,7 +4144,8 @@ RIgetResidCor <- function (data, iterations, cpu = 4) {
 #' Optional conditional highlighting of misfit based on rule-of-thumb values for
 #' infit MSQ according to Smith et al. (1998), since Müller (2020) showed that
 #' these can be fairly accurate for conditional infit and thus useful for a
-#' quick look at item fit. Set `cutoff = "Smith98` to use.
+#' quick look at item fit. Set `cutoff = "Smith98` to use this as cutoff with
+#' only infit presented.
 #'
 #' @param data Dataframe with response data
 #' @param simcut Object output from `RIgetfit()`
@@ -4157,13 +4158,21 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
 
   if(min(as.matrix(data), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
-  } else if(max(as.matrix(data), na.rm = T) == 1 && min(as.matrix(data), na.rm = T) == 0) {
+  } else if(na.omit(data) %>% nrow() == 0) {
+    stop("No complete cases in data.")
+  } else if(max(as.matrix(data), na.rm = T) == 1) {
     erm_out <- eRm::RM(data)
-    item_avg_locations <- coef(erm_out, "beta")*-1 # item locations
-  } else if(max(as.matrix(data), na.rm = T) > 1 && min(as.matrix(data), na.rm = T) == 0) {
+    item_avg_locations <- coef(erm_out, "beta")*-1 # item coefficients
+    person_avg_locations <- eRm::person.parameter(erm_out)[["theta.table"]][["Person Parameter"]] %>%
+      mean(na.rm = TRUE)
+    relative_item_avg_locations <- item_avg_locations - person_avg_locations
+  } else if(max(as.matrix(data), na.rm = T) > 1) {
     erm_out <- eRm::PCM(data)
     item_avg_locations <- RIitemparams(data, output = "dataframe") %>%
       pull(Location)
+    person_avg_locations <- RIestThetasCATr(data) %>%
+      mean(na.rm = TRUE)
+    relative_item_avg_locations <- item_avg_locations - person_avg_locations
   }
 
   # get conditional MSQ
@@ -4176,7 +4185,7 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
                                OutfitMSQ = cfit$Outfit) %>%
     round(3) %>%
     rownames_to_column("Item") %>%
-    add_column(Location = round(item_avg_locations,2))
+    add_column(`Relative location` = round(relative_item_avg_locations,2))
 
   if (!missing(simcut)) {
 
@@ -4243,7 +4252,7 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
       mutate(`Infit diff` = ifelse(yes = "no misfit", no = `Infit diff`, InfitMSQ > min_infit_msq & InfitMSQ < max_infit_msq),
              `Outfit diff` = ifelse(yes = "no misfit", no = `Outfit diff`, OutfitMSQ > min_outfit_msq & OutfitMSQ < max_outfit_msq)) %>%
       dplyr::select(!contains(c("lo","hi","min","max"))) %>%
-      add_column(Location = round(item_avg_locations,2))
+      add_column(`Relative location` = round(relative_item_avg_locations,2))
 
     if (output == "table" & sort == "items") {
       # set conditional highlighting based on cutoffs
@@ -4501,14 +4510,15 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
 
 #' Creates a plot with distribution of simulation based item fit values
 #'
-#' Uses the output from `RIgetfit()` as input. Uses `median_qi`
-#' and `.width = c(.66,.99)` with `ggdist::stat_dotsinterval()`.
+#' Uses the output from `RIgetfit()` as input. Uses
+#' and `.width = c(.66,.99)` with `ggdist::stat_dots()`.
 #'
 #' @param simcut Output object from `RIgetfit()`
 #' @param data Optional response dataframe for plotting observed item fit
+#' @param cutoff Defaults to quantile(.001) and .999 to match `RIitemfit()`
+#' @param output Optional setting "both" for infit and outfit
 #' @export
-RIgetfitPlot <- function(simcut, data) {
-  require(ggdist)
+RIgetfitPlot <- function(simcut, data, cutoff = c(.001, .999), output = "infit") {
 
   # get number of iterations used to get simulation based cutoff values
   iterations <- length(simcut) - 2
@@ -4524,6 +4534,39 @@ RIgetfitPlot <- function(simcut, data) {
     first_iteration <- c(1:iterations)[-iterations_nodata][1]
   }
 
+  # summarise simulations and set cutoff values
+  if (actual_iterations == iterations) {
+    lo_hi <-
+      bind_rows(simcut[1:iterations]) %>%
+      group_by(Item) %>%
+      summarise(min_infit_msq = quantile(InfitMSQ, cutoff[1]),
+                max_infit_msq = quantile(InfitMSQ, cutoff[2]),
+                p66lo_infit_msq = quantile(InfitMSQ, .167),
+                p66hi_infit_msq = quantile(InfitMSQ, .833),
+                median_infit = median(InfitMSQ),
+                min_outfit_msq = quantile(OutfitMSQ, cutoff[1]),
+                max_outfit_msq = quantile(OutfitMSQ, cutoff[2]),
+                p66lo_outfit_msq = quantile(OutfitMSQ, .167),
+                p66hi_outfit_msq = quantile(OutfitMSQ, .833),
+                median_outfit = median(OutfitMSQ),
+      )
+  } else {
+    lo_hi <-
+      bind_rows(simcut[1:iterations][-iterations_nodata]) %>%
+      group_by(Item) %>%
+      summarise(min_infit_msq = quantile(InfitMSQ, cutoff[1]),
+                max_infit_msq = quantile(InfitMSQ, cutoff[2]),
+                p66lo_infit_msq = quantile(InfitMSQ, .167),
+                p66hi_infit_msq = quantile(InfitMSQ, .833),
+                median_infit = median(InfitMSQ),
+                min_outfit_msq = quantile(OutfitMSQ, cutoff[1]),
+                max_outfit_msq = quantile(OutfitMSQ, cutoff[2]),
+                p66lo_outfit_msq = quantile(OutfitMSQ, .167),
+                p66hi_outfit_msq = quantile(OutfitMSQ, .833),
+                median_outfit = median(OutfitMSQ),
+      )
+  }
+
   if (missing(data)) {
     # summarise simulation results
     if (actual_iterations == iterations) {
@@ -4537,12 +4580,15 @@ RIgetfitPlot <- function(simcut, data) {
                      names_to = "statistic",
                      values_to = "Value")
     }
+
     # plot
     results %>%
-      ggplot(aes(x = Value, y = factor(Item, levels = rev(simcut[[first_iteration]][["Item"]])), slab_fill = after_stat(level))) +
-      stat_dotsinterval(quantiles = iterations, point_interval = median_qi,
+      ggplot(aes(x = Value, y = factor(Item, levels = rev(simcut[[first_iteration]][["Item"]])))) +
+      stat_dotsinterval(aes(slab_fill = after_stat(level)),
+                        quantiles = iterations, point_interval = "median_qi",
                         layout = "weave", slab_color = NA,
-                        .width = c(0.666, 0.999)) +
+                        .width = c(0.66, 0.999)) +
+      #geom_point(aes(x = median(Value))) +
       labs(x = "Conditional MSQ",
            y = "Item") +
       scale_color_manual(values = scales::brewer_pal()(3)[-1], aesthetics = "slab_fill", guide = "none") +
@@ -4572,12 +4618,7 @@ RIgetfitPlot <- function(simcut, data) {
                                  OutfitMSQ = cfit$Outfit,
                                  InfitSE = cfit$Infit.se,
                                  OutfitSE = cfit$Outfit.se) %>%
-      rownames_to_column("Item") %>%
-      mutate(infit_ci_hi = InfitMSQ + (InfitSE * 1.96),
-             infit_ci_lo = InfitMSQ - (InfitSE * 1.96),
-             outfit_ci_hi = OutfitMSQ + (OutfitSE * 1.96),
-             outfit_ci_lo = OutfitMSQ - (OutfitSE * 1.96)) %>%
-      dplyr::select(!contains("SE"))
+      rownames_to_column("Item")
 
     observed <- item.fit.table %>%
       pivot_longer(contains("MSQ"),
@@ -4607,22 +4648,27 @@ RIgetfitPlot <- function(simcut, data) {
     infit_p <-
       infit %>%
       ggplot(aes(x = Value, y = factor(Item, levels = rev(simcut[[first_iteration]][["Item"]])))) +
-      stat_dotsinterval(aes(slab_fill = after_stat(level)),
-                        quantiles = iterations, point_interval = median_qi,
-                        layout = "weave", slab_color = NA,
-                        .width = c(0.666, 0.999)) +
+      stat_dots(aes(slab_fill = after_stat(level)),
+                quantiles = iterations,
+                layout = "weave", slab_color = NA,
+                .width = c(0.666, 0.999)) +
+      geom_segment(data = lo_hi,
+                   aes(x = min_infit_msq, xend = max_infit_msq),
+                   color = "black",
+                   linewidth = 0.7) +
+      geom_segment(data = lo_hi,
+                   aes(x = p66lo_infit_msq, xend = p66hi_infit_msq),
+                   color = "black",
+                   linewidth = 1.2) +
+      geom_point(data = lo_hi,
+                 aes(x = median_infit),
+                 size = 3.6) +
       geom_point(aes(x = observed),
                  color = "sienna2", shape = 18,
                  position = position_nudge(y = -0.1), size = 4) +
-      # geom_segment(aes(x = infit_ci_lo, xend = infit_ci_hi),
-      #              color = "sienna2",
-      #              position = position_nudge(y = -0.1), linewidth = 0.2) +
       labs(x = "Conditional Infit MSQ",
            y = "Item") +
       scale_color_manual(values = scales::brewer_pal()(3)[-1], aesthetics = "slab_fill", guide = "none") +
-      # labs(caption = str_wrap(paste0("Note: Results from ",iterations," simulated datasets with ",
-      #                                simcut$sample_n," respondents\n(mean theta = ", round(simcut$sample_mean,2),", SD = ",round(simcut$sample_sd,2),")."))
-      # ) +
       scale_x_continuous(breaks = seq(0.5,1.5,0.1), minor_breaks = NULL) +
       theme_minimal() +
       theme(panel.spacing = unit(0.7, "cm", data = NULL))
@@ -4648,28 +4694,44 @@ RIgetfitPlot <- function(simcut, data) {
     outfit_p <-
       outfit %>%
       ggplot(aes(x = Value, y = factor(Item, levels = rev(simcut[[first_iteration]][["Item"]])))) +
-      stat_dotsinterval(aes(slab_fill = after_stat(level)),
-                        quantiles = iterations, point_interval = median_qi,
-                        layout = "weave", slab_color = NA,
-                        .width = c(0.666, 0.999)) +
+      stat_dots(aes(slab_fill = after_stat(level)),
+                quantiles = iterations,
+                layout = "weave", slab_color = NA,
+                .width = c(0.666, 0.999)) +
+      geom_segment(data = lo_hi,
+                   aes(x = min_outfit_msq, xend = max_outfit_msq),
+                   color = "black",
+                   linewidth = 0.7) +
+      geom_segment(data = lo_hi,
+                   aes(x = p66lo_outfit_msq, xend = p66hi_outfit_msq),
+                   color = "black",
+                   linewidth = 1.2) +
+      geom_point(data = lo_hi,
+                 aes(x = median_outfit),
+                 size = 3.6) +
       geom_point(aes(x = observed),
                  color = "sienna2", shape = 18,
                  position = position_nudge(y = -0.1), size = 4) +
-      # geom_segment(aes(x = outfit_ci_lo, xend = outfit_ci_hi),
-      #              color = "sienna2",
-      #              position = position_nudge(y = -0.1), linewidth = 0.2) +
       labs(x = "Conditional Outfit MSQ",
            y = "Item") +
       scale_color_manual(values = scales::brewer_pal()(3)[-1], aesthetics = "slab_fill", guide = "none") +
       labs(caption = str_wrap(paste0("Note: Results from ",actual_iterations," simulated datasets with ",
                                      simcut$sample_n," respondents.\n
-                                     Orange diamond shaped dots indicate observed conditional item fit.")) # Orange dots and lines are observed MSQ and 95% CI.
+                                     Orange dots indicate observed conditional item fit. Black dots indicate median fit from simulations."))
       ) +
       scale_x_continuous(breaks = seq(0.5,1.5,0.1), minor_breaks = NULL) +
       theme_minimal() +
       theme(panel.spacing = unit(0.7, "cm", data = NULL))
 
-    infit_p + outfit_p
+    if (output == "both") {
+      infit_p + outfit_p
+    } else if (output == "infit") {
+      infit_p +
+        labs(caption = str_wrap(paste0("Note: Results from ",actual_iterations," simulated datasets with ",
+                                       simcut$sample_n," respondents.\n
+                                     Orange dots indicate observed conditional item fit. Black dots indicate median fit from simulations.")))
+    }
+
   }
 }
 
@@ -4769,7 +4831,7 @@ RIrestscore <- function(data, output = "table", sort, p.adj = "BH") {
   } else if(max(as.matrix(data), na.rm = T) == 1) {
     erm_out <- eRm::RM(data)
     item_avg_locations <- coef(erm_out, "beta")*-1 # item coefficients
-    person_avg_locations <- RIestThetas(data) %>%
+    person_avg_locations <- eRm::person.parameter(erm_out)[["theta.table"]][["Person Parameter"]] %>%
       mean(na.rm = TRUE)
     relative_item_avg_locations <- item_avg_locations - person_avg_locations
   } else if(max(as.matrix(data), na.rm = T) > 1) {

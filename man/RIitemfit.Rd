@@ -50,5 +50,6 @@ on simulation cutoff values, either \code{sort = "infit"} or \verb{sort = "outfi
 Optional conditional highlighting of misfit based on rule-of-thumb values for
 infit MSQ according to Smith et al. (1998), since Müller (2020) showed that
 these can be fairly accurate for conditional infit and thus useful for a
-quick look at item fit. Set \verb{cutoff = "Smith98} to use.
+quick look at item fit. Set \verb{cutoff = "Smith98} to use this as cutoff with
+only infit presented.
 }

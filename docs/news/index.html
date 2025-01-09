@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,10 +37,19 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.3.2" id="easyrasch-0332">easyRasch 0.3.3.2<a class="anchor" aria-label="anchor" href="#easyrasch-0332"></a></h2>
+<ul><li>
+<code><a href="../reference/RIitemfit.html">RIitemfit()</a></code> now shows item location relative to sample mean theta.</li>
+<li>
+<code><a href="../reference/RIgetfitPlot.html">RIgetfitPlot()</a></code> now uses <code><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile()</a></code> to calculate values for the black horizontal lines to align with <code><a href="../reference/RIitemfit.html">RIitemfit()</a></code> cutoff values.</li>
+<li>Since I still haven’t had time to fix the issues with <code><a href="../reference/RIestThetasCATr.html">RIestThetasCATr()</a></code>, <code><a href="../reference/RIrestscore.html">RIrestscore()</a></code> and <code><a href="../reference/RIitemfit.html">RIitemfit()</a></code> both use <code><a href="https://rdrr.io/pkg/eRm/man/person.parameter.html" class="external-link">eRm::person.parameter()</a></code> to estimate person locations for the relative item locations variable. This change was made since <code><a href="../reference/RIestThetas.html">RIestThetas()</a></code> does not handle missing item responses properly.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.3.1" id="easyrasch-0331">easyRasch 0.3.3.1<a class="anchor" aria-label="anchor" href="#easyrasch-0331"></a></h2>
 <ul><li>
 <code><a href="../reference/RIestThetasCATr.html">RIestThetasCATr()</a></code> still has bugs with dichotomous data (RM models). It will now stop if used with such data.
-<ul><li>functions using <code><a href="../reference/RIestThetasCATr.html">RIestThetasCATr()</a></code> have been temporarily modified to use <code><a href="../reference/RIestThetas.html">RIestThetas()</a></code> for RM data.</li>
+<ul><li>functions using <code><a href="../reference/RIestThetasCATr.html">RIestThetasCATr()</a></code> have been temporarily modified to use <code><a href="../reference/RIestThetas.html">RIestThetas()</a></code> for RM data. These functions are <code><a href="../reference/RIrestscore.html">RIrestscore()</a></code> and <code><a href="../reference/RIitemfit.html">RIitemfit()</a></code>
+</li>
 </ul></li>
 </ul></div>
     <div class="section level2">

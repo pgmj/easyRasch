@@ -3,7 +3,7 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   easyrasch-vignette: easyrasch-vignette.html
-last_built: 2025-01-01T19:27Z
+last_built: 2025-01-09T11:05Z
 urls:
   reference: https://pgmj.github.io/easyRasch/reference
   article: https://pgmj.github.io/easyRasch/articles
