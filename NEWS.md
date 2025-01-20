@@ -1,6 +1,6 @@
-# easyRasch 0.3.3.3 (2025-01-20)
+# easyRasch 0.3.4 (2025-01-20)
 
-- **New function:** `RIbootLRT()` to accomodate issues with large samplesizes causing type-1 errors.
+- **New function:** `RIbootLRT()` since there may be issues with large samplesizes causing type-1 errors for the global fit conditional likelihood ratio test.
 - `RIbootRestscore()` has been reworked a bit:
   - Results are filtered to show only misfit (unless output is `dataframe`)
   - Results are sorted on underfit/overfit and percent of misfit
