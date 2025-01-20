@@ -5150,7 +5150,7 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
 #' @param samplesize How large sample to use in each bootstrap
 #' @param cpu How many CPU's to use
 #' @export
-RIbootCLR <- function(dat, iterations = 250, samplesize = 500, cpu = 4) {
+RIbootLRT <- function(dat, iterations = 1500, samplesize = 500, cpu = 4) {
 
   if(min(as.matrix(dat), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
