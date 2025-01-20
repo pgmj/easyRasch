@@ -2,19 +2,22 @@
 % Please edit documentation in R/easyRasch.R
 \name{RIrmPCA}
 \alias{RIrmPCA}
-\title{Fits the Rasch model for dichotomous data using eRm, and
+\title{Fits the Rasch model for dichotomous data using \code{eRm::RM()}, and
 conducts a PCA of residuals to get eigenvalues.}
 \usage{
-RIrmPCA(dfin, no.table, fontsize = 15)
+RIrmPCA(data, output = "table", fontsize = 15)
 }
 \arguments{
-\item{dfin}{Dataframe with item data only}
+\item{data}{Dataframe with item data only}
 
-\item{no.table}{Set to TRUE to avoid output of table}
+\item{output}{Optional "dataframe" or "quarto"}
 
 \item{fontsize}{Set font size}
 }
 \description{
-Fits the Rasch model for dichotomous data using eRm, and
-conducts a PCA of residuals to get eigenvalues.
+See \code{?RIpcmPCA} for more details.
+}
+\details{
+See Chou & Wang (2010, DOI: 10.1177/0013164410379322) for a simulation study
+testing PCA eigenvalues across multiple conditions.
 }

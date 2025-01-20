@@ -18,6 +18,10 @@ RIpcmPCA(dfin, output = "table", fontsize = 15)
 }
 \description{
 Note from \code{?psych::pca}:
-The eigen vectors are rescaled by the sqrt of the eigen values to produce
+The eigenvectors are rescaled by the sqrt of the eigenvalues to produce
 the component loadings more typical in factor analysis.
+}
+\details{
+See Chou & Wang (2010, DOI: 10.1177/0013164410379322) for a simulation study
+testing PCA eigenvalues across multiple conditions.
 }

@@ -1,4 +1,4 @@
-# Rasch in R: easyRasch
+# easyRasch: Rasch analysis in R 
 
 R package for Rasch Measurement Theory psychometrics, intended for use with [Quarto](https://quarto.org) for documentation and presentation of analysis process and results. 
 

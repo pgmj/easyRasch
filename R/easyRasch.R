@@ -617,8 +617,11 @@ RIallresp <- function(dfin, pdf.out, fontsize = 15) {
 #' using `stats::prcomp()`.
 #'
 #' Note from `?psych::pca`:
-#' The eigen vectors are rescaled by the sqrt of the eigen values to produce
+#' The eigenvectors are rescaled by the sqrt of the eigenvalues to produce
 #' the component loadings more typical in factor analysis.
+#'
+#' See Chou & Wang (2010, DOI: 10.1177/0013164410379322) for a simulation study
+#' testing PCA eigenvalues across multiple conditions.
 #'
 #' @param dfin Dataframe with item data only
 #' @param output Defaults to "table", optional "dataframe"
@@ -662,66 +665,41 @@ RIpcmPCA <- function(dfin, output = "table", fontsize = 15) {
   }
 }
 
-#' Fits the Rasch model for dichotomous data using eRm, and
+#' Fits the Rasch model for dichotomous data using `eRm::RM()`, and
 #' conducts a PCA of residuals to get eigenvalues.
 #'
-#' @param dfin Dataframe with item data only
-#' @param no.table Set to TRUE to avoid output of table
+#' See `?RIpcmPCA` for more details.
+#'
+#' See Chou & Wang (2010, DOI: 10.1177/0013164410379322) for a simulation study
+#' testing PCA eigenvalues across multiple conditions.
+#'
+#' @param data Dataframe with item data only
+#' @param output Optional "dataframe" or "quarto"
 #' @param fontsize Set font size
 #' @export
-RIrmPCA <- function(dfin, no.table, fontsize = 15) {
-  if (missing(no.table)) {
-    df.erm <- RM(dfin) # run PCM model, replace with RSM (rating scale) or RM (dichotomous) for other models
-    # get estimates, code borrowed from https://bookdown.org/chua/new_rasch_demo2/PC-model.html
-    person.locations.estimate <- person.parameter(df.erm)
-    item.estimates <- coef(df.erm, "eta") # item coefficients
-    item.fit <- eRm::itemfit(person.locations.estimate)
-    # item parameter CI's
-    item.confint <- confint(df.erm, "eta") # difficulty (not easiness)
-    # person parameter CI's
-    pp.confint <- confint(person.locations.estimate)
-    std.resids <- item.fit$st.res
-    # PCA of Rasch residuals
-    pca <- pca(std.resids, nfactors = ncol(dfin), rotate = "oblimin")
-    # create table with top 5 eigenvalues
-    pca$values %>%
-      round(2) %>%
-      head(5) %>%
-      as_tibble() %>%
-      dplyr::rename("Eigenvalues" = "value") %>%
-      kbl(booktabs = T, escape = F, table.attr = "data-quarto-disable-processing='true' style='width:25%;'") %>%
-      # options for HTML output
-      kable_styling(
-        bootstrap_options = c("striped", "hover"),
-        position = "left",
-        full_width = T,
-        font_size = fontsize,
-        fixed_thead = F
-      ) %>%
-      column_spec(1, bold = T) %>%
-      kable_classic(html_font = "Lato") %>%
-      # latex_options are for PDF output
-      kable_styling(latex_options = c("striped", "scale_down"))
-  } else {
-    df.erm <- RM(dfin) # run PCM model, replace with RSM (rating scale) or RM (dichotomous) for other models
-    # get estimates, code borrowed from https://bookdown.org/chua/new_rasch_demo2/PC-model.html
-    person.locations.estimate <- person.parameter(df.erm)
-    item.estimates <- coef(df.erm, "eta") # item coefficients
-    item.fit <- eRm::itemfit(person.locations.estimate)
-    # item parameter CI's
-    item.confint <- confint(df.erm, "eta") # difficulty (not easiness)
-    # person parameter CI's
-    pp.confint <- confint(person.locations.estimate)
-    std.resids <- item.fit$st.res
-    std.resids <- item.fit$st.res
-    # PCA of Rasch residuals
-    pca <- pca(std.resids, nfactors = ncol(dfin), rotate = "oblimin")
-    # create vector with top 5 eigenvalues
-    eigenv <- pca$values %>%
-      round(2) %>%
-      head(5)
+RIrmPCA <- function(data, output = "table", fontsize = 15) {
+
+  erm_out <- RM(data)
+  ple <- eRm::person.parameter(erm_out)
+  item.fit <- eRm::itemfit(ple)
+  std.resids <- item.fit$st.res
+  # PCA of Rasch residuals
+  pca <- psych::pca(std.resids, nfactors = ncol(data), rotate = "oblimin")
+  # create table with top 5 eigenvalues
+  pca_table <- pca$values %>%
+    round(2) %>%
+    head(5) %>%
+    as.data.frame(nm = "Eigenvalue")
+
+  if (output == "table") {
+    kbl_rise(pca_table, tbl_width = 30)
+  } else if (output == "dataframe") {
+    pca_table
+  } else if (output == "quarto") {
+    knitr::kable(pca_table)
   }
 }
+
 
 #' Individual item category probability plots
 #'
@@ -5021,12 +4999,13 @@ RIpartgamDIF <- function(data, dif.var, output = "table") {
 
 #' Item-restscore bootstrapped
 #'
-#' The text below is based on an ongoing simulation study, as of 2024-10-22.
+#' See this simulation study preprint: https://pgmj.github.io/rasch_itemfit/
 #'
 #' Item-restscore will often indicate false positives (item misfit when it is not
 #' misfitting) if the sample size is above 400 and there is one truly misfitting
 #' item in the data. If there is more than one misfitting item, false positives
-#' can occur at sample sizes of n = 150-200.
+#' can occur at such small sample sizes as n = 150-250 with increasing rates
+#' as n goes up.
 #'
 #' Conversely, when sample size is below n = 800, the detection rate of truly
 #' misfitting items is below 90%, particularly if misfitting items have
@@ -5041,10 +5020,9 @@ RIpartgamDIF <- function(data, dif.var, output = "table") {
 #' @param samplesize How large sample to use in each bootstrap
 #' @param cpu How many CPU's to use
 #' @param output Optional "dataframe", or "quarto" for `knitr::kable()` output
-#' @param cutoff Filter to include only rows with % of results above this value
 #' @export
 RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
-                             output = "table", cutoff = 5) {
+                            output = "table") {
 
   if(min(as.matrix(dat), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
@@ -5055,7 +5033,7 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
     model <- "RM"
     erm_out <- eRm::RM(dat)
     item_avg_locations <- coef(erm_out, "beta")*-1 # item coefficients
-    person_avg_locations <- RIestThetas(dat) %>%
+    person_avg_locations <- eRm::person.parameter(erm_out)[["theta.table"]][["Person Parameter"]] %>%
       mean(na.rm = TRUE)
     relative_item_avg_locations <- item_avg_locations - person_avg_locations
   } else if(max(as.matrix(dat), na.rm = T) > 1) {
@@ -5123,11 +5101,10 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
 
   if (output == "table") {
     fit_tbl %>%
-      mutate(item_restscore = cell_spec(item_restscore,
-                                        color = ifelse(item_restscore != "no misfit", "red", "black"))) %>%
       left_join(itemlocs, by = "item") %>%
-      filter(percent > cutoff) %>%
+      filter(!item_restscore == "no misfit") %>%
       select(!n) %>%
+      arrange(desc(item_restscore),desc(percent)) %>%
       set_names(c("Item","Item-restscore result","% of iterations","Conditional MSQ infit",
                   "Relative average item location")) %>%
       kbl_rise() %>%
@@ -5140,7 +5117,14 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
     return(fit_tbl)
 
   } else if (output == "quarto") {
-    knitr::kable(fit_tbl)
+    fit_tbl %>%
+      left_join(itemlocs, by = "item") %>%
+      filter(!item_restscore == "no misfit") %>%
+      select(!n) %>%
+      arrange(desc(item_restscore),desc(percent)) %>%
+      set_names(c("Item","Item-restscore result","% of iterations","Conditional MSQ infit",
+                  "Relative average item location")) %>%
+      knitr::kable()
   }
 }
 

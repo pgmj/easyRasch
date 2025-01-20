@@ -9,8 +9,7 @@ RIbootRestscore(
   iterations = 200,
   samplesize = 600,
   cpu = 4,
-  output = "table",
-  cutoff = 5
+  output = "table"
 )
 }
 \arguments{
@@ -22,18 +21,17 @@ RIbootRestscore(
 
 \item{output}{Optional "dataframe", or "quarto" for \code{knitr::kable()} output}
 
-\item{cutoff}{Filter to include only rows with \% of results above this value}
-
 \item{data}{Dataframe with only response data, with 0 as lowest response}
 }
 \description{
-The text below is based on an ongoing simulation study, as of 2024-10-22.
+See this simulation study preprint: https://pgmj.github.io/rasch_itemfit/
 }
 \details{
 Item-restscore will often indicate false positives (item misfit when it is not
 misfitting) if the sample size is above 400 and there is one truly misfitting
 item in the data. If there is more than one misfitting item, false positives
-can occur at sample sizes of n = 150-200.
+can occur at such small sample sizes as n = 150-250 with increasing rates
+as n goes up.
 
 Conversely, when sample size is below n = 800, the detection rate of truly
 misfitting items is below 90\%, particularly if misfitting items have

@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,7 +55,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1></h1>
+      <h1>easyRasch package vignette</h1>
       <p class="subtitle">Simplifying Rasch Measurement Theory in R</p>
       <p class="author">Magnus Johansson</p>
       <p class="date">2025-01-01</p>
@@ -69,15 +69,15 @@
 
 
 
-    <header id="title-block-header" class="quarto-title-block"><h1 class="title">easyRasch package vignette</h1></header><section class="section level3"><h3 id="preamble">Preamble<a class="anchor" aria-label="anchor" href="#preamble"></a>
-</h3>
+    <section class="level2"><h2 id="preamble">Preamble<a class="anchor" aria-label="anchor" href="#preamble"></a>
+</h2>
 <p>This page contains a sample Rasch analysis to showcase most of the core functions in the <code>easyRasch</code> package. A more extensive guide that also helps to show the benefits of the Quarto publishing system, is available here: <a href="https://pgmj.github.io/raschrvignette/RaschRvign.html" class="external-link uri">https://pgmj.github.io/raschrvignette/RaschRvign.html</a></p>
 <p>It is strongly recommended to go to the link above. I’ve become rather addicted to the convenience of panel-tabsets that Quarto offers that allow side-by-side viewing of output. These are unfortunately not available when generating this package article/vignette using <code>pkgdown</code> (AFAIK). Lacking panel-tabsets, this page will become quite long (not to say that the other one is short either…).</p>
 <p><strong>NOTE: This package was previously known as <code>RISEkbmRasch</code></strong></p>
 <p>If you are new to Rasch Measurement Theory, you may find this intro presentation useful: <a href="https://pgmj.github.io/RaschIRTlecture/slides.html" class="external-link uri">https://pgmj.github.io/RaschIRTlecture/slides.html</a></p>
 <p>There is a separate GitHub repository containing a template R-project to simplify getting started with the <code>easyRasch</code> package and conducting a reproducible Rasch analysis in R: <a href="https://github.com/pgmj/RISEraschTemplate" class="external-link uri">https://github.com/pgmj/RISEraschTemplate</a></p>
-</section><section class="section level3"><h3 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
-</h3>
+</section><section class="level2"><h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
 <p>This vignette will walk through a sample analysis using an open dataset with polytomous questionnaire data.</p>
 <p>One of the aims with this package is to simplify reproducible psychometric analysis to shed light on the measurement properties of a scale, questionnaire or test. In a preprint <span class="citation" data-cites="johansson">(<a href="#ref-johansson" role="doc-biblioref">Johansson et al. 2023</a>)</span>, our <a href="https://www.ri.se/en/what-we-do/projects/center-for-categorically-based-measurements" class="external-link">research group</a> propose that the basic aspects of a psychometric analysis should include information about:</p>
 <ul>
@@ -90,8 +90,8 @@
 <p>We’ll include several ways to investigate these measurement properties using Rasch Measurement Theory. There are also functions in the package less directly related to the criteria above that will be demonstrated in this vignette.</p>
 <p>Please note that this is just a sample analysis to showcase the R package. It is not intended as a “best practice” psychometric analysis example.</p>
 <p>You can skip ahead to the Rasch analysis part in <a href="#sec-rasch" class="quarto-xref">Section 5</a> if you are eager to look at the package output :)</p>
-</section><section class="section level3"><h3 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
-</h3>
+</section><section class="level2"><h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
+</h2>
 <p>Since the package is intended for use with Quarto, this vignette has also been created with Quarto. A “template” .qmd file <a href="https://github.com/pgmj/RISEraschTemplate/blob/main/analysis.qmd" class="external-link">is available</a> that can be useful to have handy for copy&amp;paste when running a new analysis. You can also download a complete copy of the Quarto/R code to produce this document <a href="https://github.com/pgmj/pgmj.github.io/blob/main/raschrvignette/RaschRvign.qmd" class="external-link">here</a>.</p>
 <p>Loading the <code>easyRasch</code> package will automatically load all the packages it depends on. However, it could be desirable to explicitly load all packages used to enable the automatic creation of citations for them, using the <code>grateful</code> package (see <a href="#sec-grateful" class="quarto-xref">Section 14</a>).</p>
 <div class="cell">
@@ -124,8 +124,8 @@
 <span><span class="va">recode</span> <span class="op">&lt;-</span> <span class="fu">car</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/car/man/recode.html" class="external-link">recode</a></span></span>
 <span><span class="va">rename</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span></span></code></pre></div>
 </div>
-<section class="level3"><h4 id="loading-data">Loading data<a class="anchor" aria-label="anchor" href="#loading-data"></a>
-</h4>
+<section class="level3"><h3 id="loading-data">Loading data<a class="anchor" aria-label="anchor" href="#loading-data"></a>
+</h3>
 <p>We will use data from a recent paper investigating the “initial elevation effect” <span class="citation" data-cites="anvari2022">(<a href="#ref-anvari2022" role="doc-biblioref">Anvari et al. 2022</a>)</span>, and focus on the 10 negative items from the PANAS. The data is available at the OSF website.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
@@ -166,8 +166,8 @@ $ Group                 &lt;chr&gt; "Later Start", "Later Start", "Later Start",
 </div>
 <p>We have 1856 rows, ie. respondents. All variables except Sex and Group are of class <code>dbl</code>, which means they are numeric and can have decimals. Integer (numeric with no decimals) would also be fine for our purposes. The two demographic variables currently of class <code>chr</code> (character) will need to be converted to factors (<code>fct</code>), and we will do that later on.</p>
 <p>(If you import a dataset where item variables are of class character, you will need to recode to numeric.)</p>
-</section><section class="level3"><h4 id="itemlabels">Itemlabels<a class="anchor" aria-label="anchor" href="#itemlabels"></a>
-</h4>
+</section><section class="level3"><h3 id="itemlabels">Itemlabels<a class="anchor" aria-label="anchor" href="#itemlabels"></a>
+</h3>
 <p>Then we set up the itemlabels dataframe. This could also be done using the free <a href="https://www.libreoffice.org/download/download-libreoffice/" class="external-link">LibreOffice Calc</a> or MS Excel. Just make sure the file has the same structure, with two variables named <code>itemnr</code> and <code>item</code> that contain the item variable names and item description. The item variable names have to match the variable names in the item dataframe.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
@@ -198,8 +198,8 @@ $ Group                 &lt;chr&gt; "Later Start", "Later Start", "Later Start",
 10 PANAS_20 Jittery   </code></pre>
 </div>
 </div>
-</section><section class="level3"><h4 id="demographics">Demographics<a class="anchor" aria-label="anchor" href="#demographics"></a>
-</h4>
+</section><section class="level3"><h3 id="demographics">Demographics<a class="anchor" aria-label="anchor" href="#demographics"></a>
+</h3>
 <p>Variables for invariance tests such as Differential Item Functioning (DIF) need to be separated into vectors (ideally as factors with specified levels and labels) with the same length as the number of rows in the dataset. This means that any kind of removal of respondents/rows with missing data needs to be done before separating the DIF variables.</p>
 <p>We need to check how the <code>Sex</code> variable has been coded and which responses are present in the data.</p>
 <div class="cell">
@@ -341,11 +341,11 @@ Prefer not to say
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">itemlabels</span><span class="op">$</span><span class="va">itemnr</span></span></code></pre></div>
 </div>
 <p>Now we are all set for the psychometric analysis!</p>
-</section></section><section class="section level3"><h3 id="descriptives">Descriptives<a class="anchor" aria-label="anchor" href="#descriptives"></a>
-</h3>
+</section></section><section class="level2"><h2 id="descriptives">Descriptives<a class="anchor" aria-label="anchor" href="#descriptives"></a>
+</h2>
 <p>Let’s familiarize ourselves with the data before diving into the analysis.</p>
-<section class="level3"><h4 id="missing-data">Missing data<a class="anchor" aria-label="anchor" href="#missing-data"></a>
-</h4>
+<section class="level3"><h3 id="missing-data">Missing data<a class="anchor" aria-label="anchor" href="#missing-data"></a>
+</h3>
 <p>First, we visualize the proportion of missing data on item level.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
@@ -355,8 +355,8 @@ Prefer not to say
 </div>
 </div>
 <p>No missing data in this dataset. If we had missing data, we could also use <code><a href="../reference/RImissingP.html">RImissingP()</a></code> to look at which respondents have missing data and how much.</p>
-</section><section class="level3"><h4 id="overall-responses">Overall responses<a class="anchor" aria-label="anchor" href="#overall-responses"></a>
-</h4>
+</section><section class="level3"><h3 id="overall-responses">Overall responses<a class="anchor" aria-label="anchor" href="#overall-responses"></a>
+</h3>
 <p>This provides us with an overall picture of the data distribution. As a bonus, any oddities/mistakes in recoding the item data from categories to numbers will be clearly visible.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
@@ -517,8 +517,8 @@ Percent
 </table>
 </div>
 </div>
-<section class="level4"><h5 id="floorceiling-effects">Floor/ceiling effects<a class="anchor" aria-label="anchor" href="#floorceiling-effects"></a>
-</h5>
+<section class="level4"><h4 id="floorceiling-effects">Floor/ceiling effects<a class="anchor" aria-label="anchor" href="#floorceiling-effects"></a>
+</h4>
 <p>Now, we can also look at the raw distribution of sum scores. The <code><a href="../reference/RIrawdist.html">RIrawdist()</a></code> function is a bit crude, since it requires responses in all response categories to accurately calculate max and min scores.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
@@ -531,8 +531,8 @@ Percent
 </div>
 </div>
 <p>We can see a floor effect with 11.8% of participants responding in the lowest category for all items.</p>
-</section><section class="level4"><h5 id="guttman-structure">Guttman structure<a class="anchor" aria-label="anchor" href="#guttman-structure"></a>
-</h5>
+</section><section class="level4"><h4 id="guttman-structure">Guttman structure<a class="anchor" aria-label="anchor" href="#guttman-structure"></a>
+</h4>
 <p>While not really necessary, it could be interesting to see whether the response patterns follow a Guttman-like structure. Items and persons are sorted based on lower-&gt;higher responses, and we should see the color move from yellow in the lower left corner to blue in the upper right corner.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
@@ -546,8 +546,8 @@ Percent
 </div>
 </div>
 <p>In this data, we see the floor effect on the left, with 11.8% of respondents all yellow, and a rather weak Guttman structure. This could also be due to a low variation in item locations/difficulties. Since we have a very large sample I added a <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme()</a></code> option to remove the x-axis text, which would anyway just be a blur of the 1851 respondent row numbers. Each thin vertical slice in the figure is one respondent.</p>
-</section></section><section class="level3"><h4 id="item-level-descriptives">Item level descriptives<a class="anchor" aria-label="anchor" href="#item-level-descriptives"></a>
-</h4>
+</section></section><section class="level3"><h3 id="item-level-descriptives">Item level descriptives<a class="anchor" aria-label="anchor" href="#item-level-descriptives"></a>
+</h3>
 <p>There are many ways to look at the item level data, and we’ll get them all together in the tab-panel below. The <code><a href="../reference/RItileplot.html">RItileplot()</a></code> is probably most informative, since it provides the number of responses in each response category for each item. It is usually recommended to have at least ~10 responses in each category for psychometric analysis, no matter which methodology is used.</p>
 <p>Kudos to <a href="https://solomonkurz.netlify.app/blog/2021-05-11-yes-you-can-fit-an-exploratory-factor-analysis-with-lavaan/" class="external-link">Solomon Kurz</a> for providing the idea and code on which the tile plot function is built!</p>
 <p>Most people will be familiar with the barplot, and this is probably most intuitive to understand the response distribution within each item. However, if there are many items it will take a while to review, and does not provide the same overview as a tileplot or stacked bars.</p>
@@ -606,8 +606,8 @@ Percent
 </table>
 </div>
 </div>
-<section class="level4"><h5 id="tile-plot">Tile plot<a class="anchor" aria-label="anchor" href="#tile-plot"></a>
-</h5>
+<section class="level4"><h4 id="tile-plot">Tile plot<a class="anchor" aria-label="anchor" href="#tile-plot"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RItileplot.html">RItileplot</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
@@ -619,8 +619,8 @@ Percent
 </div>
 </div>
 <p>While response patterns are skewed for all items, there are more than 10 responses in each category for all items which is helpful for the analysis.</p>
-</section><section class="level4"><h5 id="stacked-bars">Stacked bars<a class="anchor" aria-label="anchor" href="#stacked-bars"></a>
-</h5>
+</section><section class="level4"><h4 id="stacked-bars">Stacked bars<a class="anchor" aria-label="anchor" href="#stacked-bars"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIbarstack.html">RIbarstack</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">+</span></span>
@@ -633,8 +633,8 @@ Percent
 </div>
 </div>
 </div>
-</section><section class="level4"><h5 id="barplots">Barplots<a class="anchor" aria-label="anchor" href="#barplots"></a>
-</h5>
+</section><section class="level4"><h4 id="barplots">Barplots<a class="anchor" aria-label="anchor" href="#barplots"></a>
+</h4>
 <div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIbarplot.html">RIbarplot</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
 <div class="cell quarto-layout-panel" data-layout-ncol="2">
@@ -679,8 +679,8 @@ Percent
 </div>
 </div>
 </div>
-</section></section></section><section class="section level3"><h3 id="sec-rasch">Rasch analysis 1<a class="anchor" aria-label="anchor" href="#sec-rasch"></a>
-</h3>
+</section></section></section><section class="level2"><h2 id="sec-rasch">Rasch analysis 1<a class="anchor" aria-label="anchor" href="#sec-rasch"></a>
+</h2>
 <p>The eRm package and Conditional Maximum Likelihood (CML) estimation will be used primarily, with the Partial Credit Model since this is polytomous data.</p>
 <p>This is also where the <a href="https://doi.org/10.31219/osf.io/3htzc" class="external-link">five basic psychometric aspects</a> are good to recall.</p>
 <ul>
@@ -692,8 +692,8 @@ Percent
 </ul>
 <p>We will begin by looking at unidimensionality, response categories, and targeting in parallel below. For unidimensionality, we are mostly interested in item fit and residual correlations, as well as PCA of residuals and loadings on the first residual contrast. At the same time, disordered response categories can influence item fit to some extent (and vice versa), and knowledge about targeting can be useful if it is necessary to remove items due to residual correlations.</p>
 <p>When unidimensionality and response categories are found to work adequately, we will move on to invariance testing (Differential Item Functioning, DIF). It should be noted that DIF should be evaluated in parallel with all other psychometric aspects, but since it is a more complex issue it is kept in a separate section in this vignette (as is person fit). Finally, when/if invariance/DIF also looks acceptable, we can investigate reliability/measurement uncertainties.</p>
-<section class="level3"><h4 id="conditional-item-fit">Conditional item fit<a class="anchor" aria-label="anchor" href="#conditional-item-fit"></a>
-</h4>
+<section class="level3"><h3 id="conditional-item-fit">Conditional item fit<a class="anchor" aria-label="anchor" href="#conditional-item-fit"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simfit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RIgetfit.html">RIgetfit</a></span><span class="op">(</span><span class="va">df</span>, iterations <span class="op">=</span> <span class="fl">1000</span>, cpu <span class="op">=</span> <span class="fl">8</span><span class="op">)</span> <span class="co"># save simulation output to object `simfit1`</span></span>
@@ -835,8 +835,8 @@ Percent
 </blockquote>
 <p>A low item fit value (sometimes referred to as “overfitting” the Rasch model) indicates that responses are too predictable and provide little information. This is often the case for items that are very general/broad in scope in relation to the latent variable.</p>
 <p>A high item fit value (sometimes referred to as “underfitting” the Rasch model) can indicate several things, often multidimensionality or a question that is difficult to interpret. This could for instance be a question that asks about two things at the same time or is ambiguous for other reasons.</p>
-</section><section class="level3"><h4 id="item-restscore">Item-restscore<a class="anchor" aria-label="anchor" href="#item-restscore"></a>
-</h4>
+</section><section class="level3"><h3 id="item-restscore">Item-restscore<a class="anchor" aria-label="anchor" href="#item-restscore"></a>
+</h3>
 <p>This is another useful function from the <code>iarm</code> package. It shows the expected and observed correlation between an item and a score based on the rest of the items <span class="citation" data-cites="kreiner_note_2011">(<a href="#ref-kreiner_note_2011" role="doc-biblioref">Kreiner 2011</a>)</span>. Similarly, but inverted, to item fit, a lower observed correlation value than expected indicates that the item may not belong to the dimension. A higher than expected observed value indicates an overfitting and possibly redundant item.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
@@ -958,8 +958,8 @@ Percent
 </table>
 </div>
 </div>
-</section><section class="level3"><h4 id="conditional-item-characteristic-curves">Conditional item characteristic curves<a class="anchor" aria-label="anchor" href="#conditional-item-characteristic-curves"></a>
-</h4>
+</section><section class="level3"><h3 id="conditional-item-characteristic-curves">Conditional item characteristic curves<a class="anchor" aria-label="anchor" href="#conditional-item-characteristic-curves"></a>
+</h3>
 <p>The <a href="https://cran.r-project.org/web/packages/iarm/index.html" class="external-link"><code>iarm</code></a> package <span class="citation" data-cites="mueller_iarm_2022">(<a href="#ref-mueller_iarm_2022" role="doc-biblioref">Mueller and Santiago 2022</a>)</span> provides several interesting functions for assessing item fit, DIF and other things. Some of these functions may be included in a future version of the <code>easyRasch</code> package. Below are conditional item characteristic curves (ICC’s) using the estimated theta (factor score).</p>
 <p>These curves indicate item fit on a group level, where resondents are split into “class intervals” based on their sum score/factor score.</p>
 <div class="cell">
@@ -996,8 +996,8 @@ Percent
 </div>
 </div>
 </div>
-</section><section class="level3"><h4 id="pca-of-residuals">PCA of residuals<a class="anchor" aria-label="anchor" href="#pca-of-residuals"></a>
-</h4>
+</section><section class="level3"><h3 id="pca-of-residuals">PCA of residuals<a class="anchor" aria-label="anchor" href="#pca-of-residuals"></a>
+</h3>
 <p>Principal Component Analysis of Rasch model residuals.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb35"><pre class="downlit sourceCode r">
@@ -1034,8 +1034,8 @@ Percent
 </div>
 </div>
 <p>Based on rule of thumb, the first eigenvalue should be below 2.0 to support unidimensionality. However, this is seldom accurate and needs to be complemented with checking item fit and residual correlations. The target value should probably be below 1.75, based on my experience, but really I find this metric redundant and only keep it here for those coming from Winsteps who might be looking for it. Speaking of Winsteps, the “explained variance” will not be comparable to Winsteps corresponding metric, since this one only shows the results from the analysis of residuals.</p>
-</section><section class="level3"><h4 id="residual-correlations">Residual correlations<a class="anchor" aria-label="anchor" href="#residual-correlations"></a>
-</h4>
+</section><section class="level3"><h3 id="residual-correlations">Residual correlations<a class="anchor" aria-label="anchor" href="#residual-correlations"></a>
+</h3>
 <p>Similarly to item fit, we need to run simulations to get a useful cutoff threshold value for when residual correlations amongst item pairs are too large to support the local independence assumption <span class="citation" data-cites="christensen2017">(<a href="#ref-christensen2017" role="doc-biblioref">Christensen, Makransky, and Horton 2017</a>)</span>.</p>
 <p>And again, the simulation can take a bit of time, but it is necessary to set the appropriate cutoff value.</p>
 <div class="cell">
@@ -1198,8 +1198,8 @@ Percent
 </div>
 </div>
 <p>The matrix above shows item-pair correlations of item residuals, with highlights in red showing correlations crossing the threshold compared to the average item-pair correlation (for all item-pairs) <span class="citation" data-cites="christensen2017">(<a href="#ref-christensen2017" role="doc-biblioref">Christensen, Makransky, and Horton 2017</a>)</span>. Rasch model residual correlations (Yen’s Q3) are calculated using the <a href="https://cran.r-project.org/web/packages/mirt/index.html" class="external-link">mirt</a> package.</p>
-</section><section class="level3"><h4 id="partial-gamma-ld">Partial gamma LD<a class="anchor" aria-label="anchor" href="#partial-gamma-ld"></a>
-</h4>
+</section><section class="level3"><h3 id="partial-gamma-ld">Partial gamma LD<a class="anchor" aria-label="anchor" href="#partial-gamma-ld"></a>
+</h3>
 <p>Another way to assess local (in)dependence is by partial gamma coefficients <span class="citation" data-cites="kreiner_analysis_2004">(<a href="#ref-kreiner_analysis_2004" role="doc-biblioref">Kreiner and Christensen 2004</a>)</span>. This is also a function from the <code>iarm</code> package. See <code><a href="https://rdrr.io/pkg/iarm/man/partgam_LD.html" class="external-link">?iarm::partgam_LD</a></code> for details.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb37"><pre class="downlit sourceCode r">
@@ -1337,8 +1337,8 @@ Percent
 </table>
 </div>
 </div>
-</section><section class="level3"><h4 id="st-contrast-loadings">1st contrast loadings<a class="anchor" aria-label="anchor" href="#st-contrast-loadings"></a>
-</h4>
+</section><section class="level3"><h3 id="st-contrast-loadings">1st contrast loadings<a class="anchor" aria-label="anchor" href="#st-contrast-loadings"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIloadLoc.html">RIloadLoc</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
@@ -1350,8 +1350,8 @@ Percent
 </div>
 </div>
 <p>Here we see item locations and their loadings on the first residual contrast. This figure can be helpful to identify clusters in data or multidimensionality.</p>
-</section><section class="level3"><h4 id="analysis-of-response-categories">Analysis of response categories<a class="anchor" aria-label="anchor" href="#analysis-of-response-categories"></a>
-</h4>
+</section><section class="level3"><h3 id="analysis-of-response-categories">Analysis of response categories<a class="anchor" aria-label="anchor" href="#analysis-of-response-categories"></a>
+</h3>
 <p>The <code>xlims</code> setting changes the x-axis limits for the plots. The default values usually make sense, and we mostly add this option to point out the possibility of doing so. You can also choose to only show plots for only specific items.</p>
 <div class="sourceCode cell-code" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIitemCats.html">RIitemCats</a></span><span class="op">(</span><span class="va">df</span>, xlims <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -1398,8 +1398,8 @@ Percent
 </div>
 </div>
 <p>Each response category for each item should have a curve that indicates it to be the most probably response at some point on the latent variable (x axis in the figure).</p>
-</section><section class="level3"><h4 id="response-categories-mirt">Response categories MIRT<a class="anchor" aria-label="anchor" href="#response-categories-mirt"></a>
-</h4>
+</section><section class="level3"><h3 id="response-categories-mirt">Response categories MIRT<a class="anchor" aria-label="anchor" href="#response-categories-mirt"></a>
+</h3>
 <p>For a more compact figure.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb40"><pre class="downlit sourceCode r">
@@ -1413,8 +1413,8 @@ Percent
 </div>
 </div>
 </div>
-</section><section class="level3"><h4 id="targeting">Targeting<a class="anchor" aria-label="anchor" href="#targeting"></a>
-</h4>
+</section><section class="level3"><h3 id="targeting">Targeting<a class="anchor" aria-label="anchor" href="#targeting"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># increase fig-height in the chunk option above if you have many items</span></span>
@@ -1428,8 +1428,8 @@ Percent
 </div>
 <p>This figure shows how well the items fit the respondents/persons. It is a sort of <a href="https://www.rasch.org/rmt/rmt253b.htm" class="external-link">Wright Map</a> that shows person locations and item threshold locations on the same logit scale.</p>
 <p>The top part shows person location histogram, the middle part an inverted histogram of item threshold locations, and the bottom part shows individual item threshold locations. The histograms also show means and standard deviations.</p>
-</section><section class="level3"><h4 id="item-hierarchy">Item hierarchy<a class="anchor" aria-label="anchor" href="#item-hierarchy"></a>
-</h4>
+</section><section class="level3"><h3 id="item-hierarchy">Item hierarchy<a class="anchor" aria-label="anchor" href="#item-hierarchy"></a>
+</h3>
 <p>Here the items are sorted on their average threshold location (black diamonds). 84% confidence intervals are shown around each item threshold location. For further details, see the caption text below the figure.</p>
 <p>The numbers displayed in the plot can be disabled using the option <code>numbers = FALSE</code>.</p>
 <div class="cell">
@@ -1442,8 +1442,8 @@ Percent
 </div>
 </div>
 </div>
-</section><section class="level3"><h4 id="analysis-1-comments">Analysis 1 comments<a class="anchor" aria-label="anchor" href="#analysis-1-comments"></a>
-</h4>
+</section><section class="level3"><h3 id="analysis-1-comments">Analysis 1 comments<a class="anchor" aria-label="anchor" href="#analysis-1-comments"></a>
+</h3>
 <p>Item fit shows a lot of issues.</p>
 <p>Item 18 has issues with the second lowest category being disordered. Several other items have very short distances between thresholds 1 and 2, which is also clearly seen in the Item Hierarchy figure above.</p>
 <p>Two item-pairs show residual correlations far above the cutoff value:</p>
@@ -1470,8 +1470,8 @@ Percent
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">any_of</a></span><span class="op">(</span><span class="va">removed.items</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>As seen in the code above, I chose to create a copy of the dataframe with the removed items omitted. This can be useful if, at a later stage in the analysis, I want to be able to quickly “go back” and reinstate an item or undo any other change I have made.</p>
-</section></section><section class="section level3"><h3 id="rasch-analysis-2">Rasch analysis 2<a class="anchor" aria-label="anchor" href="#rasch-analysis-2"></a>
-</h3>
+</section></section><section class="level2"><h2 id="rasch-analysis-2">Rasch analysis 2<a class="anchor" aria-label="anchor" href="#rasch-analysis-2"></a>
+</h2>
 <p>With items 15 and 18 removed.</p>
 <div class="cell">
 <div class="cell-output-display column-margin">
@@ -1553,8 +1553,8 @@ Jittery
 </table>
 </div>
 </div>
-<section class="level3"><h4 id="conditional-item-fit-1">Conditional item fit<a class="anchor" aria-label="anchor" href="#conditional-item-fit-1"></a>
-</h4>
+<section class="level3"><h3 id="conditional-item-fit-1">Conditional item fit<a class="anchor" aria-label="anchor" href="#conditional-item-fit-1"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simfit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RIgetfit.html">RIgetfit</a></span><span class="op">(</span><span class="va">df</span>, iterations <span class="op">=</span> <span class="fl">1000</span>, cpu <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
@@ -1661,8 +1661,8 @@ Jittery
 </table>
 </div>
 </div>
-</section><section class="level3"><h4 id="pca-of-residuals-1">PCA of residuals<a class="anchor" aria-label="anchor" href="#pca-of-residuals-1"></a>
-</h4>
+</section><section class="level3"><h3 id="pca-of-residuals-1">PCA of residuals<a class="anchor" aria-label="anchor" href="#pca-of-residuals-1"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIpcmPCA.html">RIpcmPCA</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
@@ -1697,8 +1697,8 @@ Jittery
 </table>
 </div>
 </div>
-</section><section class="level3"><h4 id="residual-correlations-1">Residual correlations<a class="anchor" aria-label="anchor" href="#residual-correlations-1"></a>
-</h4>
+</section><section class="level3"><h3 id="residual-correlations-1">Residual correlations<a class="anchor" aria-label="anchor" href="#residual-correlations-1"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simcor2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RIgetResidCor.html">RIgetResidCor</a></span><span class="op">(</span><span class="va">df</span>, iterations <span class="op">=</span> <span class="fl">1000</span>, cpu <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
@@ -1814,8 +1814,8 @@ Jittery
 </table>
 </div>
 </div>
-</section><section class="level3"><h4 id="st-contrast-loadings-1">1st contrast loadings<a class="anchor" aria-label="anchor" href="#st-contrast-loadings-1"></a>
-</h4>
+</section><section class="level3"><h3 id="st-contrast-loadings-1">1st contrast loadings<a class="anchor" aria-label="anchor" href="#st-contrast-loadings-1"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIloadLoc.html">RIloadLoc</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
@@ -1826,8 +1826,8 @@ Jittery
 </div>
 </div>
 </div>
-</section><section class="level3"><h4 id="targeting-1">Targeting<a class="anchor" aria-label="anchor" href="#targeting-1"></a>
-</h4>
+</section><section class="level3"><h3 id="targeting-1">Targeting<a class="anchor" aria-label="anchor" href="#targeting-1"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RItargeting.html">RItargeting</a></span><span class="op">(</span><span class="va">df</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>,<span class="fl">4</span><span class="op">)</span>, bins <span class="op">=</span> <span class="fl">45</span><span class="op">)</span></span></code></pre></div>
@@ -1838,8 +1838,8 @@ Jittery
 </div>
 </div>
 </div>
-</section><section class="level3"><h4 id="item-hierarchy-1">Item hierarchy<a class="anchor" aria-label="anchor" href="#item-hierarchy-1"></a>
-</h4>
+</section><section class="level3"><h3 id="item-hierarchy-1">Item hierarchy<a class="anchor" aria-label="anchor" href="#item-hierarchy-1"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIitemHierarchy.html">RIitemHierarchy</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
@@ -1850,12 +1850,12 @@ Jittery
 </div>
 </div>
 </div>
-</section><section class="level3"><h4 id="analysis-2-comments">Analysis 2 comments<a class="anchor" aria-label="anchor" href="#analysis-2-comments"></a>
-</h4>
+</section><section class="level3"><h3 id="analysis-2-comments">Analysis 2 comments<a class="anchor" aria-label="anchor" href="#analysis-2-comments"></a>
+</h3>
 <p>Items 16 &amp; 19, and 12 &amp; 14 show problematic residual correlations.</p>
 <p>Let’s look at DIF before taking action upon this information. While we are keeping DIF as a separate section in this vignette, it is recommended to include DIF-analysis in the <code>panel-tabset</code> above (on item fit, PCA, residual correlations, etc).</p>
-</section></section><section class="section level3"><h3 id="dif---differential-item-functioning">DIF - differential item functioning<a class="anchor" aria-label="anchor" href="#dif---differential-item-functioning"></a>
-</h3>
+</section></section><section class="level2"><h2 id="dif---differential-item-functioning">DIF - differential item functioning<a class="anchor" aria-label="anchor" href="#dif---differential-item-functioning"></a>
+</h2>
 <p>We’ll be looking at whether item (threshold) locations are stable between demographic subgroups.</p>
 <p>There are several DIF analysis tools available. The first one uses the package <code>psychotree</code>, which relies on statistical significance at p &lt; .05 as an indicator for DIF. This is a criterion that is highly sample size sensitive, and we are always interested in the size/magnitude of DIF as well, since that will inform us about the impact of DIF on the estimated latent variable.</p>
 <p>The structure of DIF is also an important and complex aspect, particularly for polytomous data. Uniform DIF means that the DIF is similar across the latent continuum. We can test this in R using the <code>lordif</code> package, as demonstrated in <a href="#sec-lordif" class="quarto-xref">Section 7.6</a>. However, it should be noted that the <code>lordif</code> package does not provide an option to use Rasch models, and there may be results that are caused by also allowing the discrimination parameter to vary across items.</p>
@@ -1876,8 +1876,8 @@ Jittery
 </div>
 </div>
 </div>
-<section class="level3"><h4 id="sex">Sex<a class="anchor" aria-label="anchor" href="#sex"></a>
-</h4>
+<section class="level3"><h3 id="sex">Sex<a class="anchor" aria-label="anchor" href="#sex"></a>
+</h3>
 <div class="cell">
 <div class="cell-output-display column-margin">
 <table class="table table table-striped" style="font-size: 13px; font-family: Lato">
@@ -1958,8 +1958,8 @@ Jittery
 </table>
 </div>
 </div>
-<section class="level4"><h5 id="table">Table<a class="anchor" aria-label="anchor" href="#table"></a>
-</h5>
+<section class="level4"><h4 id="table">Table<a class="anchor" aria-label="anchor" href="#table"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIdifTable.html">RIdifTable</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">dif.sex</span><span class="op">)</span></span></code></pre></div>
@@ -2156,8 +2156,8 @@ PANAS_20
 </table>
 </div>
 </div>
-</section><section class="level4"><h5 id="figure-items">Figure items<a class="anchor" aria-label="anchor" href="#figure-items"></a>
-</h5>
+</section><section class="level4"><h4 id="figure-items">Figure items<a class="anchor" aria-label="anchor" href="#figure-items"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIdifFigure.html">RIdifFigure</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">dif.sex</span><span class="op">)</span></span></code></pre></div>
@@ -2168,8 +2168,8 @@ PANAS_20
 </div>
 </div>
 </div>
-</section><section class="level4"><h5 id="figure-thresholds">Figure thresholds<a class="anchor" aria-label="anchor" href="#figure-thresholds"></a>
-</h5>
+</section><section class="level4"><h4 id="figure-thresholds">Figure thresholds<a class="anchor" aria-label="anchor" href="#figure-thresholds"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIdifFigThresh.html">RIdifFigThresh</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">dif.sex</span><span class="op">)</span></span></code></pre></div>
@@ -2182,8 +2182,8 @@ PANAS_20
 </div>
 <p>While no item shows problematic levels of DIF regarding item location, as shown by the table, there is an interesting pattern in the thresholds figure. The lowest threshold seems to be slightly lower for node 3 (Male) for all items. Also, item 11 shows a much wider spread of item locations for node 3 compared to node 2.</p>
 <p>The results do not require any action since the difference is small.</p>
-</section></section><section class="level3"><h4 id="age">Age<a class="anchor" aria-label="anchor" href="#age"></a>
-</h4>
+</section></section><section class="level3"><h3 id="age">Age<a class="anchor" aria-label="anchor" href="#age"></a>
+</h3>
 <p>The <code>psychotree</code> package uses a model-based recursive partitioning that is particularly useful when you have a continuous variable such as age in years and a large enough sample. It will test different ways to partition the age variable to determine potential group differences <span class="citation" data-cites="strobl2015 strobl2021">(<a href="#ref-strobl2015" role="doc-biblioref">Strobl, Kopf, and Zeileis 2015</a>; <a href="#ref-strobl2021" role="doc-biblioref">Strobl et al. 2021</a>)</span>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb54"><pre class="downlit sourceCode r">
@@ -2193,8 +2193,8 @@ PANAS_20
 </div>
 </div>
 <p>No DIF found for age.</p>
-</section><section class="level3"><h4 id="group">Group<a class="anchor" aria-label="anchor" href="#group"></a>
-</h4>
+</section><section class="level3"><h3 id="group">Group<a class="anchor" aria-label="anchor" href="#group"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIdifTable.html">RIdifTable</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">dif.group</span><span class="op">)</span></span></code></pre></div>
@@ -2203,8 +2203,8 @@ PANAS_20
 </div>
 </div>
 <p>And no DIF for group.</p>
-</section><section class="level3"><h4 id="sex-and-age">Sex and age<a class="anchor" aria-label="anchor" href="#sex-and-age"></a>
-</h4>
+</section><section class="level3"><h3 id="sex-and-age">Sex and age<a class="anchor" aria-label="anchor" href="#sex-and-age"></a>
+</h3>
 <p>The <code>psychotree</code> package also allows for DIF interaction analysis with multiple DIF variables. We can use <code><a href="../reference/RIdifTable2.html">RIdifTable2()</a></code> to input two DIF variables.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb58"><pre class="downlit sourceCode r">
@@ -2403,8 +2403,8 @@ PANAS_20
 </div>
 </div>
 <p>No interaction effect found for sex and age. The analysis only shows the previously identified DIF for sex.</p>
-</section><section class="level3"><h4 id="sec-diflrt">LRT-based DIF<a class="anchor" aria-label="anchor" href="#sec-diflrt"></a>
-</h4>
+</section><section class="level3"><h3 id="sec-diflrt">LRT-based DIF<a class="anchor" aria-label="anchor" href="#sec-diflrt"></a>
+</h3>
 <p>We’ll use the group variable as an example. First, we can simply run the test to get the overall result.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb59"><pre class="downlit sourceCode r">
@@ -2419,8 +2419,8 @@ p-value:  0.034 </code></pre>
 </div>
 </div>
 <p>Review the documentation for further details, using <code><a href="https://rdrr.io/pkg/eRm/man/LRtest.html" class="external-link">?LRtest</a></code> in your R console panel in Rstudio. There is also a plotting function, <code><a href="https://rdrr.io/pkg/eRm/man/LRtest.html" class="external-link">plotGOF()</a></code> that may be of interest.</p>
-<section class="level4"><h5 id="item-location-table">Item location table<a class="anchor" aria-label="anchor" href="#item-location-table"></a>
-</h5>
+<section class="level4"><h4 id="item-location-table">Item location table<a class="anchor" aria-label="anchor" href="#item-location-table"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIdifTableLR.html">RIdifTableLR</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">dif.group</span><span class="op">)</span></span></code></pre></div>
@@ -2533,8 +2533,8 @@ p-value:  0.034 </code></pre>
 </table>
 </div>
 </div>
-</section><section class="level4"><h5 id="item-location-figure">Item location figure<a class="anchor" aria-label="anchor" href="#item-location-figure"></a>
-</h5>
+</section><section class="level4"><h4 id="item-location-figure">Item location figure<a class="anchor" aria-label="anchor" href="#item-location-figure"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIdifFigureLR.html">RIdifFigureLR</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">dif.group</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="../reference/theme_rise.html">theme_rise</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -2545,8 +2545,8 @@ p-value:  0.034 </code></pre>
 </div>
 </div>
 </div>
-</section><section class="level4"><h5 id="item-threshold-table">Item threshold table<a class="anchor" aria-label="anchor" href="#item-threshold-table"></a>
-</h5>
+</section><section class="level4"><h4 id="item-threshold-table">Item threshold table<a class="anchor" aria-label="anchor" href="#item-threshold-table"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIdifThreshTblLR.html">RIdifThreshTblLR</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">dif.group</span><span class="op">)</span></span></code></pre></div>
@@ -2907,8 +2907,8 @@ p-value:  0.034 </code></pre>
 </table>
 </div>
 </div>
-</section><section class="level4"><h5 id="item-threshold-figure">Item threshold figure<a class="anchor" aria-label="anchor" href="#item-threshold-figure"></a>
-</h5>
+</section><section class="level4"><h4 id="item-threshold-figure">Item threshold figure<a class="anchor" aria-label="anchor" href="#item-threshold-figure"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb64"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIdifThreshFigLR.html">RIdifThreshFigLR</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">dif.group</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="../reference/theme_rise.html">theme_rise</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -2920,8 +2920,8 @@ p-value:  0.034 </code></pre>
 </div>
 </div>
 <p>The item threshold table shows that the top threshold for item 13 differs more than 0.5 logits between groups. In this set of 8 items with 4 thresholds each, it is unlikely to result in problematic differences in estimated person scores.</p>
-</section></section><section class="level3"><h4 id="sec-lordif">Logistic Ordinal Regression DIF<a class="anchor" aria-label="anchor" href="#sec-lordif"></a>
-</h4>
+</section></section><section class="level3"><h3 id="sec-lordif">Logistic Ordinal Regression DIF<a class="anchor" aria-label="anchor" href="#sec-lordif"></a>
+</h3>
 <p>The <code>lordif</code> package <span class="citation" data-cites="choi_lordif_2011">(<a href="#ref-choi_lordif_2011" role="doc-biblioref">Choi, Gibbons, and Crane 2011</a>)</span> does not use a Rasch measurement model, it only offers a choice between the Graded Response Model (GRM) and the Generalized Partial Credit Model (GPCM). Both of these are 2PL models, meaning that they estimate a discrimination parameter for each item in addition to the item threshold parameters. <code>lordif</code> relies on the <code>mirt</code> package.</p>
 <p>There are several nice features available in the <code>lordif</code> package. First, we get a χ2 test of uniform or non-uniform DIF. Second, there are three possible methods/criteria for flagging items with potential DIF. One of these uses a likelihood ratio (LR) χ2 test, while the other two are indicators of DIF size/magnitude, either using a pseudo R2 statistic (“McFadden”, “Nagelkerke”, or “CoxSnell”) or a Beta criterion. For further details, see <code><a href="https://rdrr.io/pkg/lordif/man/lordif.html" class="external-link">?lordif</a></code> in your R console or the paper describing the package <span class="citation" data-cites="choi_lordif_2011">(<a href="#ref-choi_lordif_2011" role="doc-biblioref">Choi, Gibbons, and Crane 2011</a>)</span>.</p>
 <p>Below is some sample code to get you started with <code>lordif</code>.</p>
@@ -3135,8 +3135,8 @@ p-value:  0.034 </code></pre>
 <div class="cell quarto-layout-panel" data-layout-ncol="2">
 
 </div>
-</section><section class="level3"><h4 id="partial-gamma-dif">Partial gamma DIF<a class="anchor" aria-label="anchor" href="#partial-gamma-dif"></a>
-</h4>
+</section><section class="level3"><h3 id="partial-gamma-dif">Partial gamma DIF<a class="anchor" aria-label="anchor" href="#partial-gamma-dif"></a>
+</h3>
 <p>The <code>iarm</code> package provides a function to assess DIF by partial gamma <span class="citation" data-cites="bjorner_differential_1998">(<a href="#ref-bjorner_differential_1998" role="doc-biblioref">Bjorner et al. 1998</a>)</span>. It should be noted that this function only shows a single partial gamma value per item, so if you have more than two groups in your comparison, you will want to also use other methods to understand your results better.</p>
 <p>There are some recommended cutoff-values mentioned in the paper above:</p>
 <p>No or negligible DIF:</p>
@@ -3182,8 +3182,8 @@ p-value:  0.034 </code></pre>
 </div>
 </div>
 <p>We can see “slight” DIF for item 17, with a statistically significant gamma of .23.</p>
-</section></section><section class="section level3"><h3 id="rasch-analysis-3">Rasch analysis 3<a class="anchor" aria-label="anchor" href="#rasch-analysis-3"></a>
-</h3>
+</section></section><section class="level2"><h2 id="rasch-analysis-3">Rasch analysis 3<a class="anchor" aria-label="anchor" href="#rasch-analysis-3"></a>
+</h2>
 <p>While there were no significant issues with DIF for any item/subgroup combination, we need to address the previously identified problem:</p>
 <ul>
 <li>Items 16 and 19 have the largest residual correlation.</li>
@@ -3270,8 +3270,8 @@ Jittery
 </table>
 </div>
 </div>
-<section class="level3"><h4 id="item-fit">Item fit<a class="anchor" aria-label="anchor" href="#item-fit"></a>
-</h4>
+<section class="level3"><h3 id="item-fit">Item fit<a class="anchor" aria-label="anchor" href="#item-fit"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simfit3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RIgetfit.html">RIgetfit</a></span><span class="op">(</span><span class="va">df</span>, iterations <span class="op">=</span> <span class="fl">1000</span>, cpu <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
@@ -3368,8 +3368,8 @@ Jittery
 </table>
 </div>
 </div>
-</section><section class="level3"><h4 id="cicc">CICC<a class="anchor" aria-label="anchor" href="#cicc"></a>
-</h4>
+</section><section class="level3"><h3 id="cicc">CICC<a class="anchor" aria-label="anchor" href="#cicc"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb71"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/RASCHplot/man/CICCplot.html" class="external-link">CICCplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/eRm/man/PCM.html" class="external-link">PCM</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>,</span>
@@ -3383,8 +3383,8 @@ Jittery
 </div>
 </div>
 </div>
-</section><section class="level3"><h4 id="residual-correlations-2">Residual correlations<a class="anchor" aria-label="anchor" href="#residual-correlations-2"></a>
-</h4>
+</section><section class="level3"><h3 id="residual-correlations-2">Residual correlations<a class="anchor" aria-label="anchor" href="#residual-correlations-2"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb72"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simcor3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RIgetResidCor.html">RIgetResidCor</a></span><span class="op">(</span><span class="va">df</span>, iterations <span class="op">=</span> <span class="fl">1000</span>, cpu <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
@@ -3481,8 +3481,8 @@ Jittery
 </table>
 </div>
 </div>
-</section><section class="level3"><h4 id="targeting-2">Targeting<a class="anchor" aria-label="anchor" href="#targeting-2"></a>
-</h4>
+</section><section class="level3"><h3 id="targeting-2">Targeting<a class="anchor" aria-label="anchor" href="#targeting-2"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb73"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RItargeting.html">RItargeting</a></span><span class="op">(</span><span class="va">df</span>, bins <span class="op">=</span> <span class="fl">45</span><span class="op">)</span></span></code></pre></div>
@@ -3493,8 +3493,8 @@ Jittery
 </div>
 </div>
 </div>
-</section><section class="level3"><h4 id="item-hierarchy-2">Item hierarchy<a class="anchor" aria-label="anchor" href="#item-hierarchy-2"></a>
-</h4>
+</section><section class="level3"><h3 id="item-hierarchy-2">Item hierarchy<a class="anchor" aria-label="anchor" href="#item-hierarchy-2"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb74"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIitemHierarchy.html">RIitemHierarchy</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
@@ -3505,12 +3505,12 @@ Jittery
 </div>
 </div>
 </div>
-</section><section class="level3"><h4 id="analysis-3-comments">Analysis 3 comments<a class="anchor" aria-label="anchor" href="#analysis-3-comments"></a>
-</h4>
+</section><section class="level3"><h3 id="analysis-3-comments">Analysis 3 comments<a class="anchor" aria-label="anchor" href="#analysis-3-comments"></a>
+</h3>
 <p>No problematic residual correlations remaining. Several items show misfit but we will end this sample analysis here and move on to show other functions.</p>
 <p>There are several item thresholds that are very closely located, as shown in the item hierarchy figure. This is not ideal, since it will inflate reliability estimates. However, we will not modify the response categories for this analysis, we only note that this is not workable and should be dealt with by trying variations of merged response categories to achieve better separation of threshold locations without disordering.</p>
-</section></section><section class="section level3"><h3 id="reliability">Reliability<a class="anchor" aria-label="anchor" href="#reliability"></a>
-</h3>
+</section></section><section class="level2"><h2 id="reliability">Reliability<a class="anchor" aria-label="anchor" href="#reliability"></a>
+</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb75"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RItif.html">RItif</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
@@ -3524,8 +3524,8 @@ Jittery
 <p>The figure above shows the Test Information Function (TIF), which indicates the reliability of all items making up the test/scale (not the reliability of the sample).</p>
 <p>The default cutoff value used in <code><a href="../reference/RItif.html">RItif()</a></code> is TIF = 3.33, which corresponds to person separation index (PSI) = 0.7. PSI is similar to reliability coefficients such as omega and alpha, ranging from 0 to 1. You can change the TIF cutoff by using the option <code>cutoff</code>, for instance <code>cutoff = 2.5</code> (TIF values range from 1 and up).</p>
 <p>While 11.8% of respondents had a floor effect based on the raw sum scored data, the figure above shows us that 41.8% are located below the point where the items produce a PSI of 0.7 or higher. Again, note that this figure shows the reliability of the test/scale, not the sample. If you want to add the sample reliability use option <code>samplePSI = TRUE</code>. More details are available in the documentation <code><a href="../reference/RItif.html">?RItif</a></code>.</p>
-</section><section class="section level3"><h3 id="person-fit">Person fit<a class="anchor" aria-label="anchor" href="#person-fit"></a>
-</h3>
+</section><section class="level2"><h2 id="person-fit">Person fit<a class="anchor" aria-label="anchor" href="#person-fit"></a>
+</h2>
 <p>We can also look at how the respondents fit the Rasch model with these items. By default, <code><a href="../reference/RIpfit.html">RIpfit()</a></code> outputs a histogram and a hex heatmap with the person infit ZSTD statistic, using +/- 1.96 as cutoff values. This is currently the only person fit method implemented in the <code>easyRasch</code> package, and the curious analyst is suggested to look at the package <a href="https://www.rdocumentation.org/packages/PerFit/versions/1.4.6/topics/PerFit-package" class="external-link">PerFit</a> for more tools.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb76"><pre class="downlit sourceCode r">
@@ -3556,13 +3556,13 @@ Jittery
 </div>
 </div>
 <p>Person fit is a useful way to identify respondents with unexpected response patterns and investigate this further.</p>
-<section class="level3"><h4 id="perfit-sample-code">
+<section class="level3"><h3 id="perfit-sample-code">
 <code>PerFit</code> sample code<a class="anchor" aria-label="anchor" href="#perfit-sample-code"></a>
-</h4>
+</h3>
 <p>While none of the functions in the <code>PerFit</code> package has been implemented in <code>easyRasch</code>, this is some code to get you started if you are interested in using it. There are multiple methods/functions available for polytomous and dichotomous data, see the package <a href="https://www.rdocumentation.org/packages/PerFit/versions/1.4.6/topics/PerFit-package" class="external-link">documentation</a>.</p>
 <p>For this example, we’ll use the non-parametric U3 statistic generalized to polytomous items <span class="citation" data-cites="emons_nonparametric_2008">(<a href="#ref-emons_nonparametric_2008" role="doc-biblioref">Emons 2008</a>)</span>.</p>
-<section class="level4"><h5 id="u3poly">U3poly<a class="anchor" aria-label="anchor" href="#u3poly"></a>
-</h5>
+<section class="level4"><h4 id="u3poly">U3poly<a class="anchor" aria-label="anchor" href="#u3poly"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb78"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">PerFit</span><span class="op">)</span></span>
@@ -3570,8 +3570,8 @@ Jittery
 <span>                      Ncat <span class="op">=</span> <span class="fl">5</span>, <span class="co"># make sure to input number of response categories, not thresholds</span></span>
 <span>                      IRT.PModel <span class="op">=</span> <span class="st">"PCM"</span><span class="op">)</span></span></code></pre></div>
 </div>
-</section><section class="level4"><h5 id="cutoff-information">Cutoff information<a class="anchor" aria-label="anchor" href="#cutoff-information"></a>
-</h5>
+</section><section class="level4"><h4 id="cutoff-information">Cutoff information<a class="anchor" aria-label="anchor" href="#cutoff-information"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb79"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/PerFit/man/cutoff.html" class="external-link">cutoff</a></span><span class="op">(</span><span class="va">pfit_u3poly</span><span class="op">)</span></span></code></pre></div>
@@ -3596,8 +3596,8 @@ attr(,"class")
 [1] "PerFit.cutoff"</code></pre>
 </div>
 </div>
-</section><section class="level4"><h5 id="flagged-respondents">Flagged respondents<a class="anchor" aria-label="anchor" href="#flagged-respondents"></a>
-</h5>
+</section><section class="level4"><h4 id="flagged-respondents">Flagged respondents<a class="anchor" aria-label="anchor" href="#flagged-respondents"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb81"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/PerFit/man/flagged.resp.html" class="external-link">flagged.resp</a></span><span class="op">(</span><span class="va">pfit_u3poly</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
@@ -3792,8 +3792,8 @@ attr(,"class")
 </div>
 </div>
 <p>The dataframe shown under the tab <code>Flagged respondents</code> above contains a variable named <code>FlaggedID</code> which represents the row id’s. This variable is useful if one wants to filter out respondents with deviant response patterns (person misfit). There are indications that persons with misfit may affect results of Andersen’s LR-test for DIF <span class="citation" data-cites="artner_simulation_2016">(<a href="#ref-artner_simulation_2016" role="doc-biblioref">Artner 2016</a>)</span>.</p>
-</section></section><section class="level3"><h4 id="item-fit-without-aberrant-responses">Item fit without aberrant responses<a class="anchor" aria-label="anchor" href="#item-fit-without-aberrant-responses"></a>
-</h4>
+</section></section><section class="level3"><h3 id="item-fit-without-aberrant-responses">Item fit without aberrant responses<a class="anchor" aria-label="anchor" href="#item-fit-without-aberrant-responses"></a>
+</h3>
 <p>We can remove the misfitting persons to see how that affects item fit. Let’s also compare with the misfitting respondents identified by <code><a href="../reference/RIpfit.html">RIpfit()</a></code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb83"><pre class="downlit sourceCode r">
@@ -3804,8 +3804,8 @@ attr(,"class")
 <span></span>
 <span><span class="va">misfits2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RIpfit.html">RIpfit</a></span><span class="op">(</span><span class="va">df</span>, output <span class="op">=</span> <span class="st">"rowid"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<section class="level4"><h5 id="all-respondents">All respondents<a class="anchor" aria-label="anchor" href="#all-respondents"></a>
-</h5>
+<section class="level4"><h4 id="all-respondents">All respondents<a class="anchor" aria-label="anchor" href="#all-respondents"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb84"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIitemfit.html">RIitemfit</a></span><span class="op">(</span><span class="va">df</span>, simcut <span class="op">=</span> <span class="va">simfit3</span><span class="op">)</span></span></code></pre></div>
@@ -3901,8 +3901,8 @@ attr(,"class")
 </table>
 </div>
 </div>
-</section><section class="level4"><h5 id="u3-misfit-removed">U3 misfit removed<a class="anchor" aria-label="anchor" href="#u3-misfit-removed"></a>
-</h5>
+</section><section class="level4"><h4 id="u3-misfit-removed">U3 misfit removed<a class="anchor" aria-label="anchor" href="#u3-misfit-removed"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb85"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIitemfit.html">RIitemfit</a></span><span class="op">(</span><span class="va">df</span><span class="op">[</span><span class="op">-</span><span class="va">misfits</span>,<span class="op">]</span>, simcut <span class="op">=</span> <span class="va">simfit3</span><span class="op">)</span></span></code></pre></div>
@@ -3998,8 +3998,8 @@ attr(,"class")
 </table>
 </div>
 </div>
-</section><section class="level4"><h5 id="zstd-misfit-removed">ZSTD misfit removed<a class="anchor" aria-label="anchor" href="#zstd-misfit-removed"></a>
-</h5>
+</section><section class="level4"><h4 id="zstd-misfit-removed">ZSTD misfit removed<a class="anchor" aria-label="anchor" href="#zstd-misfit-removed"></a>
+</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb86"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/RIitemfit.html">RIitemfit</a></span><span class="op">(</span><span class="va">df</span><span class="op">[</span><span class="op">-</span><span class="va">misfits2</span>,<span class="op">]</span>, simcut <span class="op">=</span> <span class="va">simfit3</span><span class="op">)</span></span></code></pre></div>
@@ -4095,8 +4095,8 @@ attr(,"class")
 </table>
 </div>
 </div>
-</section></section></section><section class="section level3"><h3 id="item-parameters">Item parameters<a class="anchor" aria-label="anchor" href="#item-parameters"></a>
-</h3>
+</section></section></section><section class="level2"><h2 id="item-parameters">Item parameters<a class="anchor" aria-label="anchor" href="#item-parameters"></a>
+</h2>
 <p>To allow others (and oneself) to use the item parameters estimated for estimation of person locations/thetas, we should make the item parameters available. The function will also write a csv-file with the item threshold locations. Estimations of person locations/thetas can be done with the <code><a href="https://rdrr.io/pkg/catR/man/thetaEst.html" class="external-link">thetaEst()</a></code> function from the <code>catR</code> package. This is implemented in the function <code><a href="../reference/RIestThetasOLD.html">RIestThetasOLD()</a></code>, see below for details.</p>
 <p>First, we’ll output the parameters into a table.</p>
 <div class="cell">
@@ -4179,8 +4179,8 @@ attr(,"class")
 </div>
 </div>
 <p>The parameters can also be output to a dataframe or a file, using the option <code>output = "dataframe"</code> or <code>output = "file"</code>.</p>
-</section><section class="section level3"><h3 id="ordinal-sum-score-to-interval-score">Ordinal sum score to interval score<a class="anchor" aria-label="anchor" href="#ordinal-sum-score-to-interval-score"></a>
-</h3>
+</section><section class="level2"><h2 id="ordinal-sum-score-to-interval-score">Ordinal sum score to interval score<a class="anchor" aria-label="anchor" href="#ordinal-sum-score-to-interval-score"></a>
+</h2>
 <p>This table shows the corresponding “raw” ordinal sum score values and logit scores, with standard errors for each logit value. Interval scores are estimated using WL based on a simulated dataset using the item parameters estimated from the input dataset. The choice of WL as default is due to the lower bias compared to ML estimation <span class="citation" data-cites="warm1989">(<a href="#ref-warm1989" role="doc-biblioref">Warm 1989</a>)</span>.</p>
 <p>(An option will hopefully be added at some point to create this table based on only item parameters.)</p>
 <div class="cell">
@@ -4343,8 +4343,8 @@ attr(,"class")
 </table>
 </div>
 </div>
-<section class="level3"><h4 id="ordinalinterval-figure">Ordinal/interval figure<a class="anchor" aria-label="anchor" href="#ordinalinterval-figure"></a>
-</h4>
+<section class="level3"><h3 id="ordinalinterval-figure">Ordinal/interval figure<a class="anchor" aria-label="anchor" href="#ordinalinterval-figure"></a>
+</h3>
 <p>The figure below can also be generated to illustrate the relationship between ordinal sum score and logit interval score. The errorbars default to show the standard error at each point, multiplied by 1.96.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb89"><pre class="downlit sourceCode r">
@@ -4356,8 +4356,8 @@ attr(,"class")
 </div>
 </div>
 </div>
-</section><section class="level3"><h4 id="estimating-interval-level-person-scores">Estimating interval level person scores<a class="anchor" aria-label="anchor" href="#estimating-interval-level-person-scores"></a>
-</h4>
+</section><section class="level3"><h3 id="estimating-interval-level-person-scores">Estimating interval level person scores<a class="anchor" aria-label="anchor" href="#estimating-interval-level-person-scores"></a>
+</h3>
 <p>Based on the Rasch analysis output of item parameters, we can estimate each individuals location or score (also known as “theta”). <code><a href="../reference/RIestThetas.html">RIestThetas()</a></code> by default uses WLE estimation based on item parameters from a partial credit model (PCM) and outputs a dataframe with person locations (WLE) and measurement error (SEM) on the logit scale.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb90"><pre class="downlit sourceCode r">
@@ -4397,8 +4397,8 @@ attr(,"class")
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>This creates a matrix object (not a dataframe), with each item as a row, and the threshold locations as columns.</p>
-</section></section><section class="section level3"><h3 id="figure-design">Figure design<a class="anchor" aria-label="anchor" href="#figure-design"></a>
-</h3>
+</section></section><section class="level2"><h2 id="figure-design">Figure design<a class="anchor" aria-label="anchor" href="#figure-design"></a>
+</h2>
 <p>Most of the figures created by the functions can be styled (colors, fonts, etc) by adding theme settings to them. You can use the standard ggplot function <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme()</a></code> and related theme-functions. As usual it is possible to “stack” theme functions, as seen in the example below.</p>
 <p>You can also change coloring, axis limits/breaks, etc, just by adding ggplot options with a <code>+</code> sign.</p>
 <p>A custom theme function, <code><a href="../reference/theme_rise.html">theme_rise()</a></code>, is included in the <code>easyRasch</code> package. It might be easier to use if you are not familiar with <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme()</a></code>.</p>
@@ -4431,8 +4431,8 @@ attr(,"class")
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/update_defaults.html" class="external-link">update_geom_defaults</a></span><span class="op">(</span><span class="st">"text"</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>family <span class="op">=</span> <span class="st">"Lato"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Please note that the line of code above updates the default settings for <code><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text()</a></code> for the whole session. Also, some functions, such as <code><a href="../reference/RIloadLoc.html">RIloadLoc()</a></code>, make use of <code><a href="https://ggrepel.slowkow.com/reference/geom_text_repel.html" class="external-link">geom_text_repel()</a></code>, for which you would need to change the code above from “text” to “text_repel”.</p>
 <p>A simple way to only change font family and font size would be to use <code>theme_minimal(base_family = "Calibri", base_size = 14)</code>. Please see the <a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">reference page</a> for default ggplot themes for alternatives to <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal()</a></code>.</p>
-</section><section class="section level3"><h3 id="sec-grateful">Software used<a class="anchor" aria-label="anchor" href="#sec-grateful"></a>
-</h3>
+</section><section class="level2"><h2 id="sec-grateful">Software used<a class="anchor" aria-label="anchor" href="#sec-grateful"></a>
+</h2>
 <p>The <code>grateful</code> package is a nice way to give credit to the packages used in making the analysis. The package can create both a bibliography file and a table object, which is handy for automatically creating a reference list based on the packages used (or at least explicitly loaded).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb97"><pre class="downlit sourceCode r">
@@ -4472,11 +4472,11 @@ base
 </table>
 </div>
 </div>
-</section><section class="section level3"><h3 id="additional-credits">Additional credits<a class="anchor" aria-label="anchor" href="#additional-credits"></a>
-</h3>
+</section><section class="level2"><h2 id="additional-credits">Additional credits<a class="anchor" aria-label="anchor" href="#additional-credits"></a>
+</h2>
 <p>Thanks to my <a href="https://www.ri.se/en/what-we-do/projects/center-for-category-based-measurements" class="external-link">colleagues at RISE</a> for providing feedback and testing the package on Windows and MacOS platforms. Also, thanks to <a href="https://www.winsteps.com/linacre.htm" class="external-link">Mike Linacre</a> and <a href="https://www.ri.se/en/person/jeanette-melin" class="external-link">Jeanette Melin</a> for providing useful feedback to improve this vignette.</p>
-</section><section class="section level3"><h3 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
-</h3>
+</section><section class="level2"><h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
+</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb98"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -4565,8 +4565,8 @@ loaded via a namespace (and not attached):
 [142] hdrcde_3.4           here_1.0.1          </code></pre>
 </div>
 </div>
-</section><section class="section level3"><h3 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
-</h3>
+</section><section class="level2 unnumbered"><h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-anvari2022" class="csl-entry" role="listitem">
 Anvari, Farid, Emir Efendić, Jerome Olsen, Ruben C. Arslan, Malte Elson, and Iris K. Schneider. 2022. <span>“Bias in Self-Reports: An Initial Elevation Phenomenon.”</span> <em>Social Psychological and Personality Science</em>, October, 19485506221129160. <a href="https://doi.org/10.1177/19485506221129160" class="external-link">https://doi.org/10.1177/19485506221129160</a>.
