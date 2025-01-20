@@ -5020,9 +5020,10 @@ RIpartgamDIF <- function(data, dif.var, output = "table") {
 #' @param samplesize How large sample to use in each bootstrap
 #' @param cpu How many CPU's to use
 #' @param output Optional "dataframe", or "quarto" for `knitr::kable()` output
+#' @param cutoff Percentage values below this are not shown in table/quarto output
 #' @export
 RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
-                            output = "table") {
+                            output = "table", cutoff = 5) {
 
   if(min(as.matrix(dat), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
@@ -5099,19 +5100,29 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
     left_join(cfit_df, by = "item") %>%
     ungroup()
 
+  test <- fit_tbl %>%
+    filter(!item_restscore == "no misfit") %>%
+    slice_max(percent) %>%
+    pull(percent)
+
+  if (isTRUE(test < cutoff)) {
+    message(paste0("No item indicates misfit in more than ",cutoff,"% of iterations."))
+  }
+
   if (output == "table") {
     fit_tbl %>%
       left_join(itemlocs, by = "item") %>%
-      filter(!item_restscore == "no misfit") %>%
+      filter(!item_restscore == "no misfit",
+             percent > cutoff) %>%
       select(!n) %>%
       arrange(desc(item_restscore),desc(percent)) %>%
       set_names(c("Item","Item-restscore result","% of iterations","Conditional MSQ infit",
                   "Relative average item location")) %>%
       kbl_rise() %>%
       footnote(general = paste0("Results based on ",iterations,
-                                " bootstrap iterations with a sample size of ",samplesize,
-                                ". Conditional mean-square infit based on complete responders only, n = ",
-                                n_complete,"."))
+                                " bootstrap iterations with n = ",samplesize,
+                                ". Conditional mean-square infit based on complete responders only (n = ",
+                                n_complete,")."))
 
   } else if (output == "dataframe") {
     return(fit_tbl)
@@ -5119,7 +5130,8 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
   } else if (output == "quarto") {
     fit_tbl %>%
       left_join(itemlocs, by = "item") %>%
-      filter(!item_restscore == "no misfit") %>%
+      filter(!item_restscore == "no misfit",
+             percent > cutoff) %>%
       select(!n) %>%
       arrange(desc(item_restscore),desc(percent)) %>%
       set_names(c("Item","Item-restscore result","% of iterations","Conditional MSQ infit",

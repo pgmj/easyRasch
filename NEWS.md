@@ -1,7 +1,7 @@
 # easyRasch 0.3.3.3 (2025-01-20)
 
 - `RIbootRestscore()` has been reworked a bit:
-  - Results are filtered to show only misfit (unless output is `dataframe`) and the `cutoff` option was removed
+  - Results are filtered to show only misfit (unless output is `dataframe`)
   - Results are sorted on underfit/overfit and percent of misfit
 - Cleaned and updated the `RIrmPCA()` function.
 - **NOTE:** a simulation paper evaluating bootstrap functions for conditional item fit and item-restscore has been made available as a preprint: <https://pgmj.github.io/rasch_itemfit/>
