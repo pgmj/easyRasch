@@ -1,5 +1,6 @@
 # easyRasch 0.3.3.3 (2025-01-20)
 
+- **New function:** `RIbootLRT()` to accomodate issues with large samplesizes causing type-1 errors.
 - `RIbootRestscore()` has been reworked a bit:
   - Results are filtered to show only misfit (unless output is `dataframe`)
   - Results are sorted on underfit/overfit and percent of misfit
