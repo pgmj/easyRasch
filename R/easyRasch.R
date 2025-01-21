@@ -5143,14 +5143,15 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
 
 #' Bootstrapped Likelihood Ratio Test
 #'
-#' Non-parametric bootstrap use of `iarm::clr_tests()`.
+#' Non-parametric bootstrap use of `iarm::clr_tests()`. Intended for use with
+#' large sample sizes.
 #'
 #' @param dat A dataframe with response data
 #' @param iterations How many bootstrap samples to run
 #' @param samplesize How large sample to use in each bootstrap
 #' @param cpu How many CPU's to use
 #' @export
-RIbootLRT <- function(dat, iterations = 1500, samplesize = 500, cpu = 4) {
+RIbootLRT <- function(dat, iterations = 1000, samplesize = 500, cpu = 4) {
 
   if(min(as.matrix(dat), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
@@ -5159,7 +5160,6 @@ RIbootLRT <- function(dat, iterations = 1500, samplesize = 500, cpu = 4) {
                 nrow(dat),")."))
   } else if(max(as.matrix(dat), na.rm = T) == 1) {
     model <- "RM"
-    relative_item_avg_locations <- item_avg_locations - person_avg_locations
   } else if(max(as.matrix(dat), na.rm = T) > 1) {
     model <- "PCM"
   }
@@ -5186,7 +5186,7 @@ RIbootLRT <- function(dat, iterations = 1500, samplesize = 500, cpu = 4) {
     as.data.frame() %>%
     set_names("pvalue") %>%
     mutate(Result = ifelse(pvalue < .05, "Statistically significant", "Not statistically significant")) %>%
-    count(Result) %>%
+    dplyr::count(Result) %>%
     mutate(Percent = round(n*100/sum(n),1)) %>%
     knitr::kable()
 }
