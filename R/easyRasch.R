@@ -1502,7 +1502,7 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
           as.data.frame() %>%
           set_names(paste0("Threshold ", 1:maxcat))
         # person locations
-        pthetas <- RIestThetasOLD(dfin, itemParams = as.matrix(item.locations))
+        pthetas <- RIestThetasCATr(dfin, itemParams = as.matrix(item.locations))
 
       } else if (RIcheckdata(dfin) == FALSE) {
 
@@ -3164,8 +3164,8 @@ RIestThetasOLD <- function(data, itemParams, method = "WL",
 #' Outputs a dataframe of person locations (theta) and measurement error (SEM)
 #' for each person
 #'
-#' IMPORTANT: only use with complete response data. If you have missing responses,
-#' `RIestThetasCATr()` or `RIestThetasCATr2()` are recommended instead.
+#' IMPORTANT: only use with complete response data. If you have missing item responses
+#' `RIestThetasCATr()` is recommended instead.
 #'
 #' Uses `iarm::person_estimates()` to estimate person locations
 #' (thetas) for a dataframe with item data as columns and persons as rows.
@@ -3173,7 +3173,7 @@ RIestThetasOLD <- function(data, itemParams, method = "WL",
 #' Defaults to use WLE estimation (lower bias than MLE, see Warm, 1989) and PCM.
 #'
 #' Note: If you want to use a pre-specified set of item parameters, please use
-#' `RIestThetasCATr()` or `RIestThetasCATr2()`.
+#' `RIestThetasCATr()`.
 #'
 #' @param data Dataframe with response data only (no demographics etc), items as columns
 #' @param method Estimation method (defaults to "WLE")
@@ -3924,7 +3924,7 @@ RIdifThreshFigLR <- function(dfin, dif.var) {
 #' @param iterations Number of simulation iterations (needed)
 #' @param cpu Number of CPU cores to use
 #' @export
-RIgetResidCor <- function (data, iterations, cpu = 4) {
+RIgetResidCor <- function (data, iterations = 400, cpu = 4) {
 
   require(doParallel)
   registerDoParallel(cores = cpu)
@@ -3959,14 +3959,14 @@ RIgetResidCor <- function (data, iterations, cpu = 4) {
     }
 
     # estimate theta values in response data
-    thetas <- RIestThetas(data)
+    thetas <- RIestThetasCATr(data, cpu = cpu)
 
     # create object to store results from multicore loop
     residcor <- list()
     residcor <- foreach(icount(iterations)) %dopar%
       {
         # resampled vector of theta values (based on sample properties)
-        inputThetas <- sample(thetas$WLE, size = sample_n, replace = TRUE)
+        inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
         # simulate response data based on thetas and items above
         testData <- SimPartialScore(
@@ -4023,15 +4023,15 @@ RIgetResidCor <- function (data, iterations, cpu = 4) {
     item_locations <- erm_out$betapar * -1
     names(item_locations) <- names(data)
 
-    # estimate theta values from data using WLE
-    thetas <- RIestThetas(data)
+    # estimate theta values from data using MLE (temporary fix for RM with missing data)
+    thetas <- eRm::person.parameter(erm_out)[["theta.table"]][["Person Parameter"]]
 
     # create object to store results from multicore loop
     residcor <- list()
     residcor <- foreach(icount(iterations)) %dopar%
       {
         # resample vector of theta values (based on sample properties)
-        inputThetas <- sample(thetas$WLE, size = sample_n, replace = TRUE)
+        inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
         # simulate response data based on thetas and items above
         testData <-
@@ -4088,7 +4088,7 @@ RIgetResidCor <- function (data, iterations, cpu = 4) {
   out$actual_iterations <- actual_iterations
 
   out$sample_n <- sample_n
-  out$sample_summary <- summary(thetas$WLE)
+  out$sample_summary <- summary(thetas)
 
   out$max_diff <- max(results$diff)
   out$sd_diff <- sd(results$diff)

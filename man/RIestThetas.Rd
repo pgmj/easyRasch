@@ -16,8 +16,8 @@ Outputs a dataframe of person locations (theta) and measurement error (SEM)
 for each person
 }
 \details{
-IMPORTANT: only use with complete response data. If you have missing responses,
-\code{RIestThetasCATr()} or \code{RIestThetasCATr2()} are recommended instead.
+IMPORTANT: only use with complete response data. If you have missing item responses
+\code{RIestThetasCATr()} is recommended instead.
 
 Uses \code{iarm::person_estimates()} to estimate person locations
 (thetas) for a dataframe with item data as columns and persons as rows.
@@ -25,5 +25,5 @@ Uses \code{iarm::person_estimates()} to estimate person locations
 Defaults to use WLE estimation (lower bias than MLE, see Warm, 1989) and PCM.
 
 Note: If you want to use a pre-specified set of item parameters, please use
-\code{RIestThetasCATr()} or \code{RIestThetasCATr2()}.
+\code{RIestThetasCATr()}.
 }

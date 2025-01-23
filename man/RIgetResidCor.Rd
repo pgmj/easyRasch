@@ -4,7 +4,7 @@
 \alias{RIgetResidCor}
 \title{Get simulation based cutoff values for Yen's Q3 residual correlations}
 \usage{
-RIgetResidCor(data, iterations, cpu = 4)
+RIgetResidCor(data, iterations = 400, cpu = 4)
 }
 \arguments{
 \item{data}{Dataframe with response data}

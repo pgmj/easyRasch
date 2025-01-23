@@ -1,3 +1,7 @@
+# easyRasch 0.3.4.1 (2025-01-23)
+
+- `RIgetResidCor()` bug fix for estimation of theta values with dichotomous data, and for estimation of thetas with missing data.
+
 # easyRasch 0.3.4 (2025-01-20)
 
 - **New function:** `RIbootLRT()` since there may be issues with large samplesizes causing type-1 errors for the global fit conditional likelihood ratio test.
