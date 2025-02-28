@@ -5267,12 +5267,21 @@ RIitemcols <- function(data, ncols = 1, labelwrap = 25, text_ypos = 6, viridis_e
 #' @export
 
 RIciccPlot <- function(data, class_intervals = 5, method = "cut",
-                       dif = "no", dif_var = NA) {
+                        dif = "no", dif_var = NA) {
 
   if(min(as.matrix(data), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
   } else if(na.omit(data) %>% nrow() == 0) {
     stop("No complete cases in data.")
+  }
+
+  if (dif == "no") {
+    labels <- c("Expected Item Score",
+                "Average Observed Item Score")
+
+  } else if (dif == "yes") {
+    labels <- c("Expected Item Score",
+                levels(dif_var))
   }
 
   sink(nullfile()) # suppress output from the rows below
@@ -5288,7 +5297,9 @@ RIciccPlot <- function(data, class_intervals = 5, method = "cut",
                                                 difvar = dif_var,
                                                 dif = dif,
                                                 diflabels = levels(dif_var),
-                                                difstats = "yes")
+                                                difstats = "yes") +
+                    theme(legend.direction = "vertical")
+
   )
 
   sink() # disable suppress output
@@ -5298,11 +5309,10 @@ RIciccPlot <- function(data, class_intervals = 5, method = "cut",
                                  guides = "collect",
                                  axis_titles = "collect"
   ) +
-    patchwork::plot_annotation(title = "Conditional Item Characteristic Curves") +
-    patchwork::guide_area()
+    patchwork::plot_annotation(title = "Conditional Item Characteristic Curves") #+
+  #patchwork::guide_area()
   return(plots)
 }
-
 
 
 #' Temporary fix for upstream bug in `iarm::person_estimates()`
