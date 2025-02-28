@@ -5220,7 +5220,7 @@ RIitemcols <- function(data, ncols = 1, labelwrap = 25, text_ypos = 6, viridis_e
     group_by(name) %>%
     mutate(percent = round(n/sum(n)*100,1)) %>%
     ungroup() %>%
-    rename(itemnr = name) %>%
+    dplyr::rename(itemnr = name) %>%
     left_join(itemlabels, by = "itemnr") %>%
 
     ggplot(aes(x = value, y = percent)) +
@@ -5299,8 +5299,7 @@ RIciccPlot <- function(data, class_intervals = 5, method = "cut",
                                                 diflabels = levels(dif_var),
                                                 difstats = "yes") +
                     theme(legend.direction = "vertical")
-
-  )
+                  )
 
   sink() # disable suppress output
 
