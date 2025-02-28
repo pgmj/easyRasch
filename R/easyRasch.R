@@ -5025,6 +5025,8 @@ RIpartgamDIF <- function(data, dif.var, output = "table") {
 RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
                             output = "table", cutoff = 5) {
 
+  n_items <- ncol(dat)
+
   if(min(as.matrix(dat), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
   } else if (samplesize > nrow(dat)) {
@@ -5121,7 +5123,7 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
       kbl_rise() %>%
       footnote(general = paste0("Results based on ",iterations,
                                 " bootstrap iterations with n = ",samplesize,
-                                ". Conditional mean-square infit based on complete responders only (n = ",
+                                " and ",n_items," items. Conditional mean-square infit based on complete responders only (n = ",
                                 n_complete,")."))
 
   } else if (output == "dataframe") {
@@ -5190,6 +5192,117 @@ RIbootLRT <- function(dat, iterations = 1000, samplesize = 500, cpu = 4) {
     mutate(Percent = round(n*100/sum(n),1)) %>%
     knitr::kable()
 }
+
+#' Item response distribution figure
+#'
+#' A figure showing each item's response distribution and n + % of responses in each category.
+#' If you use Quarto, you may need to increase the code chunk setting for `fig-height` to
+#' something above 5 (default).
+#'
+#' Needs the `itemlabels` object to be set up as described in the package README:
+#' <https://pgmj.github.io/easyRasch/#using-the-package>
+#'
+#' @param data Dataframe/tibble with only item response data coded as integers
+#' @param ncols How many columns to display, defaults to 1
+#' @param labelwrap Number of characters to show on each row in item description
+#' @param text_ypos Position on y axis for the text on each column with n responses
+#' @param viridis_end If you need to adapt the coloring of text on columns (0.9 is default)
+#' @param font Choose font family
+#' @export
+
+RIitemcols <- function(data, ncols = 1, labelwrap = 25, text_ypos = 6, viridis_end = 0.9, font = "sans") {
+
+  data %>%
+    pivot_longer(everything()) %>%
+    dplyr::count(name, value) %>%
+    mutate(name = factor(name, levels = rev(names(data))),
+           value = factor(value)) %>%
+    group_by(name) %>%
+    mutate(percent = round(n/sum(n)*100,1)) %>%
+    ungroup() %>%
+    rename(itemnr = name) %>%
+    left_join(itemlabels, by = "itemnr") %>%
+
+    ggplot(aes(x = value, y = percent)) +
+    geom_col(aes(fill = value)) +
+    geom_text(aes(label = paste0("n = ",n),
+                  color = value),
+              y = text_ypos) +
+    facet_wrap(~item, ncol = ncols,
+               strip.position = "left",
+               labeller = labeller(item = label_wrap_gen(labelwrap))) +
+    scale_fill_viridis_d(guide = "none") +
+    scale_y_continuous(position = "right") +
+    scale_color_viridis_d(guide = "none", direction = -1, option = "A", end = viridis_end) +
+    labs(x = "Response category", y = "% of responses") +
+    guides(color = "none") +
+    theme_rise(fontfamily = font) +
+    theme(legend.position = "top",
+          strip.text.y.left = element_text(angle = 0))
+
+}
+
+#' Conditional Item Characteristic Curves
+#'
+#' A wrapper function to simplify getting CICC curves from `iarm::ICCplot()` for
+#' any number of items in the same figure. Uses the `patchwork` package, which
+#' also allows for further additions to a plot using for instance:
+#'
+#' `+ plot_annotation(subtitle = "Some subtitle")`. See `?plot_annotation` for
+#' more possibilities.
+#'
+#' A useful option is for DIF analysis, which requires two optional settings:
+#' `dif = "yes"` and `dif_var = your$difvariable`.
+#'
+#' Text from `?iarm::ICCplot`:
+#'
+#' Plots Item Characteristic Curves for dichotomous and polytomous items using
+#' average scores within adjacent class intervals (method="cut").
+#'
+#' @param data Dataframe/tibble with only item response data coded as integers
+#' @param classintervals Number of groups to divide respondents into
+#' @param method Either "cut" (default) or "score" for all possible total scores
+#' @param dif Defaults to "no". Needs a defined `dif_var` if set to "yes"
+#' @param dif_var An exogenous variable (ie. age group, sex) coded as a factor
+#' @export
+
+RIciccPlot <- function(data, class_intervals = 5, method = "cut",
+                       dif = "no", dif_var = NA) {
+
+  if(min(as.matrix(data), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
+  } else if(na.omit(data) %>% nrow() == 0) {
+    stop("No complete cases in data.")
+  }
+
+  sink(nullfile()) # suppress output from the rows below
+
+  iccplots <- map(1:ncol(data), ~ iarm::ICCplot(as.data.frame(data),
+                                                itemnumber = .x,
+                                                method = method,
+                                                cinumber = class_intervals,
+                                                axis.rumm = "yes",
+                                                title = NULL,
+                                                icclabel = "yes",
+                                                itemdescrip = names(data)[.x],
+                                                difvar = dif_var,
+                                                dif = dif,
+                                                diflabels = levels(dif_var),
+                                                difstats = "yes")
+  )
+
+  sink() # disable suppress output
+
+  plots <- patchwork::wrap_plots(iccplots,
+                                 axes = "collect",
+                                 guides = "collect",
+                                 axis_titles = "collect"
+  ) +
+    patchwork::plot_annotation(title = "Conditional Item Characteristic Curves") +
+    patchwork::guide_area()
+  return(plots)
+}
+
 
 
 #' Temporary fix for upstream bug in `iarm::person_estimates()`

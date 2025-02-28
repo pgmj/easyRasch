@@ -1,3 +1,12 @@
+# easyRasch 0.3.5 (2025-02-28)
+
+- New function `RIciccPlot()` which is a wrapper for `iarm::ICCplot()`. The function simplifies getting output from all items in the dataframe.
+  - NOTE: this can also be used for DIF analysis, using two options, `dif = "yes"` and `dif_var = your$difvariable`.
+  - If you use Quarto, you may need to play with code chunk settings for `fig-height` and `fig-width` to get the output right.
+- New function `RIitemcols()` for a figure showing each item's response distribution and n + % of responses in each category.
+  - If you use Quarto, you will likely need to increase `fig-height` to something above the default setting of 5.
+- Added the number of items analyzed to the `RIbootRestscore()` caption text.
+
 # easyRasch 0.3.4.1 (2025-01-23)
 
 - `RIgetResidCor()` bug fix for estimation of theta values with dichotomous data, and for estimation of thetas with missing data.
@@ -6,8 +15,8 @@
 
 - **New function:** `RIbootLRT()` since there may be issues with large samplesizes causing type-1 errors for the global fit conditional likelihood ratio test.
 - `RIbootRestscore()` has been reworked a bit:
-  - Results are filtered to show only misfit (unless output is `dataframe`)
-  - Results are sorted on underfit/overfit and percent of misfit
+  - Results are filtered to show only misfit (unless output is `dataframe`).
+  - Results are sorted on underfit/overfit and percent of misfit.
 - Cleaned and updated the `RIrmPCA()` function.
 - **NOTE:** a simulation paper evaluating bootstrap functions for conditional item fit and item-restscore has been made available as a preprint: <https://pgmj.github.io/rasch_itemfit/>
 

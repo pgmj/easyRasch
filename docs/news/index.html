@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,17 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.5" id="easyrasch-035-2025-02-28">easyRasch 0.3.5 (2025-02-28)<a class="anchor" aria-label="anchor" href="#easyrasch-035-2025-02-28"></a></h2>
+<ul><li>New function <code><a href="../reference/RIciccPlot.html">RIciccPlot()</a></code> which is a wrapper for <code><a href="https://rdrr.io/pkg/iarm/man/ICCplot.html" class="external-link">iarm::ICCplot()</a></code>. The function simplifies getting output from all items in the dataframe.
+<ul><li>NOTE: this can also be used for DIF analysis, using two options, <code>dif = "yes"</code> and <code>dif_var = your$difvariable</code>.</li>
+<li>If you use Quarto, you may need to play with code chunk settings for <code>fig-height</code> and <code>fig-width</code> to get the output right.</li>
+</ul></li>
+<li>New function <code><a href="../reference/RIitemcols.html">RIitemcols()</a></code> for a figure showing each item’s response distribution and n + % of responses in each category.
+<ul><li>If you use Quarto, you will likely need to increase <code>fig-height</code> to something above the default setting of 5.</li>
+</ul></li>
+<li>Added the number of items analyzed to the <code><a href="../reference/RIbootRestscore.html">RIbootRestscore()</a></code> caption text.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.4.1" id="easyrasch-0341-2025-01-23">easyRasch 0.3.4.1 (2025-01-23)<a class="anchor" aria-label="anchor" href="#easyrasch-0341-2025-01-23"></a></h2>
 <ul><li>
 <code><a href="../reference/RIgetResidCor.html">RIgetResidCor()</a></code> bug fix for estimation of theta values with dichotomous data, and for estimation of thetas with missing data.</li>
@@ -47,8 +58,8 @@
 <strong>New function:</strong> <code><a href="../reference/RIbootLRT.html">RIbootLRT()</a></code> since there may be issues with large samplesizes causing type-1 errors for the global fit conditional likelihood ratio test.</li>
 <li>
 <code><a href="../reference/RIbootRestscore.html">RIbootRestscore()</a></code> has been reworked a bit:
-<ul><li>Results are filtered to show only misfit (unless output is <code>dataframe</code>)</li>
-<li>Results are sorted on underfit/overfit and percent of misfit</li>
+<ul><li>Results are filtered to show only misfit (unless output is <code>dataframe</code>).</li>
+<li>Results are sorted on underfit/overfit and percent of misfit.</li>
 </ul></li>
 <li>Cleaned and updated the <code><a href="../reference/RIrmPCA.html">RIrmPCA()</a></code> function.</li>
 <li>

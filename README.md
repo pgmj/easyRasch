@@ -6,7 +6,7 @@ This package largely functions as a wrapper for other R packages for the Rasch a
 
 The package is intended to simplify the Rasch analysis process and provides easy creation of tables and figures with functions that have few options. The package has been tested on MacOS and Windows with R 4.1 to 4.4.
 
-**NOTE: this package was formerly known as `RISEkbmRasch`. The old GitHub page will remain available but not receive any updates.**
+**NOTE: this package was formerly known as `RISEkbmRasch`. The old GitHub page with code and commit history for `RISEkbmRasch` will remain available as a public archive in read-only state.**
 
 Please regularly check the [Changelog](https://pgmj.github.io/easyRasch/news/index.html) for notes on updates.
 
@@ -48,18 +48,28 @@ There are two data structure requirements:
 1. you need to create a dataframe object named `itemlabels` that consists of two variables/columns:
   - the **first variable** named `itemnr`, containing variable names exactly as they are named in the dataframe containing data (for example q1, q2, q3, etc)
   - the **second variable** named `item`, containing either the questionnaire item or a description of it (or description of a task, etc)
+
+Sample code for four items:
+```r
+itemlabels <- data.frame(itemnr = paste0("q",1:4),
+                         item = c("Was the package easy to install?", 
+                                  "Did you run in to any issues?", 
+                                  "Have you read the 'known issues' section?", 
+                                  "Does this guide help?")
+                         )
+```
+
 2. the response data you want to analyze needs to be in a dataframe with participants as rows and items as columns/variables, with ONLY response data in the dataframe.
   - **the lowest response category needs to be zero (0)** for all items. See <https://pgmj.github.io/datawrangling.html#recoding-response-categories> for sample R code for recoding.
   - you will need to separate any demographic variables into a separate dataframe or separate vectors (preferrably as labeled factors), for analysis of differential item functioning (DIF). Then remove your DIF-variables from the dataframe with item data. **The dataframe with item data can only contain item data for the analysis functions to work** (no ID variable or other demographic variables).
 
-For some Rasch-analysis functions in the package, there are separate functions for polytomous data (more than two response options for each item) and dichotomous/binary data. For instance, `RIitemfitPCM()` for the Partial Credit Model and `RIitemfitRM()` for the dichotomous Rasch Model. The Rating Scale Model (RSM) for polytomous data has not been implemented in any of the functions.
+For most Rasch functions, there is auto-detection of dichotomous or polytomous data, and  For some Rasch-analysis functions in the package, there are separate functions for polytomous data (more than two response options for each item) and dichotomous/binary data. The Rating Scale Model (RSM) for polytomous data has not been implemented in any of the functions.
 
-There are functions where the default is PCM and you can use the option `model = "RM"` for dichotomous data:
+These functions use PCM as default and you can use the option `model = "RM"` for dichotomous data:
 
 - `RItargeting()`
 - `RItif()`
 - `RIloadLoc()`
-- `RIestThetas()`
 - `RIpfit()`
 
 ### Notes on known issues
@@ -69,8 +79,6 @@ There are currently few or no checks on whether data input in functions are corr
 If there is too much missingness in your data, some functions may have issues or take a lot of time to run. In the Quarto template file there is a script for choosing how many responses a participant needs to have to be included in the analysis. You can experiment with this if you run in to trouble. 
 
 Currently, the `RIloadLoc()` function does not work with any missing data (due to the underlying PCA function), and the workaround for now is to run this command with `na.omit()` for the dataframe (ie. `RIloadLoc(na.omit(df))`. Other reasons for functions taking longer time to run is having a lot of items (30+), and/or if you have a lot of response categories that are disordered (often happens with more than 4-6 response categories, especially if they are unlabeled in the questionnaire).
-
-The `RIitemfitPCM2()` function, that makes use of multiple random subsamples to avoid inflated infit/outfit ZSTD values and runs on multiple CPU's/cores, will fail if there is a lot of missing data or very few responses in some categories. Increasing the sample size and/or decreasing the number of parallel CPUs/cores can help. If that fails, revert to the function `RIitemfitPCM()` that only uses one CPU/core.
 
 ### For the curious
 
