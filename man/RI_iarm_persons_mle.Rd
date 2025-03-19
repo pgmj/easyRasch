@@ -13,7 +13,7 @@ RI_iarm_persons_mle(
   extreme = TRUE,
   maxit = 20,
   maxdelta = 3,
-  tol = 0.0001,
+  tol = 1e-04,
   maxval = 9
 )
 }

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,13 @@
       <small>Source: <a href="https://github.com/pgmj/easyRasch/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.6" id="easyrasch-036-2025-03-19">easyRasch 0.3.6 (2025-03-19)<a class="anchor" aria-label="anchor" href="#easyrasch-036-2025-03-19"></a></h2>
+<ul><li>New function <code><a href="../reference/RIbootPCA.html">RIbootPCA()</a></code> to determine critical value for PCA of residuals’ largest expected eigenvalue that supports unidimensionality.
+<ul><li>default setting is 1000 iterations and 4 cpu cores. Have not yet done a simulation study to know which percentile of the results is recommended as a critical value, but 99% is probably a reasonable starting point.</li>
+</ul></li>
+<li>While <code><a href="../reference/RIgetfit.html">RIgetfit()</a></code> defaults to remove respondents with missing data to ensure comparability with the conditional item fit that is estimated only by respondents with complete responses, it is possible to not remove missing respondents. In order to make this work for dichotomous data, item estimation and theta estimation with WLE is now implemented using functions from <code>mirt</code>. This means that MML is used for item parameters rather than CML. If respondents with missing data are removed (default), CML and WLE is used.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.5" id="easyrasch-035-2025-02-28">easyRasch 0.3.5 (2025-02-28)<a class="anchor" aria-label="anchor" href="#easyrasch-035-2025-02-28"></a></h2>
 <ul><li>New function <code><a href="../reference/RIciccPlot.html">RIciccPlot()</a></code> which is a wrapper for <code><a href="https://rdrr.io/pkg/iarm/man/ICCplot.html" class="external-link">iarm::ICCplot()</a></code>. The function simplifies getting output from all items in the dataframe.

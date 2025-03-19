@@ -1506,12 +1506,8 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
 
       } else if (RIcheckdata(dfin) == FALSE) {
 
-        erm_out <- PCM(dfin) # run PCM model
-        item.locations <- as.data.frame(thresholds(erm_out)[[3]][[1]][, -1] - mean(thresholds(erm_out)[[3]][[1]][, -1], na.rm=T))
         # person locations
-        pthetas <- iarm::person_estimates(erm_out, allperson = TRUE) %>%
-          as.data.frame() %>%
-          pull(WLE)
+        pthetas <- RIestThetasCATr(dfin)
       }
 
       names(item.locations) <- paste0("t", c(1:ncol(item.locations))) # re-label variables
@@ -4094,6 +4090,8 @@ RIgetResidCor <- function (data, iterations = 400, cpu = 4) {
   out$sd_diff <- sd(results$diff)
   out$p95 <- quantile(results$diff, .95)
   out$p99 <- quantile(results$diff, .99)
+  out$p995 <- quantile(results$diff, .995)
+  out$p999 <- quantile(results$diff, .999)
 
   return(out)
 }
@@ -4346,7 +4344,7 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
   # since we want comparable values to conditional item fit, which only uses
   # complete cases, we remove any missing responses by default
   if (na.omit == TRUE) {
-  data <- na.omit(data)
+    data <- na.omit(data)
   }
   sample_n <- nrow(data)
 
@@ -4362,12 +4360,17 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
     names(item_locations) <- names(data)
 
     # estimate theta values from data using WLE
-    thetas <- RIestThetas(data)
+    if (na.omit == TRUE) {
+      thetas <- RIestThetas(data)$WLE
+    } else {
+    mirt_out <- mirt(data, itemtype = "Rasch", verbose = FALSE)
+    thetas <- mirt::fscores(mirt_out, method = "WLE", verbose = FALSE)
+    }
 
     fitstats <- list()
     fitstats <- foreach(icount(iterations)) %dopar% {
       # resampled vector of theta values (based on sample properties)
-      inputThetas <- sample(thetas$WLE, size = sample_n, replace = TRUE)
+      inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
       # simulate response data based on thetas and items above
       testData <-
@@ -4423,12 +4426,12 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
     }
 
     # estimate theta values from data using WLE
-    thetas <- RIestThetas(data)
+    thetas <- RIestThetasCATr(data)
 
     fitstats <- list()
     fitstats <- foreach(icount(iterations)) %dopar% {
       # resampled vector of theta values (based on sample properties)
-      inputThetas <- sample(thetas$WLE, size = sample_n, replace = TRUE)
+      inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
       # simulate response data based on thetas and items above
       testData <- SimPartialScore(
@@ -4481,7 +4484,7 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
   }
 
   fitstats$sample_n <- sample_n
-  fitstats$sample_summary <- summary(thetas$WLE)
+  fitstats$sample_summary <- summary(thetas)
 
   return(fitstats)
 }
@@ -5311,6 +5314,190 @@ RIciccPlot <- function(data, class_intervals = 5, method = "cut",
     patchwork::plot_annotation(title = "Conditional Item Characteristic Curves") #+
   #patchwork::guide_area()
   return(plots)
+}
+
+#' Parametric bootstrap procedure for PCA of Rasch model residuals
+#'
+#' Estimates item and person parameters from data and simulates data fitting the
+#' RM or PCM, then estimates the largest eigenvalue from residuals.
+#'
+#' Outputs an object with complete results under `$results` and
+#' percentile values at 95%, 99%, 99.5%, and 99.9%.
+#'
+#' @param data Dataframe with item responses
+#' @param iterations Number of bootstrap iterations
+#' @param cpu Number of CPU cores to use
+#' @export
+#'
+RIbootPCA <- function(data, iterations = 1000, cpu = 4) {
+
+  sample_n <- nrow(data)
+  items_n <- ncol(data)
+
+  require(doParallel)
+  registerDoParallel(cores = cpu)
+
+  if (min(as.matrix(data), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
+  } else if (max(as.matrix(data), na.rm = T) == 1 && min(as.matrix(data), na.rm = T) == 0) {
+    # estimate item threshold locations from data
+    erm_out <- eRm::RM(data)
+    item_locations <- erm_out$betapar * -1
+    names(item_locations) <- names(data)
+
+    # estimate theta values from data using WLE
+    if (any(is.na(as.matrix(data))) == FALSE) {
+      thetas <- RIestThetas(data)$WLE
+    } else {
+      mirt_out <- mirt(data, itemtype = "Rasch", verbose = FALSE)
+      thetas <- mirt::fscores(mirt_out, method = "WLE", verbose = FALSE)
+    }
+
+    fitstats <- list()
+    fitstats <- foreach(icount(iterations)) %dopar% {
+      # resampled vector of theta values (based on sample properties)
+      inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
+
+      # simulate response data based on thetas and items above
+      testData <-
+        psychotools::rrm(inputThetas, item_locations, return_setting = FALSE) %>%
+        as.data.frame()
+
+      # TEMPORARY FIX START
+      # check that all items have at least 8 positive responses, otherwise eRm::RM() fails
+      n_resp <-
+        testData %>%
+        as.matrix() %>%
+        colSums2() %>%
+        t() %>%
+        as.vector()
+
+      if (min(n_resp, na.rm = TRUE) < 8) {
+        return("Missing cells in generated data.")
+      }
+      # END TEMP FIX
+
+      erm_out <- RM(testData)
+      ple <- eRm::person.parameter(erm_out)
+      item.fit <- eRm::itemfit(ple)
+      std.resids <- item.fit$st.res
+      pca <- psych::pca(std.resids, nfactors = ncol(data), rotate = "oblimin")
+      eigenvalue <- pca$values %>% round(3) %>% head(1)
+
+    }
+  } else if (max(as.matrix(data), na.rm = T) > 1 && min(as.matrix(data), na.rm = T) == 0) {
+
+    #check for n < 3 responses in any cell
+    if(RIcheckdata(data) == TRUE) {
+      # mirt is less unreliable than eRm in this situation
+      mirt_out <- mirt(data, model=1, itemtype='Rasch', verbose = FALSE)
+      item.locations <- coef(mirt_out, simplify = TRUE, IRTpars = TRUE)$items %>%
+        as.data.frame() %>%
+        select(!a) %>%
+        as.matrix()
+      item.locations <- item.locations - mean(item.locations, na.rm = TRUE)
+      maxcat <- data %>%
+        pivot_longer(everything()) %>%
+        dplyr::count(name,value) %>%
+        pull(value) %>%
+        max(na.rm = TRUE)
+      item.locations <- item.locations %>%
+        as.data.frame() %>%
+        set_names(paste0("Threshold ", 1:maxcat))
+      # person locations
+      thetas <- RIestThetasCATr(data, itemParams = as.matrix(item.locations))
+
+    } else if (RIcheckdata(data) == FALSE) {
+
+      # person locations
+      thetas <- RIestThetasCATr(data)
+
+    }
+
+    # estimate item threshold locations from data
+    item_locations <- RIitemparams(data, output = "dataframe") %>%
+      dplyr::select(!Location) %>%
+      janitor::clean_names() %>%
+      as.matrix()
+
+    n_items <- nrow(item_locations)
+
+    # item threshold locations in list format for simulation function
+    itemlist <- list()
+    for (i in 1:n_items) {
+      itemlist[[i]] <- list(na.omit(item_locations[i, ]))
+    }
+
+    # get number of response categories for each item for later use in checking complete responses
+    itemlength <- list()
+    for (i in 1:n_items) {
+      itemlength[i] <- length(na.omit(item_locations[i, ]))
+      names(itemlength)[i] <- names(data)[i]
+    }
+
+    fitstats <- list()
+    fitstats <- foreach(icount(iterations)) %dopar% {
+      # resampled vector of theta values (based on sample properties)
+      inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
+
+      # simulate response data based on thetas and items above
+      testData <- SimPartialScore(
+        deltaslist = itemlist,
+        thetavec = inputThetas
+      ) %>%
+        as.data.frame()
+
+      names(testData) <- names(data)
+
+      # check that data has responses in all categories
+      data_check <- testData %>%
+        # make factor to not drop any consecutive response categories with 0 responses
+        mutate(across(everything(), ~ factor(.x, levels = c(0:itemlength[[as.character(expression(.x))]])))) %>%
+        pivot_longer(everything()) %>% # screws up factor levels, which makes the next step necessary
+        dplyr::count(name, value, .drop = FALSE) %>%
+        pivot_wider(
+          names_from = "name",
+          values_from = "n"
+        ) %>%
+        dplyr::select(!value) %>%
+        # mark missing cells with NA for later logical examination with if(is.na)
+        mutate(across(everything(), ~ car::recode(.x, "0=NA", as.factor = FALSE))) %>%
+        as.data.frame() %>%
+        select(all_of(names(data))) # get item sorting correct
+
+      # match response data generated with itemlength
+      item_ccount <- list()
+      for (i in 1:n_items) {
+        item_ccount[i] <- list(data_check[c(1:itemlength[[i]]), i])
+      }
+
+      # check if any item has 0 responses in a response category that should have data
+      if (any(is.na(unlist(item_ccount)))) {
+        return("Missing cells in generated data.")
+      }
+
+      # get PCA eigenvalue
+      pcm_out <- eRm::PCM(testData)
+      ple <- eRm::person.parameter(pcm_out)
+      item.fit <- eRm::itemfit(ple)
+      std.resids <- item.fit$st.res
+      pca <- psych::pca(std.resids, nfactors = ncol(data), rotate = "oblimin")
+      eigenvalue <- pca$values %>% round(3) %>% head(1)
+
+    }
+  }
+
+  stats <- list(results = unlist(fitstats),
+                samplesize = sample_n,
+                number_of_items = items_n,
+                actual_iterations = length(fitstats),
+                p95 = quantile(unlist(fitstats), .95),
+                p99 = quantile(unlist(fitstats), .99),
+                p995 = quantile(unlist(fitstats), .995),
+                p999 = quantile(unlist(fitstats), .999),
+                max = max(unlist(fitstats)))
+
+  return(stats)
 }
 
 

@@ -1,3 +1,10 @@
+# easyRasch 0.3.6 (2025-03-19)
+
+- New function `RIbootPCA()` to determine critical value for PCA of residuals' largest expected eigenvalue that supports unidimensionality.
+  - default setting is 1000 iterations and 4 cpu cores. Have not yet done a simulation study to know which percentile of the results is recommended as a critical value, but 99% is probably a reasonable starting point.
+- While `RIgetfit()` defaults to remove respondents with missing data to ensure comparability with the conditional item fit that is estimated only by respondents with complete responses, it is possible to not remove missing respondents. In order to make this work for dichotomous data, item estimation and theta estimation with WLE is now implemented using functions from `mirt`. This means that MML is used for item parameters rather than CML. If respondents with missing data are removed (default), CML and WLE is used.
+
+
 # easyRasch 0.3.5 (2025-02-28)
 
 - New function `RIciccPlot()` which is a wrapper for `iarm::ICCplot()`. The function simplifies getting output from all items in the dataframe.
