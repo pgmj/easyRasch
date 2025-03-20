@@ -1505,7 +1505,8 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
         pthetas <- RIestThetasCATr(dfin, itemParams = as.matrix(item.locations))
 
       } else if (RIcheckdata(dfin) == FALSE) {
-
+        erm_out <- PCM(dfin) # run PCM model
+        item.locations <- as.data.frame(thresholds(erm_out)[[3]][[1]][, -1] - mean(thresholds(erm_out)[[3]][[1]][, -1], na.rm=T))
         # person locations
         pthetas <- RIestThetasCATr(dfin)
       }
@@ -1598,7 +1599,7 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
         xlab("") +
         ylab("Thresholds") +
         scale_x_continuous(limits = xlim, breaks = scales::breaks_extended(n = 10)) +
-        scale_y_reverse() +
+        scale_y_reverse(breaks = ~round(unique(pretty(.))), minor_breaks = NULL) +
         geom_vline(xintercept = item.mean, color = "#e83c63", linetype = 2) +
         annotate("rect", ymin = 0, ymax = Inf, xmin = (item.mean - item.thresh.sd), xmax = (item.mean + item.thresh.sd), alpha = .2) +
         theme_bw() +
@@ -1702,7 +1703,7 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
       labs(x = "",
            y = "Items aggregated") +
       scale_x_continuous(limits = xlim, breaks = scales::breaks_extended(n = 10)) +
-      scale_y_reverse() +
+      scale_y_reverse(breaks = ~round(unique(pretty(.))), minor_breaks = NULL) +
       geom_vline(xintercept = item.mean, color = "#e83c63", linetype = 2) +
       annotate("rect", ymin = 0, ymax = Inf, xmin = (item.mean-item.sd), xmax = (item.mean+item.sd), alpha = .2) +
       geom_text(hjust = 1.2, vjust = 1) +
@@ -1734,7 +1735,6 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
     return(targeting_plots)
   }
 }
-
 
 #' Reliability of test
 #'
@@ -5329,7 +5329,7 @@ RIciccPlot <- function(data, class_intervals = 5, method = "cut",
 #' @param cpu Number of CPU cores to use
 #' @export
 #'
-RIbootPCA <- function(data, iterations = 1000, cpu = 4) {
+RIbootPCA <- function(data, iterations = 200, cpu = 4) {
 
   sample_n <- nrow(data)
   items_n <- ncol(data)

@@ -1,3 +1,8 @@
+# easyRasch 0.3.6.1 (2025-03-20)
+
+- Accidentally introduced a bug into `RItargeting()` which is now corrected. Additionally, minor breaks were removed from the inverted histogram of item threshold locations and only integers shown on the y axis.
+- Changed the default number of iterations for `RIbootPCA()` to 200.
+
 # easyRasch 0.3.6 (2025-03-19)
 
 - New function `RIbootPCA()` to determine critical value for PCA of residuals' largest expected eigenvalue that supports unidimensionality.
