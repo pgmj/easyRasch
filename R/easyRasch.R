@@ -1830,7 +1830,7 @@ RItif <- function(dfin, lo = -5, hi = 5, samplePSI = FALSE, cutoff = 3.33, model
   psimatrix$psX <- seq(lo, hi, length.out = 201L)
 
   # check if TIF goes above 3.3
-  peak.tif <- psimatrix %>% slice(which.max(psY)) %>% dplyr::select(psY) %>% pull()
+  peak.tif <- psimatrix %>% dplyr::slice(which.max(psY)) %>% dplyr::select(psY) %>% pull()
 
   if (peak.tif > cutoff - 0.01) {
     # Indicate which values are above below by a new variable with TRUE/FALSE
@@ -1841,12 +1841,12 @@ RItif <- function(dfin, lo = -5, hi = 5, samplePSI = FALSE, cutoff = 3.33, model
     # this provides the highest and lowest value into two variables
     psep_min <- psimatrix %>%
       dplyr::filter(tif_above_cutoff == TRUE) %>%
-      slice(which.min(psX)) %>%
+      dplyr::slice(which.min(psX)) %>%
       pull(psX)
 
     psep_max <- psimatrix %>%
       dplyr::filter(tif_above_cutoff == TRUE) %>%
-      slice(which.max(psX)) %>%
+      dplyr::slice(which.max(psX)) %>%
       pull(psX)
 
     # calculate how many participants cross the cutoffs
@@ -1857,12 +1857,12 @@ RItif <- function(dfin, lo = -5, hi = 5, samplePSI = FALSE, cutoff = 3.33, model
     min_thresh <- df.locations %>%
       dplyr::filter(type == "Item thresholds") %>%
       arrange(locations) %>%
-      slice(1) %>%
+      dplyr::slice(1) %>%
       pull()
     max_thresh <- df.locations %>%
       dplyr::filter(type == "Item thresholds") %>%
       arrange(desc(locations)) %>%
-      slice(1) %>%
+      dplyr::slice(1) %>%
       pull()
 
     # calculate how many participants cross the cutoffs
@@ -2886,6 +2886,12 @@ RIdifFigureRM <- function(dfin, dif.var) {
 #' @param sem_multiplier For confidence intervals displayed in figure
 #' @export
 RIitemHierarchy <- function(dfin, numbers = TRUE, sem_multiplier = 1.405){
+
+  # create temporary itemlabels object if none is found
+  if (is.data.frame(itemlabels) != TRUE) {
+    itemlabels <- data.frame(itemnr = names(dfin),
+                             item = names(dfin))
+  }
 
   if(max(as.matrix(dfin), na.rm = TRUE) == 1) {
     stop("Dichotomous data currently not supported. See `?RIitemHierarchy` for workaround.")
@@ -5100,14 +5106,14 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
 
   fit_tbl <- fit %>%
     group_by(item) %>%
-    count(item_restscore) %>%
+    dplyr::count(item_restscore) %>%
     mutate(percent = round(n*100/sum(n),1)) %>%
     left_join(cfit_df, by = "item") %>%
     ungroup()
 
   test <- fit_tbl %>%
     filter(!item_restscore == "no misfit") %>%
-    slice_max(percent) %>%
+    dplyr::slice_max(percent) %>%
     pull(percent)
 
   if (isTRUE(test < cutoff)) {
@@ -5202,7 +5208,7 @@ RIbootLRT <- function(dat, iterations = 1000, samplesize = 500, cpu = 4) {
 #' If you use Quarto, you may need to increase the code chunk setting for `fig-height` to
 #' something above 5 (default).
 #'
-#' Needs the `itemlabels` object to be set up as described in the package README:
+#' Works best with the `itemlabels` object set up as described in the package README:
 #' <https://pgmj.github.io/easyRasch/#using-the-package>
 #'
 #' @param data Dataframe/tibble with only item response data coded as integers
@@ -5214,6 +5220,12 @@ RIbootLRT <- function(dat, iterations = 1000, samplesize = 500, cpu = 4) {
 #' @export
 
 RIitemcols <- function(data, ncols = 1, labelwrap = 25, text_ypos = 6, viridis_end = 0.9, font = "sans") {
+
+  # create temporary itemlabels object if none is found
+  if (is.data.frame(itemlabels) != TRUE) {
+    itemlabels <- data.frame(itemnr = names(data),
+                             item = names(data))
+  }
 
   data %>%
     pivot_longer(everything()) %>%

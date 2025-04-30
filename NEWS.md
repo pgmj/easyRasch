@@ -1,3 +1,9 @@
+# easyRasch 0.3.6.2 (2025-04-30)
+
+- Added an automatic creation of the itemlabels object for `RIitemHierarchy()` and `RIitemcols()` if it is missing.
+- Specified the use of `slice()` as `dplyr::slice()` to avoid namespace issues with package `ordinal`.
+- Bug fix in `RIbootRestscore()` where `count()` needed to be specified as `dplyr::count()`.
+
 # easyRasch 0.3.6.1 (2025-03-20)
 
 - Accidentally introduced a bug into `RItargeting()` which is now corrected. Additionally, minor breaks were removed from the inverted histogram of item threshold locations and only integers shown on the y axis.
