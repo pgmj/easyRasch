@@ -3871,7 +3871,7 @@ RIdifThreshFigLR <- function(dfin, dif.var) {
 #' @param iterations Number of simulation iterations (needed)
 #' @param cpu Number of CPU cores to use
 #' @export
-RIgetResidCor <- function (data, iterations = 400, cpu = 4) {
+RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
 
   require(doParallel)
   registerDoParallel(cores = cpu)
@@ -3952,10 +3952,10 @@ RIgetResidCor <- function (data, iterations = 400, cpu = 4) {
         }
 
         # create Yen's Q3 residual correlation matrix
-        sink(nullfile())
-        mirt.rasch <- mirt(testData, model = 1, itemtype = "Rasch")
-        resid = residuals(mirt.rasch, type = "Q3", digits = 2)
-        sink()
+        #sink(nullfile())
+        mirt.rasch <- mirt(testData, model = 1, itemtype = "Rasch", verbose = FALSE, accelerate = 'squarem')
+        resid <- residuals(mirt.rasch, type = "Q3", digits = 2)
+        #sink()
         diag(resid) <- NA
 
         data.frame(mean = mean(resid, na.rm = TRUE),
@@ -4000,10 +4000,10 @@ RIgetResidCor <- function (data, iterations = 400, cpu = 4) {
         # END TEMP FIX
 
         # create Yen's Q3 residual correlation matrix
-        sink(nullfile())
-        mirt.rasch <- mirt(testData, model = 1, itemtype = "Rasch")
-        resid = residuals(mirt.rasch, type = "Q3", digits = 2)
-        sink()
+        #sink(nullfile())
+        mirt.rasch <- mirt(testData, model = 1, itemtype = "Rasch", verbose = FALSE, accelerate = 'squarem')
+        resid <- residuals(mirt.rasch, type = "Q3", digits = 2)
+        #sink()
         diag(resid) <- NA
 
         data.frame(mean = mean(resid, na.rm = TRUE),
