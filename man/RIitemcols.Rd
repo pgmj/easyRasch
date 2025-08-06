@@ -32,6 +32,6 @@ If you use Quarto, you may need to increase the code chunk setting for \code{fig
 something above 5 (default).
 }
 \details{
-Needs the \code{itemlabels} object to be set up as described in the package README:
+Works best with the \code{itemlabels} object set up as described in the package README:
 \url{https://pgmj.github.io/easyRasch/#using-the-package}
 }

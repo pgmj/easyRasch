@@ -4,7 +4,7 @@
 \alias{RIbootPCA}
 \title{Parametric bootstrap procedure for PCA of Rasch model residuals}
 \usage{
-RIbootPCA(data, iterations = 1000, cpu = 4)
+RIbootPCA(data, iterations = 200, cpu = 4)
 }
 \arguments{
 \item{data}{Dataframe with item responses}

@@ -159,115 +159,60 @@ RImissing <- function(data, itemStart) {
 
 #' Creates a figure with item missing data descriptives for participants
 #'
-#' Sample use: `RImissingP(df, itemStart = "PSS")`
+#' The y axis is ordered by most missing responses.
 #'
-#' If `itemStart` is missing, the whole dataframe will be used.
+#' Sample use: `RImissingP(data)`
+#'
 #'
 #' @param data Dataframe/tibble to create table from
-#' @param itemStart What your variable names start with, in quotes
 #' @param output Optional dataframe with participants with missing data
-#' @param n For large samples, show n participants with most missing data
+#' @param N Show n participants with most missing data (default = 10)
 #' @export
-RImissingP <- function(data, itemStart, output, n = 10) {
-  if (missing(itemStart)) {
-    order <- data %>%
-      mutate(Missing = rowSums(is.na(.))) %>%
-      dplyr::select(Missing) %>%
-      rownames_to_column(var = "Participant") %>%
-      na.omit() %>%
-      dplyr::filter(Missing > 0) %>%
-      arrange(desc(Missing)) %>%
-      pull(Participant)
+RImissingP <- function(data, output, N = 10) {
+  order <- data %>%
+    mutate(Missing = rowSums(is.na(.))) %>%
+    dplyr::select(Missing) %>%
+    rownames_to_column(var = "Participant") %>%
+    na.omit() %>%
+    dplyr::filter(Missing > 0) %>%
+    arrange(desc(Missing)) %>%
+    slice(0:N)
 
-    if (length(order) < 1) {
-      return("No missing data.")
-    }
-
-    data %>%
-      mutate(Missing = rowSums(is.na(.))) %>%
-      dplyr::select(Missing) %>%
-      rownames_to_column(var = "Participant") %>%
-      na.omit() %>%
-      dplyr::filter(Missing > 0) %>%
-      arrange(desc(Missing)) %>%
-      head(n) %>%
-      mutate(Participant = as.factor(Participant)) %>%
-      mutate(Participant = fct_relevel(Participant, rev(order))) %>%
-      ggplot(., aes(x = Participant, y = Missing)) +
-      geom_col(fill = "#009ca6") +
-      geom_text(aes(label = paste0(round(Missing * 100 / ncol(data), 1), "%")),
-                hjust = 1.1, vjust = 0.5,
-                color = "white"
-      ) +
-      scale_y_continuous(
-        breaks = seq(
-          from = 0,
-          to = max(.$Missing),
-          by = 1
-        ),
-        labels = scales::number_format(accuracy = 1),
-        minor_breaks = NULL
-      ) +
-      coord_flip() +
-      labs(
-        title = "Missing data per participant",
-        x = "Participant rownumber",
-        y = "Number of responses missing",
-        caption = paste0("Note. Total number of items is ", ncol(data), ".")
-      ) +
-      theme_minimal()
-  } else {
-    order <- data %>%
-      dplyr::select(starts_with({{ itemStart }})) %>%
-      mutate(Missing = rowSums(is.na(.))) %>%
-      dplyr::select(Missing) %>%
-      rownames_to_column(var = "Participant") %>%
-      na.omit() %>%
-      dplyr::filter(Missing > 0) %>%
-      arrange(desc(Missing)) %>%
-      pull(Participant)
-
-    if (length(order) < 1) {
-      return("No missing data.")
-    }
-
-    data %>%
-      dplyr::select(starts_with({{ itemStart }})) %>%
-      mutate(Missing = rowSums(is.na(.))) %>%
-      dplyr::select(Missing) %>%
-      rownames_to_column(var = "Participant") %>%
-      na.omit() %>%
-      dplyr::filter(Missing > 0) %>%
-      arrange(desc(Missing)) %>%
-      head(n) %>%
-      mutate(Participant = as.factor(Participant)) %>%
-      mutate(Participant = fct_relevel(Participant, rev(order))) %>%
-
-      ggplot(., aes(x = Participant, y = Missing)) +
-      geom_col(fill = "#009ca6") +
-      geom_text(aes(label = paste0(round(Missing * 100 / ncol(data), 1), "%")),
-                hjust = 1.1, vjust = 0.5,
-                color = "white"
-      ) +
-      scale_y_continuous(
-        breaks = seq(
-          from = 0,
-          to = max(.$Missing),
-          by = 1
-        ),
-        labels = scales::number_format(accuracy = 1),
-        minor_breaks = NULL
-      ) +
-      coord_flip() +
-      labs(
-        title = "Missing data per participant",
-        x = "Participant rownumber",
-        y = "Number of responses missing",
-        caption = paste0("Note. Total number of items is ", ncol(data), ".")
-      ) +
-      theme_minimal()
-
+  if (length(order) < 1) {
+    return("No missing data.")
   }
+  data %>%
+    mutate(Missing = rowSums(is.na(.))) %>%
+    dplyr::select(Missing) %>%
+    rownames_to_column(var = "Participant") %>%
+    na.omit() %>%
+    dplyr::filter(Missing > 0) %>%
+    arrange(desc(Missing)) %>%
+    head(N) %>%
+    mutate(Participant = as.factor(Participant)) %>%
+    mutate(Participant = fct_relevel(Participant, rev(order$Participant))) %>%
+
+    ggplot(aes(x = Participant, y = Missing)) +
+    geom_col(fill = "#009ca6") +
+    geom_text(
+      aes(label = paste0(round(Missing * 100 / ncol(data), 1), "%")),
+      hjust = 1.1,
+      vjust = 0.5,
+      color = "white"
+    ) +
+    scale_y_continuous(
+      breaks = seq(from = 0, to = max(order$Missing), by = 1),
+      labels = scales::number_format(accuracy = 1),
+      minor_breaks = NULL
+    ) +
+    coord_flip() +
+    labs(
+      title = "Missing data per participant",
+      x = "Participant rownumber",
+      y = "Number of responses missing",
+      caption = paste0("Note. Total number of items is ", ncol(data), ".")
+    ) +
+    theme_minimal()
 }
 
 #' Show items based on itemlabels file
@@ -5512,6 +5457,142 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4) {
   return(stats)
 }
 
+
+#' Cross-validation of conditional item infit
+#'
+#' Creates k random folds using `rsample::vfold_cv()`;
+#' "V-fold cross-validation (also known as k-fold cross-validation) randomly
+#' splits the data into V groups of roughly equal size (called "folds").
+#' A resample of the analysis data consists of V-1 of the folds",
+#' see <https://rsample.tidymodels.org/reference/vfold_cv.html>
+#'
+#' Each V-1 dataset is used both for calculating item fit and expected item fit
+#' critical values (using `RIgetfit()`). If `output = "table"` (default), results
+#' are summarized indicating upper and lower bounds for each item's calculated
+#' infit and simulated expected range. This is based on all V-1 fold combinations.
+#'
+#' @param data Dataframe with item responses
+#' @param k Number of folds to use (default is 5)
+#' @param output Default `table`, options `dataframe` and `raw`
+#' @param sim_iter Number of iterations (depends on sample size)
+#' @param sim_cpu Number of CPU cores to use
+#' @param cutoff Truncation at percentile values (see `?RIitemfit`)
+#' @export
+#'
+RIinfitKfold <- function(data, k = 5, output = "table", sim_iter = 100,
+                         sim_cpu = 4, cutoff = c(.001,.999)) {
+
+  if(min(as.matrix(data), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
+  } else if(na.omit(data) %>% nrow() == 0) {
+    stop("No complete cases in data.")
+  } else if(max(as.matrix(data), na.rm = T) == 1) {
+    rmodel = "RM"
+  } else if(max(as.matrix(data), na.rm = T) > 1) {
+    rmodel = "PCM"
+  }
+
+  require(rsample) # install package if necessary
+  datafold <- vfold_cv(data, v = k)
+  samplesize <- nrow(data) - round(nrow(data) / k, 0)
+
+  if (rmodel == "PCM") {
+    infit_folds <- map(
+      1:k,
+      function(x) {
+        cfit <- iarm::out_infit(PCM(analysis(datafold$splits[[x]])))
+        data.frame(InfitMSQ = cfit$Infit) %>%
+          round(3) %>%
+          rownames_to_column("Item")
+      })
+
+  } else if (rmodel == "RM") {
+    infit_folds <- map(
+      1:k,
+      function(x) {
+        cfit <- iarm::out_infit(RM(analysis(datafold$splits[[x]])))
+        data.frame(InfitMSQ = cfit$Infit) %>%
+          round(3) %>%
+          rownames_to_column("Item")
+      })
+  }
+
+  tbl <- bind_rows(infit_folds) %>%
+    group_by(Item) %>%
+    summarise(lowest_infit = min(InfitMSQ),
+              #mean_infit = mean(InfitMSQ),
+              highest_infit = max(InfitMSQ)) %>%
+    mutate(across(where(is.numeric), ~ round(.x,3)))
+
+  # get reference values based on simulations from each fold
+  simcut <- map(1:k, ~ RIgetfit(analysis(datafold$splits[[.x]]), iterations = sim_iter, cpu = sim_cpu))
+
+  # get number of iterations used to get simulation based cutoff values
+  iterations <- length(simcut[[1]]) - 2
+
+  # remove the sample info (last 2 list objects within each simulation iteration)
+  simcut_trimmed <- lapply(simcut, function(sublist) {
+    lapply(sublist[1:sim_iter], function(inner_list) {
+      inner_list
+    })
+  })
+
+  # get results into one list, unnested
+  simcut2 <- unlist(simcut_trimmed, recursive = FALSE)
+
+  # check for faulty simulation runs
+  nodata <- lapply(simcut2, is.character) %>% unlist()
+  iterations_nodata <- which(nodata)
+
+  actual_iterations <- iterations - length(iterations_nodata)
+
+  # summarise simulations and set cutoff values
+  if (actual_iterations == iterations) {
+    lo_hi <-
+      bind_rows(simcut2[1:iterations]) %>%
+      group_by(Item) %>%
+      summarise(sim_min_infit_msq = quantile(InfitMSQ, cutoff[1]),
+                sim_max_infit_msq = quantile(InfitMSQ, cutoff[2])
+      ) %>%
+      mutate(across(where(is.numeric), ~ round(.x,3)))
+
+  } else {
+    lo_hi <-
+      bind_rows(simcut2[1:iterations][-iterations_nodata]) %>%
+      group_by(Item) %>%
+      summarise(sim_min_infit_msq = quantile(InfitMSQ, cutoff[1]),
+                sim_max_infit_msq = quantile(InfitMSQ, cutoff[2])
+      ) %>%
+      mutate(across(where(is.numeric), ~ round(.x,3)))
+
+  }
+
+  tbl <- tbl %>%
+    left_join(lo_hi, by = "Item") %>%
+    relocate(sim_min_infit_msq, .after = "Item")
+
+  if (output == "dataframe") {
+    return(tbl)
+  } else if (output == "raw") {
+
+    list(table = tbl,
+         results = infit_folds,
+         data = datafold,
+         simcut = simcut2)
+
+  } else if (output == "table") {
+    tbl %>%
+      dplyr::rename(`Lower cutoff` = sim_min_infit_msq,
+             `Upper cutoff` = sim_max_infit_msq,
+             `Lowest infit MSQ` = lowest_infit,
+             #`Mean infit MSQ` = mean_infit,
+             `Highest infit MSQ` = highest_infit) %>%
+      kbl_rise() %>%
+      footnote(general = paste0("Infit MSQ values based on conditional estimation using n = ",
+                                samplesize," cases (",k," folds of data from a dataset of ",nrow(data),"). Cutoff values based on ",sim_iter," simulations from the each fold of data."))
+  }
+
+}
 
 #' Temporary fix for upstream bug in `iarm::person_estimates()`
 #'

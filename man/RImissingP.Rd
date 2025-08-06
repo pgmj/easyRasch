@@ -4,20 +4,18 @@
 \alias{RImissingP}
 \title{Creates a figure with item missing data descriptives for participants}
 \usage{
-RImissingP(data, itemStart, output, n = 10)
+RImissingP(data, output, N = 10)
 }
 \arguments{
 \item{data}{Dataframe/tibble to create table from}
 
-\item{itemStart}{What your variable names start with, in quotes}
-
 \item{output}{Optional dataframe with participants with missing data}
 
-\item{n}{For large samples, show n participants with most missing data}
+\item{N}{Show n participants with most missing data (default = 10)}
 }
 \description{
-Sample use: \code{RImissingP(df, itemStart = "PSS")}
+The y axis is ordered by most missing responses.
 }
 \details{
-If \code{itemStart} is missing, the whole dataframe will be used.
+Sample use: \code{RImissingP(data)}
 }
