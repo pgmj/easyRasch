@@ -1,4 +1,9 @@
-# easyRasch 0.3.6.3 (2025-08-05)
+# easyRasch 0.3.6.4 (2025-08-08)
+
+- `RIdifTileplot(data, dif_var)` - new convenience function for checking response distributions prior to DIF analysis.
+- `RIresidcorr()` now also uses accelerator SQUAREM for (very slightly) improved speed.
+
+# easyRasch 0.3.6.3 (2025-08-06)
 
 - Bug fix for `RImissingP()`, which has been broken a while.
 - Experimental new function `RIinfitKfold()` for cross-validating item fit using `rsample::vfold_cv()`; "V-fold cross-validation (also known as k-fold cross-validation) randomly splits the data into V groups of roughly equal size (called "folds"). A resample of the analysis data consists of V-1 of the folds", see <https://rsample.tidymodels.org/reference/vfold_cv.html>

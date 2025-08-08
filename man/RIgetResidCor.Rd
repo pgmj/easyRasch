@@ -4,14 +4,14 @@
 \alias{RIgetResidCor}
 \title{Get simulation based cutoff values for Yen's Q3 residual correlations}
 \usage{
-RIgetResidCor(data, iterations = 400, cpu = 4)
+RIgetResidCor(data, iterations = 500, cpu = 4)
 }
 \arguments{
 \item{data}{Dataframe with response data}
 
 \item{iterations}{Number of simulation iterations (needed)}
 
-\item{cpu}{Number of CPU cores to use}
+\item{cpu}{Number of CPU cores to use (4 is default)}
 }
 \description{
 Based on Christensen et al. (2017, DOI: 10.1177/0146621616677520).

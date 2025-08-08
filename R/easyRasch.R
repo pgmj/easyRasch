@@ -1346,12 +1346,12 @@ RIresidcorr <- function(data, cutoff, output = "table", ...) {
     stop("Please set a cutoff value, ideally using `RIgetResidCor()`")
   }
 
-  sink(nullfile()) # suppress output from the rows below
+  #sink(nullfile()) # suppress output from the rows below
 
-  mirt.rasch <- mirt(data, model = 1, itemtype = 'Rasch') # unidimensional Rasch model
+  mirt.rasch <- mirt(data, model = 1, itemtype = 'Rasch', verbose = FALSE, accelerate = 'squarem') # unidimensional Rasch model
   resid <- residuals(mirt.rasch, type = "Q3", digits = 2) # get residuals
 
-  sink() # disable suppress output
+  #sink() # disable suppress output
 
   diag(resid) <- NA # make the diagonal of correlation matrix NA instead of 1
   resid <- as.data.frame(resid)
@@ -3869,7 +3869,7 @@ RIdifThreshFigLR <- function(dfin, dif.var) {
 #'
 #' @param data Dataframe with response data
 #' @param iterations Number of simulation iterations (needed)
-#' @param cpu Number of CPU cores to use
+#' @param cpu Number of CPU cores to use (4 is default)
 #' @export
 RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
 
@@ -5592,6 +5592,40 @@ RIinfitKfold <- function(data, k = 5, output = "table", sim_iter = 100,
                                 samplesize," cases (",k," folds of data from a dataset of ",nrow(data),"). Cutoff values based on ",sim_iter," simulations from the each fold of data."))
   }
 
+}
+
+#' Check response distribution prior to DIF analysis
+#'
+#' Outputs a patchwork plot with one `RItileplot()` for each level of the DIF
+#' variable. Note that continuous DIF variables, such as age in years, will not
+#' work. A limit has been set at 12 levels of DIF.
+#'
+#' Plot labels are automatically set based on the DIF variable being a factor
+#' with labels. You can change the patchwork object title/etc as usual by adding
+#' for instance `+ plot_annotation(title = "Whatever you like")`.
+#'
+#' @param data Dataframe with item responses
+#' @param dif_var DIF variables, ideally a labelled factor
+#' @export
+#'
+RIdifTileplot <- function(data, dif_var) {
+
+  if (is.factor(dif_var) == FALSE) {
+    if (n_distinct(dif_var) > 12) {
+      stop("More than 12 DIF levels are not allowed")
+    } else {
+      dif_var <- as.factor(dif_var)
+    }
+  }
+
+  difplots <- data %>%
+    add_column(dif = {{ dif_var }}) %>%
+    split(.$dif) %>%
+    map(~ RItileplot(.x %>% select(!dif)) + labs(title = .x$dif))
+
+  plots <- patchwork::wrap_plots(difplots, axes = "collect", guides = NULL) +
+    patchwork::plot_annotation(title = "Tileplots split by DIF variable")
+  return(plots)
 }
 
 #' Temporary fix for upstream bug in `iarm::person_estimates()`

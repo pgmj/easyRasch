@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,18 +37,25 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.6.3" id="easyrasch-0363-2025-08-05">easyRasch 0.3.6.3 (2025-08-05)<a class="anchor" aria-label="anchor" href="#easyrasch-0363-2025-08-05"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.6.4" id="easyrasch-0364-2025-08-08">easyRasch 0.3.6.4 (2025-08-08)<a class="anchor" aria-label="anchor" href="#easyrasch-0364-2025-08-08"></a></h2>
+<ul><li>
+<code>RIdifTileplot(data, dif_var)</code> - new convenience function for checking response distributions prior to DIF analysis.</li>
+<li>
+<code><a href="../reference/RIresidcorr.html">RIresidcorr()</a></code> now also uses accelerator SQUAREM for (very slightly) improved speed.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.6.3" id="easyrasch-0363-2025-08-06">easyRasch 0.3.6.3 (2025-08-06)<a class="anchor" aria-label="anchor" href="#easyrasch-0363-2025-08-06"></a></h2>
 <ul><li>Bug fix for <code><a href="../reference/RImissingP.html">RImissingP()</a></code>, which has been broken a while.</li>
 <li>Experimental new function <code><a href="../reference/RIinfitKfold.html">RIinfitKfold()</a></code> for cross-validating item fit using <code><a href="https://rsample.tidymodels.org/reference/vfold_cv.html" class="external-link">rsample::vfold_cv()</a></code>; “V-fold cross-validation (also known as k-fold cross-validation) randomly splits the data into V groups of roughly equal size (called”folds”). A resample of the analysis data consists of V-1 of the folds”, see <a href="https://rsample.tidymodels.org/reference/vfold_cv.html" class="external-link uri">https://rsample.tidymodels.org/reference/vfold_cv.html</a>
 <ul><li>this has not yet been tested so there are no recommendations for how or when to use it.</li>
 </ul></li>
-<li>Slight speedup (~20%) for <code><a href="../reference/RIgetResidCor.html">RIgetResidCor()</a></code> by changing the accelerator used by <code>mirt()</code> to SQUAREM and avoiding the use of <code><a href="https://rdrr.io/r/base/sink.html" class="external-link">sink()</a></code>.</li>
+<li>Slight speedup (~20%) for <code><a href="../reference/RIgetResidCor.html">RIgetResidCor()</a></code> by changing the accelerator used by <code><a href="https://philchalmers.github.io/mirt/reference/mirt.html" class="external-link">mirt()</a></code> to SQUAREM and avoiding the use of <code><a href="https://rdrr.io/r/base/sink.html" class="external-link">sink()</a></code>.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.6.2" id="easyrasch-0362-2025-04-30">easyRasch 0.3.6.2 (2025-04-30)<a class="anchor" aria-label="anchor" href="#easyrasch-0362-2025-04-30"></a></h2>
 <ul><li>Added an automatic creation of the itemlabels object for <code><a href="../reference/RIitemHierarchy.html">RIitemHierarchy()</a></code> and <code><a href="../reference/RIitemcols.html">RIitemcols()</a></code> if it is missing.</li>
-<li>Specified the use of <code>slice()</code> as <code><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">dplyr::slice()</a></code> to avoid namespace issues with package <code>ordinal</code>.</li>
-<li>Bug fix in <code><a href="../reference/RIbootRestscore.html">RIbootRestscore()</a></code> where <code>count()</code> needed to be specified as <code><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">dplyr::count()</a></code>.</li>
+<li>Specified the use of <code><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice()</a></code> as <code><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">dplyr::slice()</a></code> to avoid namespace issues with package <code>ordinal</code>.</li>
+<li>Bug fix in <code><a href="../reference/RIbootRestscore.html">RIbootRestscore()</a></code> where <code><a href="https://rdrr.io/pkg/matrixStats/man/rowCounts.html" class="external-link">count()</a></code> needed to be specified as <code><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">dplyr::count()</a></code>.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.6.1" id="easyrasch-0361-2025-03-20">easyRasch 0.3.6.1 (2025-03-20)<a class="anchor" aria-label="anchor" href="#easyrasch-0361-2025-03-20"></a></h2>
