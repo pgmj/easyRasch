@@ -41,6 +41,7 @@
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIgetfitPlot.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIheatmap.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIinfitKfold.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/reference/RIinfitKfoldPlot.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIinfitLoc.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIitemCats.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIitemHierarchy.html</loc></url>
@@ -64,6 +65,7 @@
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIrawdist.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIresidcorr.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIrestscore.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/reference/RIrestscoreKfold.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIrmPCA.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIscoreSE.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RItargeting.html</loc></url>

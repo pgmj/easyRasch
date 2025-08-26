@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,9 +37,19 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.7" id="easyrasch-037">easyRasch 0.3.7<a class="anchor" aria-label="anchor" href="#easyrasch-037"></a></h2>
+<ul><li>
+<code><a href="../reference/RIrestscoreKfold.html">RIrestscoreKfold()</a></code> added for cross-validating item-restscore using <code><a href="https://rsample.tidymodels.org/reference/vfold_cv.html" class="external-link">rsample::vfold_cv()</a></code>. This is experimental, it may well be more informative to use <code>RIbootrestscore()</code> instead, even with smaller samples.</li>
+<li>
+<code><a href="../reference/RIinfitKfold.html">RIinfitKfold()</a></code> now has an option for “figure” output.</li>
+<li>
+<code><a href="../reference/RIinfitKfoldPlot.html">RIinfitKfoldPlot()</a></code> added to make a plot from the “raw” output from <code><a href="../reference/RIinfitKfold.html">RIinfitKfold()</a></code>.</li>
+<li>Another minor bug fix for <code><a href="../reference/RImissingP.html">RImissingP()</a></code>… it should now correctly deal with complete data.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.6.4" id="easyrasch-0364-2025-08-08">easyRasch 0.3.6.4 (2025-08-08)<a class="anchor" aria-label="anchor" href="#easyrasch-0364-2025-08-08"></a></h2>
 <ul><li>
-<code>RIdifTileplot(data, dif_var)</code> - new convenience function for checking response distributions prior to DIF analysis.</li>
+<code>RIdifTileplot(data, dif_var)</code> - new convenience function for checking response distributions split by DIF categories prior to DIF analysis.</li>
 <li>
 <code><a href="../reference/RIresidcorr.html">RIresidcorr()</a></code> now also uses accelerator SQUAREM for (very slightly) improved speed.</li>
 </ul></div>

@@ -178,7 +178,7 @@ RImissingP <- function(data, output, N = 10) {
     arrange(desc(Missing)) %>%
     slice(0:N)
 
-  if (length(order) < 1) {
+  if (nrow(order) < 1) {
     return("No missing data.")
   }
   data %>%
@@ -5473,7 +5473,7 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4) {
 #'
 #' @param data Dataframe with item responses
 #' @param k Number of folds to use (default is 5)
-#' @param output Default `table`, options `dataframe` and `raw`
+#' @param output Default `table`, options `figure`, `dataframe`, `raw`
 #' @param sim_iter Number of iterations (depends on sample size)
 #' @param sim_cpu Number of CPU cores to use
 #' @param cutoff Truncation at percentile values (see `?RIitemfit`)
@@ -5590,6 +5590,145 @@ RIinfitKfold <- function(data, k = 5, output = "table", sim_iter = 100,
       kbl_rise() %>%
       footnote(general = paste0("Infit MSQ values based on conditional estimation using n = ",
                                 samplesize," cases (",k," folds of data from a dataset of ",nrow(data),"). Cutoff values based on ",sim_iter," simulations from the each fold of data."))
+  } else if (output == "figure") {
+    infit_limits <- data.frame(Item = names(data),
+                               infit_min_sim = tbl$sim_min_infit_msq,
+                               infit_max_sim = tbl$sim_max_infit_msq)
+
+    bind_rows(infit_folds) %>%
+      ggplot(aes(x = InfitMSQ, y = Item)) +
+      stat_dots() +
+      geom_point(data = infit_limits,
+                 aes(x = infit_min_sim),
+                 color = "sienna2", shape = 18, size = 7,
+                 position = position_nudge(y = -0.1)) +
+      geom_point(data = infit_limits,
+                 aes(x = infit_max_sim),
+                 color = "sienna2", shape = 18, size = 7,
+                 position = position_nudge(y = -0.1)) +
+      scale_fill_viridis_d() +
+      theme_minimal() +
+      theme(legend.position = "none")
+  }
+
+}
+
+#' Plot k-fold infit based on raw output
+#'
+#' Outputs a figure showing highest and lowest expected values based on all
+#' simulations made by `RIinfitKfold(data, output = "raw")`.
+#'
+#' @param kfold Object with "raw" output from `RIinfitKfold()`
+#' @export
+#'
+RIinfitKfoldPlot <- function(kfold) {
+  infit_limits <- data.frame(Item = names(kfold[["data"]][["splits"]][[1]]$data),
+                             infit_min_sim = kfold$table$sim_min_infit_msq,
+                             infit_max_sim = kfold$table$sim_max_infit_msq)
+
+  bind_rows(kfold$results) %>%
+    ggplot(aes(x = InfitMSQ, y = Item)) +
+    stat_dots() +
+    geom_point(data = infit_limits,
+               aes(x = infit_min_sim),
+               color = "sienna2", shape = 18, size = 7,
+               position = position_nudge(y = -0.1)) +
+    geom_point(data = infit_limits,
+               aes(x = infit_max_sim),
+               color = "sienna2", shape = 18, size = 7,
+               position = position_nudge(y = -0.1)) +
+    scale_fill_viridis_d() +
+    theme_minimal() +
+    theme(legend.position = "none")
+}
+
+#' Cross-validation of item-restscore
+#'
+#' Creates k random folds using `rsample::vfold_cv()`;
+#' "V-fold cross-validation (also known as k-fold cross-validation) randomly
+#' splits the data into V groups of roughly equal size (called "folds").
+#' A resample of the analysis data consists of V-1 of the folds",
+#' see <https://rsample.tidymodels.org/reference/vfold_cv.html>
+#'
+#' Each V-1 dataset is used both for calculating item-restscore and summarises
+#' results based on BH adjusted p-values.
+#'
+#' @param data Dataframe with item responses
+#' @param k Number of folds to use (default is 5)
+#' @param output Default `table`, option `dataframe`.
+#' @export
+#'
+RIrestscoreKfold <- function(data, k = 5, output = "table") {
+
+  if(min(as.matrix(data), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
+  } else if(na.omit(data) %>% nrow() == 0) {
+    stop("No complete cases in data.")
+  } else if(max(as.matrix(data), na.rm = T) == 1) {
+    rmodel = "RM"
+  } else if(max(as.matrix(data), na.rm = T) > 1) {
+    rmodel = "PCM"
+  }
+
+  require(rsample) # install package if necessary
+  datafold <- vfold_cv(data, v = k)
+  samplesize <- nrow(data) - round(nrow(data) / k, 0)
+
+  if (rmodel == "PCM") {
+    restscore_folds <- map(
+      1:k,
+      function(x) {
+
+        i1 <- PCM(analysis(datafold$splits[[x]])) %>%
+          item_restscore() %>%
+          as.data.frame()
+
+        i1d <- data.frame("observed" = as.numeric(i1[[1]][1:ncol(data),1]),
+                          "expected" = as.numeric(i1[[1]][1:ncol(data),2]),
+                          "se" = as.numeric(i1[[1]][1:ncol(data),3]),
+                          "p.value" = as.numeric(i1[[1]][1:ncol(data),4]),
+                          "p.adj.BH" = as.numeric(i1[[1]][1:ncol(data),5])) %>%
+          add_column(Item = names(data))
+      })
+
+  } else if (rmodel == "RM") {
+    restscore_folds <- map(
+      1:k,
+      function(x) {
+        i1 <- RM(analysis(datafold$splits[[x]])) %>%
+          item_restscore() %>%
+          as.data.frame()
+
+        i1d <- data.frame("observed" = as.numeric(i1[[1]][1:ncol(data),1]),
+                          "expected" = as.numeric(i1[[1]][1:ncol(data),2]),
+                          "se" = as.numeric(i1[[1]][1:ncol(data),3]),
+                          "p.value" = as.numeric(i1[[1]][1:ncol(data),4]),
+                          "p.adj.BH" = as.numeric(i1[[1]][1:ncol(data),5])) %>%
+          add_column(Item = names(data))
+      })
+  }
+
+  tbl <- bind_rows(restscore_folds) %>%
+    mutate(item_restscore = case_when(p.adj.BH < .05 & observed < expected ~ "Underfit",
+                                      p.adj.BH < .05 & observed > expected ~ "Overfit",
+                                      TRUE ~ "No misfit")) %>%
+    group_by(Item) %>%
+    count(item_restscore) %>%
+    mutate(Percent = paste0(round(n*100/sum(n),1),"%")) %>%
+    select(!n)
+
+  # tbl <- tbl %>%
+  #   left_join(itemlabels, by = join_by("Item" == "itemnr"))
+
+  if (output == "dataframe") {
+    return(tbl)
+
+  } else if (output == "table") {
+    tbl %>%
+      dplyr::rename(`Item-restscore\nresult` = item_restscore) %>%
+      kbl_rise() %>%
+      footnote(general = paste0("Item-restscore summary of statistically significant BH adjusted p-values based on n = ",
+                                samplesize," cases (",k," folds of data from a dataset of ",nrow(data),")."))
   }
 
 }

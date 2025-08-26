@@ -1,6 +1,14 @@
+# easyRasch 0.3.7
+
+- `RIrestscoreKfold()` added for cross-validating item-restscore using `rsample::vfold_cv()`. This is experimental, it may well be more informative to use `RIbootrestscore()` instead, even with smaller samples.
+- `RIinfitKfold()` now has an option for "figure" output.
+- `RIinfitKfoldPlot()` added to make a plot from the "raw" output from `RIinfitKfold()`.
+- Another minor bug fix for `RImissingP()`... it should now correctly deal with complete data.
+
+
 # easyRasch 0.3.6.4 (2025-08-08)
 
-- `RIdifTileplot(data, dif_var)` - new convenience function for checking response distributions prior to DIF analysis.
+- `RIdifTileplot(data, dif_var)` - new convenience function for checking response distributions split by DIF categories prior to DIF analysis.
 - `RIresidcorr()` now also uses accelerator SQUAREM for (very slightly) improved speed.
 
 # easyRasch 0.3.6.3 (2025-08-06)
