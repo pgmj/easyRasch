@@ -5713,9 +5713,9 @@ RIrestscoreKfold <- function(data, k = 5, output = "table") {
                                       p.adj.BH < .05 & observed > expected ~ "Overfit",
                                       TRUE ~ "No misfit")) %>%
     group_by(Item) %>%
-    count(item_restscore) %>%
+    dplyr::count(item_restscore) %>%
     mutate(Percent = paste0(round(n*100/sum(n),1),"%")) %>%
-    select(!n)
+    dplyr::select(!n)
 
   # tbl <- tbl %>%
   #   left_join(itemlabels, by = join_by("Item" == "itemnr"))
