@@ -1435,7 +1435,7 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
         mirt_out <- mirt(dfin, model=1, itemtype='Rasch', verbose = FALSE)
         item.locations <- coef(mirt_out, simplify = TRUE, IRTpars = TRUE)$items %>%
           as.data.frame() %>%
-          select(!a) %>%
+          dplyr::select(!a) %>%
           as.matrix()
         item.locations <- item.locations - mean(item.locations, na.rm = TRUE)
         maxcat <- dfin %>%
@@ -2082,7 +2082,7 @@ RIitemparams <- function(dfin, fontsize = 15, output = "table",
     mirt_out <- mirt(dfin, model=1, itemtype='Rasch', verbose = FALSE)
     item.locations <- coef(mirt_out, simplify = TRUE, IRTpars = TRUE)$items %>%
       as.data.frame() %>%
-      select(!a) %>%
+      dplyr::select(!a) %>%
       as.matrix()
     item.locations <- item.locations - mean(item.locations, na.rm = TRUE)
     maxcat <- dfin %>%
@@ -3938,7 +3938,7 @@ RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
           # mark missing cells with NA for later logical examination
           mutate(across(everything(), ~ car::recode(.x, "0=NA", as.factor = FALSE))) %>%
           as.data.frame() %>%
-          select(all_of(names(data))) # get item sorting correct
+          dplyr::select(all_of(names(data))) # get item sorting correct
 
         # match response data generated with itemlength
         item_ccount <- list()
@@ -4248,7 +4248,7 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
       msq_infit_hi <- round(1 + 2/sqrt(n_complete),3)
 
       item.fit.table %>%
-        select(!OutfitMSQ) %>%
+        dplyr::select(!OutfitMSQ) %>%
         mutate(InfitMSQ = cell_spec(InfitMSQ, color = ifelse(InfitMSQ < msq_infit_lo, "red",
                                                              ifelse(InfitMSQ > msq_infit_hi, "red", "black")
         ))) %>%
@@ -4407,7 +4407,7 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
         # mark missing cells with NA for later logical examination with if(is.na)
         mutate(across(everything(), ~ car::recode(.x, "0=NA", as.factor = FALSE))) %>%
         as.data.frame() %>%
-        select(all_of(names(data))) # get item sorting correct
+        dplyr::select(all_of(names(data))) # get item sorting correct
 
       # match response data generated with itemlength
       item_ccount <- list()
@@ -5043,7 +5043,7 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
              item_restscore = case_when(p.adj.BH < .05 & diff < 0 ~ "overfit",
                                         p.adj.BH < .05 & diff > 0 ~ "underfit",
                                         TRUE ~"no misfit")) %>%
-      select(item_restscore, diff, diff_abs) %>%
+      dplyr::select(item_restscore, diff, diff_abs) %>%
       mutate(item = names(data))
 
     i1d
@@ -5070,7 +5070,7 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
       left_join(itemlocs, by = "item") %>%
       filter(!item_restscore == "no misfit",
              percent > cutoff) %>%
-      select(!n) %>%
+      dplyr::select(!n) %>%
       arrange(desc(item_restscore),desc(percent)) %>%
       set_names(c("Item","Item-restscore result","% of iterations","Conditional MSQ infit",
                   "Relative average item location")) %>%
@@ -5088,7 +5088,7 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
       left_join(itemlocs, by = "item") %>%
       filter(!item_restscore == "no misfit",
              percent > cutoff) %>%
-      select(!n) %>%
+      dplyr::select(!n) %>%
       arrange(desc(item_restscore),desc(percent)) %>%
       set_names(c("Item","Item-restscore result","% of iterations","Conditional MSQ infit",
                   "Relative average item location")) %>%
@@ -5350,7 +5350,7 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4) {
       mirt_out <- mirt(data, model=1, itemtype='Rasch', verbose = FALSE)
       item.locations <- coef(mirt_out, simplify = TRUE, IRTpars = TRUE)$items %>%
         as.data.frame() %>%
-        select(!a) %>%
+        dplyr::select(!a) %>%
         as.matrix()
       item.locations <- item.locations - mean(item.locations, na.rm = TRUE)
       maxcat <- data %>%
@@ -5420,7 +5420,7 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4) {
         # mark missing cells with NA for later logical examination with if(is.na)
         mutate(across(everything(), ~ car::recode(.x, "0=NA", as.factor = FALSE))) %>%
         as.data.frame() %>%
-        select(all_of(names(data))) # get item sorting correct
+        dplyr::select(all_of(names(data))) # get item sorting correct
 
       # match response data generated with itemlength
       item_ccount <- list()
@@ -5760,7 +5760,7 @@ RIdifTileplot <- function(data, dif_var) {
   difplots <- data %>%
     add_column(dif = {{ dif_var }}) %>%
     split(.$dif) %>%
-    map(~ RItileplot(.x %>% select(!dif)) + labs(title = .x$dif))
+    map(~ RItileplot(.x %>% dplyr::select(!dif)) + labs(title = .x$dif))
 
   plots <- patchwork::wrap_plots(difplots, axes = "collect", guides = NULL) +
     patchwork::plot_annotation(title = "Tileplots split by DIF variable")
