@@ -5473,13 +5473,13 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4) {
 #'
 #' @param data Dataframe with item responses
 #' @param k Number of folds to use (default is 5)
-#' @param output Default `table`, options `figure`, `dataframe`, `raw`
+#' @param output Default `raw`, options `dataframe`, `table`
 #' @param sim_iter Number of iterations (depends on sample size)
 #' @param sim_cpu Number of CPU cores to use
 #' @param cutoff Truncation at percentile values (see `?RIitemfit`)
 #' @export
 #'
-RIinfitKfold <- function(data, k = 5, output = "table", sim_iter = 100,
+RIinfitKfold <- function(data, k = 5, output = "raw", sim_iter = 100,
                          sim_cpu = 4, cutoff = c(.001,.999)) {
 
   if(min(as.matrix(data), na.rm = T) > 0) {
@@ -5590,39 +5590,20 @@ RIinfitKfold <- function(data, k = 5, output = "table", sim_iter = 100,
       kbl_rise() %>%
       footnote(general = paste0("Infit MSQ values based on conditional estimation using n = ",
                                 samplesize," cases (",k," folds of data from a dataset of ",nrow(data),"). Cutoff values based on ",sim_iter," simulations from the each fold of data."))
-  } else if (output == "figure") {
-    infit_limits <- data.frame(Item = names(data),
-                               infit_min_sim = tbl$sim_min_infit_msq,
-                               infit_max_sim = tbl$sim_max_infit_msq)
-
-    bind_rows(infit_folds) %>%
-      ggplot(aes(x = InfitMSQ, y = Item)) +
-      stat_dots() +
-      geom_point(data = infit_limits,
-                 aes(x = infit_min_sim),
-                 color = "sienna2", shape = 18, size = 7,
-                 position = position_nudge(y = -0.1)) +
-      geom_point(data = infit_limits,
-                 aes(x = infit_max_sim),
-                 color = "sienna2", shape = 18, size = 7,
-                 position = position_nudge(y = -0.1)) +
-      scale_fill_viridis_d() +
-      theme_minimal() +
-      theme(legend.position = "none")
   }
-
 }
 
 #' Plot k-fold infit based on raw output
 #'
 #' Outputs a figure showing highest and lowest expected values based on all
 #' simulations and cross-validation folds from an object created with
-#' `RIinfitKfold(data, output = "raw")`.
+#' `RIinfitKfold(data)`.
 #'
-#' @param kfold Object with "raw" output from `RIinfitKfold()`
+#' @param kfold Object with "raw" output from `RIinfitKfold()` (default)
 #' @export
 #'
 RIinfitKfoldPlot <- function(kfold) {
+
   infit_limits <- data.frame(Item = names(kfold[["data"]][["splits"]][[1]]$data),
                              infit_min_sim = kfold$table$sim_min_infit_msq,
                              infit_max_sim = kfold$table$sim_max_infit_msq)

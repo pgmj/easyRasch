@@ -7,10 +7,10 @@
 RIinfitKfoldPlot(kfold)
 }
 \arguments{
-\item{kfold}{Object with "raw" output from \code{RIinfitKfold()}}
+\item{kfold}{Object with "raw" output from \code{RIinfitKfold()} (default)}
 }
 \description{
 Outputs a figure showing highest and lowest expected values based on all
 simulations and cross-validation folds from an object created with
-\code{RIinfitKfold(data, output = "raw")}.
+\code{RIinfitKfold(data)}.
 }

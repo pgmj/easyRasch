@@ -1,5 +1,6 @@
 # easyRasch 0.3.7.1 (2025-09-04)
 
+- `RIinfitKfold()` now uses `output = "raw"` as default, intended for use with `RIinfitKfoldPlot()`. The `output = "figure"` option was removed.
 - `RIinfitKfoldPlot()` now has improved interpretability and added information in caption text.
 
 # easyRasch 0.3.7 (2025-08-26)

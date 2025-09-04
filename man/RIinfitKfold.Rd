@@ -7,7 +7,7 @@
 RIinfitKfold(
   data,
   k = 5,
-  output = "table",
+  output = "raw",
   sim_iter = 100,
   sim_cpu = 4,
   cutoff = c(0.001, 0.999)
@@ -18,7 +18,7 @@ RIinfitKfold(
 
 \item{k}{Number of folds to use (default is 5)}
 
-\item{output}{Default \code{table}, options \code{figure}, \code{dataframe}, \code{raw}}
+\item{output}{Default \code{raw}, options \code{dataframe}, \code{table}}
 
 \item{sim_iter}{Number of iterations (depends on sample size)}
 
