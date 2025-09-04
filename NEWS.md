@@ -1,3 +1,7 @@
+# easyRasch 0.3.7.1 (2025-09-04)
+
+- `RIinfitKfoldPlot()` now has improved interpretability and added information in caption text.
+
 # easyRasch 0.3.7 (2025-08-26)
 
 - `RIrestscoreKfold()` added for cross-validating item-restscore using `rsample::vfold_cv()`. This is experimental, it may well be more informative to use `RIbootrestscore()` instead, even with smaller samples.

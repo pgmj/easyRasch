@@ -11,5 +11,6 @@ RIinfitKfoldPlot(kfold)
 }
 \description{
 Outputs a figure showing highest and lowest expected values based on all
-simulations made by \code{RIinfitKfold(data, output = "raw")}.
+simulations and cross-validation folds from an object created with
+\code{RIinfitKfold(data, output = "raw")}.
 }

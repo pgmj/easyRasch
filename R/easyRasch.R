@@ -5616,7 +5616,8 @@ RIinfitKfold <- function(data, k = 5, output = "table", sim_iter = 100,
 #' Plot k-fold infit based on raw output
 #'
 #' Outputs a figure showing highest and lowest expected values based on all
-#' simulations made by `RIinfitKfold(data, output = "raw")`.
+#' simulations and cross-validation folds from an object created with
+#' `RIinfitKfold(data, output = "raw")`.
 #'
 #' @param kfold Object with "raw" output from `RIinfitKfold()`
 #' @export
@@ -5626,20 +5627,83 @@ RIinfitKfoldPlot <- function(kfold) {
                              infit_min_sim = kfold$table$sim_min_infit_msq,
                              infit_max_sim = kfold$table$sim_max_infit_msq)
 
-  bind_rows(kfold$results) %>%
+  k = length(kfold$results)
+  n = length(kfold[["data"]][["splits"]][[1]][["in_id"]])
+
+  underfit <- bind_rows(kfold$results) %>%
+    mutate(underfit = case_when(InfitMSQ > infit_limits$infit_max_sim ~ 1,
+                                TRUE ~ 0)) %>%
+    group_by(Item) %>%
+    dplyr::count(underfit) %>%
+    dplyr::filter(underfit == 1) %>%
+    mutate(percent = n/sum(length(kfold$results))*100) %>%
+    left_join(infit_limits, by = join_by(Item))
+
+  overfit <- bind_rows(kfold$results) %>%
+    mutate(overfit = case_when(InfitMSQ < infit_limits$infit_min_sim ~ 1,
+                               TRUE ~ 0)) %>%
+    group_by(Item) %>%
+    dplyr::count(overfit) %>%
+    dplyr::filter(overfit == 1) %>%
+    mutate(percent = n/sum(length(kfold$results))*100) %>%
+    left_join(infit_limits, by = join_by(Item))
+
+  overunderfit <- bind_rows(underfit[,1:2],overfit[,1:2])
+
+  infit_limits <- infit_limits %>%
+    left_join(overunderfit, by = join_by(Item)) %>%
+    mutate(underfit_color = case_when(underfit == 1 ~ "sienna2",
+                                      TRUE ~ "lightgrey")) %>%
+    mutate(overfit_color = case_when(overfit == 1 ~ "sienna2",
+                                     TRUE ~ "lightgrey"))
+
+  p <-
+    bind_rows(kfold$results) %>%
     ggplot(aes(x = InfitMSQ, y = Item)) +
-    stat_dots() +
+    stat_dots(stackratio = 0.8) +
     geom_point(data = infit_limits,
-               aes(x = infit_min_sim),
-               color = "sienna2", shape = 18, size = 7,
+               aes(x = infit_min_sim,
+                   color = overfit_color),
+               shape = 18, size = 8,
                position = position_nudge(y = -0.1)) +
     geom_point(data = infit_limits,
-               aes(x = infit_max_sim),
-               color = "sienna2", shape = 18, size = 7,
+               aes(x = infit_max_sim,
+                   color = underfit_color),
+               shape = 18, size = 8,
                position = position_nudge(y = -0.1)) +
-    scale_fill_viridis_d() +
-    theme_minimal() +
-    theme(legend.position = "none")
+    scale_color_identity() +
+    theme_rise(fontfamily = "sans") +
+    theme(legend.position = "none") +
+    labs(x = "Conditional infit",
+         caption = str_wrap(paste0("Note. Results based on ",k,
+                                   " folds of data (n =",n,
+                                   " per fold). Diamonds indicate cutoff values based on all folds.
+                                   Orange diamonds indicate misfit and show percentage misfit."), 80))
+
+  if (nrow(underfit) > 0) {
+    p <-
+      p +
+      geom_text(data = underfit,
+                aes(label = paste0(percent,"%"),
+                    x = infit_max_sim),
+                position = position_nudge(y = -0.1),
+                size = 4, color = "white")
+
+  }
+
+  if (nrow(overfit) > 0) {
+    p <-
+      p +
+      geom_text(data = overfit,
+                aes(label = paste0(percent,"%"),
+                    x = infit_min_sim),
+                position = position_nudge(y = -0.1),
+                size = 4, color = "white")
+
+  }
+
+  p
+
 }
 
 #' Cross-validation of item-restscore
