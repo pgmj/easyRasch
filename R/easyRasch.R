@@ -5608,6 +5608,7 @@ RIinfitKfoldPlot <- function(kfold) {
                              infit_min_sim = kfold$table$sim_min_infit_msq,
                              infit_max_sim = kfold$table$sim_max_infit_msq)
 
+  item_names <- names(analysis(kfold[["data"]][["splits"]][[1]]))
   k = length(kfold$results)
   n = length(kfold[["data"]][["splits"]][[1]][["in_id"]])
 
@@ -5640,6 +5641,7 @@ RIinfitKfoldPlot <- function(kfold) {
 
   p <-
     bind_rows(kfold$results) %>%
+    mutate(Item = factor(Item, levels = rev(item_names))) %>%
     ggplot(aes(x = InfitMSQ, y = Item)) +
     stat_dots(stackratio = 0.8) +
     geom_point(data = infit_limits,
@@ -5686,6 +5688,7 @@ RIinfitKfoldPlot <- function(kfold) {
   p
 
 }
+
 
 #' Cross-validation of item-restscore
 #'
