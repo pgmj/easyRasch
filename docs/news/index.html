@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,16 @@
       <small>Source: <a href="https://github.com/pgmj/easyRasch/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.8" id="easyrasch-038-2025-09-18">easyRasch 0.3.8 (2025-09-18)<a class="anchor" aria-label="anchor" href="#easyrasch-038-2025-09-18"></a></h2>
+<ul><li>Major speedup for <code><a href="../reference/RIbootRestscore.html">RIbootRestscore()</a></code> for PCM (due to moving to <code>psychotools::PCModel.fit(hessian = FALSE)</code> instead of <code><a href="https://rdrr.io/pkg/eRm/man/PCM.html" class="external-link">eRm::PCM()</a></code>), and minor speed up for RM (due to not calculating SE).
+<ul><li>quick tests indicate PCM (polytomous data) is now more than twice as fast, and we get ~10% for RM.</li>
+</ul></li>
+<li>
+<code><a href="../reference/RIgetfit.html">RIgetfit()</a></code> speedup at 10-20% due to not calculating SE/hessian, which is not needed for conditional infit.</li>
+<li>
+<code><a href="../reference/RIresidcorr.html">RIresidcorr()</a></code> fix so that the residual correlation matrix is not printed to the console (re-implementing <code><a href="https://rdrr.io/r/base/sink.html" class="external-link">sink()</a></code>).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.7.1" id="easyrasch-0371-2025-09-04">easyRasch 0.3.7.1 (2025-09-04)<a class="anchor" aria-label="anchor" href="#easyrasch-0371-2025-09-04"></a></h2>
 <ul><li>

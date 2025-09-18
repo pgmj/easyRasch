@@ -1346,12 +1346,12 @@ RIresidcorr <- function(data, cutoff, output = "table", ...) {
     stop("Please set a cutoff value, ideally using `RIgetResidCor()`")
   }
 
-  #sink(nullfile()) # suppress output from the rows below
+  sink(nullfile()) # suppress output from the rows below
 
   mirt.rasch <- mirt(data, model = 1, itemtype = 'Rasch', verbose = FALSE, accelerate = 'squarem') # unidimensional Rasch model
   resid <- residuals(mirt.rasch, type = "Q3", digits = 2) # get residuals
 
-  #sink() # disable suppress output
+  sink() # disable suppress output
 
   diag(resid) <- NA # make the diagonal of correlation matrix NA instead of 1
   resid <- as.data.frame(resid)
@@ -4343,7 +4343,7 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
       # END TEMP FIX
 
       # get conditional MSQ
-      rm_out <- eRm::RM(testData)
+      rm_out <- eRm::RM(testData, se = FALSE)
       cfit <- iarm::out_infit(rm_out)
 
       # create dataframe
@@ -4421,7 +4421,7 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
       }
 
       # get conditional MSQ
-      pcm_out <- psychotools::PCModel.fit(testData)
+      pcm_out <- psychotools::PCModel.fit(testData, hessian = FALSE)
       cfit <- iarm::out_infit(pcm_out)
 
       # create dataframe
@@ -4988,14 +4988,14 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
                 nrow(dat),")."))
   } else if(max(as.matrix(dat), na.rm = T) == 1) {
     model <- "RM"
-    erm_out <- eRm::RM(dat)
+    erm_out <- eRm::RM(dat, se = F)
     item_avg_locations <- coef(erm_out, "beta")*-1 # item coefficients
     person_avg_locations <- eRm::person.parameter(erm_out)[["theta.table"]][["Person Parameter"]] %>%
       mean(na.rm = TRUE)
     relative_item_avg_locations <- item_avg_locations - person_avg_locations
   } else if(max(as.matrix(dat), na.rm = T) > 1) {
     model <- "PCM"
-    erm_out <- PCM(dat)
+    erm_out <- PCM(dat, se = F)
     item_avg_locations <- RIitemparams(dat, output = "dataframe") %>%
       pull(Location)
     person_avg_locations <- RIestThetasCATr(dat) %>%
@@ -5025,9 +5025,9 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
     data <- dat[sample(1:nrow(dat), samplesize, replace = TRUE), ]
 
     if (model == "PCM") {
-      erm_out <- PCM(data)
+      erm_out <- psychotools::PCModel.fit(data, hessian = FALSE)
     } else if (model == "RM") {
-      erm_out <- RM(data)
+      erm_out <- eRm::RM(data, se = FALSE)
     }
     i1 <- item_restscore(erm_out)
     i1 <- as.data.frame(i1)

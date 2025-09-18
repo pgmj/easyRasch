@@ -1,3 +1,10 @@
+# easyRasch 0.3.8 (2025-09-18)
+
+- Major speedup for `RIbootRestscore()` for PCM (due to moving to `psychotools::PCModel.fit(hessian = FALSE)` instead of `eRm::PCM()`), and minor speed up for RM (due to not calculating SE).
+  - quick tests indicate PCM (polytomous data) is now more than twice as fast, and we get ~10% for RM.
+- `RIgetfit()` speedup at 10-20% due to not calculating SE/hessian, which is not needed for conditional infit.
+- `RIresidcorr()` fix so that the residual correlation matrix is not printed to the console (re-implementing `sink()`).
+
 # easyRasch 0.3.7.1 (2025-09-04)
 
 - `RIinfitKfold()` now uses `output = "raw"` as default, intended for use with `RIinfitKfoldPlot()`. The `output = "figure"` option was removed.
