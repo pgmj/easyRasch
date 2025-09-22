@@ -1,7 +1,7 @@
 # easyRasch 0.3.9 (2025-09-22)
 
 - Removed output of outfit MSQ statistics since these are not useful in determining item fit/misfit to the Rasch model (Müller, 2020; Johansson, 2025).
-- Added `RIresidcorrG2()` and the corresponding parametric bootstrap to determine a critical value, `RIgetResidcorrG2()`, for the G2 metric to evaluate local independence (Chen & Thissen, 1997).
+- Added `RIresidcorrG2()` and the corresponding parametric bootstrap to determine a critical value, `RIgetResidCorG2()`, for the G2 metric to evaluate local independence (Chen & Thissen, 1997).
   - Using G^2^ is recommended in addition to Yen's Q^3^ to evaluate local dependence as both have strengths and weaknesses.
 - Namespace fix for explicit use of `kableExtra::footnote()` in tables, to avoid issues with `flextable` and potentially other packages.
  
