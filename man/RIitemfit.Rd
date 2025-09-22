@@ -2,7 +2,7 @@
 % Please edit documentation in R/easyRasch.R
 \name{RIitemfit}
 \alias{RIitemfit}
-\title{Calculate conditional outfit & infit MSQ statistics}
+\title{Calculate conditional infit MSQ statistics}
 \usage{
 RIitemfit(
   data,
@@ -20,7 +20,7 @@ RIitemfit(
 
 \item{output}{Optional "dataframe" or "quarto"}
 
-\item{sort}{Optional "infit" or "outfit"}
+\item{sort}{Optional "infit"}
 
 \item{cutoff}{Default \code{c(.001,.999)}}
 
@@ -45,11 +45,5 @@ should have data will automatically be removed/skipped from analysis,
 which means that final set of iterations may be lower than specified by user.
 
 Optional sorting (only) for table output with conditional highlighting based
-on simulation cutoff values, either \code{sort = "infit"} or \verb{sort = "outfit}.
-
-Optional conditional highlighting of misfit based on rule-of-thumb values for
-infit MSQ according to Smith et al. (1998), since Müller (2020) showed that
-these can be fairly accurate for conditional infit and thus useful for a
-quick look at item fit. Set \verb{cutoff = "Smith98} to use this as cutoff with
-only infit presented.
+on simulation cutoff values, \code{sort = "infit"}.
 }

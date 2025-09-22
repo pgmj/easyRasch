@@ -873,7 +873,7 @@ RIitemfitPCM <- function(dfin, samplesize, nsamples, zstd_min = -1.96, zstd_max 
         kable_classic(html_font = fontfamily) %>%
         # latex_options are for PDF output
         kable_styling(latex_options = c("striped", "scale_down")) %>%
-        footnote(general = paste0("MSQ values based on ", method," estimation. All values\n are based on a sample size of ", nrow(dfin),"."))
+        kableExtra::footnote(general = paste0("MSQ values based on ", method," estimation. All values\n are based on a sample size of ", nrow(dfin),"."))
     } else {
 
       if (output == "table") {
@@ -906,7 +906,7 @@ RIitemfitPCM <- function(dfin, samplesize, nsamples, zstd_min = -1.96, zstd_max 
           kable_classic(html_font = fontfamily) %>%
           # latex_options are for PDF output
           kable_styling(latex_options = c("striped", "scale_down")) %>%
-          footnote(general = paste0("MSQ values based on ", method," estimation. All values\n are based on a sample size of ", nrow(dfin),"."))
+          kableExtra::footnote(general = paste0("MSQ values based on ", method," estimation. All values\n are based on a sample size of ", nrow(dfin),"."))
 
       } else if (output == "dataframe") {
         return(item.fit.table)
@@ -996,7 +996,7 @@ RIitemfitPCM <- function(dfin, samplesize, nsamples, zstd_min = -1.96, zstd_max 
         kable_classic(html_font = fontfamily) %>%
         # latex_options are for PDF output
         kable_styling(latex_options = c("striped", "scale_down")) %>%
-        footnote(general = paste0("MSQ values are based on a sample size of ", nrow(dfin)," respondents,\n using ",method," estimation.\n",
+        kableExtra::footnote(general = paste0("MSQ values are based on a sample size of ", nrow(dfin)," respondents,\n using ",method," estimation.\n",
                                   "ZSTD values are the means from ", nsamples, " subsamples, each consisting\n of ", samplesize, " random respondents."))
 
     } else if (output == "dataframe") {
@@ -1129,7 +1129,7 @@ RIitemfitPCM2 <- function(dfin, samplesize = 200, nsamples = 8, cpu = 4,
       kable_classic(html_font = fontfamily) %>%
       # latex_options are for PDF output
       kable_styling(latex_options = c("striped", "scale_down")) %>%
-      footnote(general = paste0("MSQ values are based on a sample size of ", nrow(dfin)," respondents,\n using ",method," estimation.\n",
+      kableExtra::footnote(general = paste0("MSQ values are based on a sample size of ", nrow(dfin)," respondents,\n using ",method," estimation.\n",
                                 "ZSTD values are the means from ", nsamples, " subsamples, each consisting\n of ", samplesize, " random respondents."))
 
   } else if (output == "dataframe") {
@@ -1228,7 +1228,7 @@ RIitemfitRM <- function(dfin, samplesize, nsamples, zstd_min = -1.96, zstd_max =
         kable_classic(html_font = fontfamily) %>%
         # latex_options are for PDF output
         kable_styling(latex_options = c("striped","scale_down")) %>%
-        footnote(general = paste0("MSQ values based on ", method," estimation. All values\n are based on a sample size of ", nrow(dfin),"."))
+        kableExtra::footnote(general = paste0("MSQ values based on ", method," estimation. All values\n are based on a sample size of ", nrow(dfin),"."))
 
     } else if (output == "dataframe") {
       return(item.fit.table)
@@ -1314,7 +1314,7 @@ RIitemfitRM <- function(dfin, samplesize, nsamples, zstd_min = -1.96, zstd_max =
         kable_classic(html_font = fontfamily) %>%
         # latex_options are for PDF output
         kable_styling(latex_options = c("striped", "scale_down")) %>%
-        footnote(general = paste0("MSQ values are based on a sample size of ", nrow(dfin)," respondents,\n using ",method," estimation.\n",
+        kableExtra::footnote(general = paste0("MSQ values are based on a sample size of ", nrow(dfin)," respondents,\n using ",method," estimation.\n",
                                   "ZSTD values are the means from ", nsamples, " subsamples, each consisting\n of ", samplesize, " random respondents."))
 
     } else if (output == "dataframe") {
@@ -1326,19 +1326,18 @@ RIitemfitRM <- function(dfin, samplesize, nsamples, zstd_min = -1.96, zstd_max =
 }
 
 
-#' Correlation matrix of Rasch residuals
+#' Correlation matrix of Rasch residuals using Yen's Q^3^
+#'
+#' Uses package `mirt` (Chalmers, 2012).
 #'
 #' Mandatory option to set relative cutoff-value over the average of all
 #' item residual correlations. It is strongly recommended to use the function
 #' `RIgetResidCor()` to retrieve an appropriate cutoff value for your data.
 #'
-#' Christensen et al. (2017, p.181) write:
-#' "under the null hypothesis, the average correlation of residuals is negative"
-#'
 #' @param data Dataframe with item data only
 #' @param cutoff Relative value above the average of all item residual correlations
 #' @param output Default HTML table, optional "quarto" or "dataframe"
-#' @param ... Options sent to `kbl_rise()`
+#' @param ... Options sent to `kbl_rise()` for table output
 #' @export
 RIresidcorr <- function(data, cutoff, output = "table", ...) {
 
@@ -1346,12 +1345,8 @@ RIresidcorr <- function(data, cutoff, output = "table", ...) {
     stop("Please set a cutoff value, ideally using `RIgetResidCor()`")
   }
 
-  sink(nullfile()) # suppress output from the rows below
-
   mirt.rasch <- mirt(data, model = 1, itemtype = 'Rasch', verbose = FALSE, accelerate = 'squarem') # unidimensional Rasch model
-  resid <- residuals(mirt.rasch, type = "Q3", digits = 2) # get residuals
-
-  sink() # disable suppress output
+  resid <- residuals(mirt.rasch, type = "Q3", digits = 2, verbose = FALSE) # get Q3 residuals
 
   diag(resid) <- NA # make the diagonal of correlation matrix NA instead of 1
   resid <- as.data.frame(resid)
@@ -1374,7 +1369,7 @@ RIresidcorr <- function(data, cutoff, output = "table", ...) {
     diag(resid) <- "" # same for diagonal
 
     kbl_rise(resid, ...) %>%
-      footnote(general = paste0("Relative cut-off value is ",
+      kableExtra::footnote(general = paste0("Relative cut-off value is ",
                                 round(dyn.cutoff,3), ", which is ", round(cutoff,3),
                                 " above the average correlation (",round(mean.resid,3),").
                                 Correlations above the cut-off are highlighted in red text."))
@@ -1398,6 +1393,77 @@ RIresidcorr <- function(data, cutoff, output = "table", ...) {
     return(resid)
   }
 }
+
+#' Correlation matrix of Rasch residuals using G^2^
+#'
+#' Based on Chen & Thissen (2007, DOI: 10.2307/1165285),
+#' uses package `mirt` (Chalmers, 2012).
+#'
+#' Mandatory option to set relative cutoff-value over the average of all
+#' item residual correlations. It is strongly recommended to use the function
+#' `RIgetResidCorG2()` to retrieve an appropriate cutoff value for your data.
+#'
+#' @param data Dataframe with item data only
+#' @param cutoff Relative value above the average of all item residual correlations
+#' @param output Default HTML table, optional "quarto" or "dataframe"
+#' @param ... Options sent to `kbl_rise()` for table output
+#' @export
+RIresidcorrG2 <- function(data, cutoff, output = "table", ...) {
+
+  if (missing(cutoff)) {
+    stop("Please set a cutoff value, ideally using `RIgetResidCorG2()`")
+  }
+
+  mirt.rasch <- mirt(data, model = 1, itemtype = "Rasch", verbose = FALSE, accelerate = 'squarem')
+  resid <- residuals(mirt.rasch, type = "LDG2", digits = 2, verbose = FALSE)
+  #sink()
+  diag(resid) <- NA
+
+  resid <- as.data.frame(resid)
+  resid[lower.tri(resid)] <- NA
+  mean.resid <- resid %>%
+    as.matrix() %>%
+    mean(na.rm = TRUE)
+
+  dyn.cutoff <- mean.resid + cutoff # create variable indicating dynamic cutoff above average correlation
+
+  if (output == "table") {
+    diag(resid) <- 1
+    resid[lower.tri(resid)] <- 1
+    resid <- resid %>%
+      mutate_if(is.character,as.numeric) %>%
+      mutate(across(everything(), ~ round(.x, 2))) %>%
+      mutate(across(everything(), ~ cell_spec(.x, color = ifelse(.x > dyn.cutoff, "red", "black"))))
+
+    resid[lower.tri(resid)] <- "" # remove values in upper right triangle to clean up table
+    diag(resid) <- "" # same for diagonal
+
+    kbl_rise(resid, ...) %>%
+      kableExtra::footnote(general = paste0("Relative cut-off value is ",
+                                            round(dyn.cutoff,3), ", which is ", round(cutoff,3),
+                                            " above the average correlation (",round(mean.resid,3),").
+                                Correlations above the cut-off are highlighted in red text."))
+
+  } else if (output == "quarto") {
+    resid <- resid %>%
+      mutate_if(is.character,as.numeric) %>%
+      mutate(across(where(is.numeric), ~ round(.x, 2)))
+
+    resid[upper.tri(resid)] <- "" # remove values in upper right triangle to clean up table
+    diag(resid) <- "" # same for diagonal
+
+    knitr::kable(resid)
+  } else if (output == "dataframe") {
+    resid <- resid %>%
+      mutate_if(is.character,as.numeric) %>%
+      mutate(across(where(is.numeric), ~ round(.x, 2)))
+
+    resid[upper.tri(resid)] <- "" # remove values in upper right triangle to clean up table
+    diag(resid) <- "" # same for diagonal
+    return(resid)
+  }
+}
+
 
 #' Targeting, Wright map derivative.
 #'
@@ -2163,7 +2229,7 @@ RIitemparams <- function(dfin, fontsize = 15, output = "table",
       kable_classic(html_font = "Lato") %>%
       # for latex/PDF output
       kable_styling(latex_options = c("striped","scale_down")) %>%
-      footnote(general = "Item location is the average of the thresholds for each item.")
+      kableExtra::footnote(general = "Item location is the average of the thresholds for each item.")
   }
   else if (output == "table" & detail == "all") {
     item_params %>%
@@ -2185,7 +2251,7 @@ RIitemparams <- function(dfin, fontsize = 15, output = "table",
       column_spec(1, bold = T) %>%
       kable_classic(html_font = "Lato") %>%
       kable_styling(latex_options = c("striped","scale_down")) %>%
-      footnote(general = "Item location is the average of the thresholds for each item.
+      kableExtra::footnote(general = "Item location is the average of the thresholds for each item.
       Relative item location is the difference between the item location and the average of the item locations for all items.
                Relative lowest threshold is the difference between the lowest threshold and the average of all item locations.
                Relative highest threshold is the difference between the highest threshold and the average of all item locations.")
@@ -3393,7 +3459,7 @@ RIdifTableLR <- function(dfin, dif.var, model = "PCM", sort = FALSE,
         add_header_above(c(" " = 1, "Item locations" = nr.groups+2, "Standard errors" = nr.groups+1),
                          bold = T,
                          line_sep = 5) %>%
-        footnote(general = paste0("Values highlighted in red are above the chosen cutoff ",
+        kableExtra::footnote(general = paste0("Values highlighted in red are above the chosen cutoff ",
                                   cutoff,
                                   " logits. Background color brown and blue indicate the lowest and highest values among the DIF groups."))
     } else {
@@ -3407,7 +3473,7 @@ RIdifTableLR <- function(dfin, dif.var, model = "PCM", sort = FALSE,
         add_header_above(c(" " = 1, "Item locations" = nr.groups+2, "Standard errors" = nr.groups+1),
                          bold = T,
                          line_sep = 5) %>%
-        footnote(general = paste0("Values highlighted in red are above the chosen cutoff ",
+        kableExtra::footnote(general = paste0("Values highlighted in red are above the chosen cutoff ",
                                   cutoff,
                                   " logits. Background color brown and blue indicate the lowest and highest values among the DIF groups."))
     }
@@ -3570,7 +3636,7 @@ RIdifThreshTblLR <- function(dfin, dif.var,
     add_header_above(c(" " = 1, "Threshold locations" = nr.groups+2, "Standard errors" = nr.groups+1),
                      bold = T,
                      line_sep = 5) %>%
-    footnote(general = paste0("Values highlighted in red are above the chosen cutoff ",
+    kableExtra::footnote(general = paste0("Values highlighted in red are above the chosen cutoff ",
                               cutoff,
                               " logits. Background color brown and blue indicate the lowest and highest values among the DIF groups.")
     )
@@ -3852,17 +3918,18 @@ RIdifThreshFigLR <- function(dfin, dif.var) {
 
 }
 
-#' Get simulation based cutoff values for Yen's Q3 residual correlations
+#' Get simulation based cutoff values for Yen's Q^3^ residual correlations
 #'
-#' Based on Christensen et al. (2017, DOI: 10.1177/0146621616677520).
+#' Based on Christensen et al. (2017, DOI: 10.1177/0146621616677520),
+#' uses package `mirt` (Chalmers, 2012) to assess local dependence.
 #'
 #' Uses a dataframe with response data to simulate residual correlation values
 #' across n simulations based on estimated item & person locations.
 #'
 #' Results include mean, max and difference between the mean and max for each
-#' iteration. Also, 95th and 99th percentile values are reported, and the latter is
-#' recommended for use with `RIresidcorr()` as cutoff value, since the max value
-#' seems spurious and reliant on number of iterations.
+#' iteration. Also, 95th, 99th, 99.5th and 99.9th percentile values are
+#' calculated for use with `RIresidcorr()` as cutoff value, since the max value
+#' may be spurious and dependent on number of iterations.
 #'
 #' Uses multi-core processing. To find how many cores you have on your computer,
 #' use `parallel::detectCores()`. Remember to keep 1-2 cores free.
@@ -3952,10 +4019,8 @@ RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
         }
 
         # create Yen's Q3 residual correlation matrix
-        #sink(nullfile())
         mirt.rasch <- mirt(testData, model = 1, itemtype = "Rasch", verbose = FALSE, accelerate = 'squarem')
-        resid <- residuals(mirt.rasch, type = "Q3", digits = 2)
-        #sink()
+        resid <- residuals(mirt.rasch, type = "Q3", digits = 2, verbose = FALSE)
         diag(resid) <- NA
 
         data.frame(mean = mean(resid, na.rm = TRUE),
@@ -3987,6 +4052,201 @@ RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
 
         # TEMPORARY FIX START
         # check that all items have at least 8 positive responses, otherwise eRm::RM() fails
+        n_resp <-
+          testData %>%
+          as.matrix() %>%
+          colSums2() %>%
+          t() %>%
+          as.vector()
+
+        if (min(n_resp, na.rm = TRUE) < 8) {
+          return("Missing cells in generated data.")
+        }
+        # END TEMP FIX
+
+        # create Yen's Q3 residual correlation matrix
+        mirt.rasch <- mirt(testData, model = 1, itemtype = "Rasch", verbose = FALSE, accelerate = 'squarem')
+        resid <- residuals(mirt.rasch, type = "Q3", digits = 2, verbose = FALSE)
+        diag(resid) <- NA
+
+        data.frame(mean = mean(resid, na.rm = TRUE),
+                   max = max(resid, na.rm = TRUE)
+        )
+
+      }
+  }
+
+  # identify datasets with inappropriate missingness
+  nodata <- lapply(residcor, is.character) %>% unlist()
+  iterations_nodata <- which(nodata)
+
+  actual_iterations = iterations - length(iterations_nodata)
+
+  # get all results to a dataframe
+  if (actual_iterations == iterations) {
+    results <-
+      bind_rows(residcor) %>%
+      mutate(diff = max - mean)
+  } else {
+    results <-
+      bind_rows(residcor[-iterations_nodata]) %>%
+      mutate(diff = max - mean)
+  }
+
+  out <- list()
+  out$results <- results
+  out$actual_iterations <- actual_iterations
+
+  out$sample_n <- sample_n
+  out$sample_summary <- summary(thetas)
+
+  out$max_diff <- max(results$diff)
+  out$sd_diff <- sd(results$diff)
+  out$p95 <- quantile(results$diff, .95)
+  out$p99 <- quantile(results$diff, .99)
+  out$p995 <- quantile(results$diff, .995)
+  out$p999 <- quantile(results$diff, .999)
+
+  return(out)
+}
+
+#' Get simulation based cutoff values for G^2^ local dependency test
+#'
+#' Based on Chen & Thissen (2007, DOI: 10.2307/1165285),
+#' uses package `mirt` (Chalmers, 2012).
+#'
+#' Uses a dataframe with response data to simulate residual correlation values
+#' across n simulations based on estimated item & person locations.
+#'
+#' Results include mean, max and difference between the mean and max for each
+#' iteration. Also, 95th, 99th, 99.5th and 99.9th percentile values are
+#' calculated for use with `RIresidcorr()` as cutoff value, since the max value
+#' may be spurious and dependent on number of iterations.
+#'
+#' Uses multi-core processing. To find how many cores you have on your computer,
+#' use `parallel::detectCores()`. Remember to keep 1-2 cores free.
+#'
+#' @param data Dataframe with response data
+#' @param iterations Number of simulation iterations (needed)
+#' @param cpu Number of CPU cores to use (4 is default)
+#' @export
+RIgetResidCorG2 <- function(data, iterations = 500, cpu = 4) {
+
+  require(doParallel)
+  registerDoParallel(cores = cpu)
+
+  # get sample size
+  sample_n <- nrow(data)
+
+  if(min(as.matrix(data), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
+
+  } else if(max(as.matrix(data), na.rm = T) > 1 && min(as.matrix(data), na.rm = T) == 0) {
+
+    # get item threshold locations for response data
+    item_locations <- RIitemparams(data, output = "dataframe") %>%
+      dplyr::select(!Location) %>%
+      janitor::clean_names() %>%
+      as.matrix()
+
+    n_items <- nrow(item_locations)
+
+    # item threshold locations in list format for simulation function
+    itemlist <- list()
+    for (i in 1:n_items) {
+      itemlist[[i]] <- list(na.omit(item_locations[i, ]))
+    }
+
+    # get number of response categories for each item for later use in checking complete responses
+    itemlength <- list()
+    for (i in 1:n_items) {
+      itemlength[i] <- length(na.omit(item_locations[i, ]))
+      names(itemlength)[i] <- names(data)[i]
+    }
+
+    # estimate theta values in response data
+    thetas <- RIestThetasCATr(data, cpu = cpu)
+
+    # create object to store results from multicore loop
+    residcor <- list()
+    residcor <- foreach(icount(iterations)) %dopar%
+      {
+        # resampled vector of theta values (based on sample properties)
+        inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
+
+        # simulate response data based on thetas and items above
+        testData <- SimPartialScore(
+          deltaslist = itemlist,
+          thetavec = inputThetas
+        ) %>%
+          as.data.frame()
+
+        names(testData) <- names(data)
+
+        # check that simulated dataset has responses in all categories
+        data_check <- testData %>%
+          # make factor to not drop any consequtive response categories with 0 responses
+          mutate(across(everything(), ~ factor(.x, levels = c(0:itemlength[[as.character(expression(.x))]])))) %>%
+          pivot_longer(everything()) %>% # screws up factor levels, which makes the next step necessary
+          dplyr::count(name, value, .drop = FALSE) %>%
+          pivot_wider(
+            names_from = "name",
+            values_from = "n"
+          ) %>%
+          dplyr::select(!value) %>%
+          # mark missing cells with NA for later logical examination
+          mutate(across(everything(), ~ car::recode(.x, "0=NA", as.factor = FALSE))) %>%
+          as.data.frame() %>%
+          dplyr::select(all_of(names(data))) # get item sorting correct
+
+        # match response data generated with itemlength
+        item_ccount <- list()
+        for (i in 1:n_items) {
+          item_ccount[i] <- list(data_check[c(1:itemlength[[i]]),i])
+        }
+
+        # check if any item has 0 responses in a response category that should have data
+        if (any(is.na(unlist(item_ccount)))) {
+          return("Missing cells in generated data.")
+        }
+
+        # create Yen's Q3 residual correlation matrix
+        #sink(nullfile())
+        mirt.rasch <- mirt(testData, model = 1, itemtype = "Rasch", verbose = FALSE, accelerate = 'squarem')
+        resid <- residuals(mirt.rasch, type = "LDG2", digits = 2, verbose = FALSE)
+        #sink()
+        diag(resid) <- NA
+        resid[lower.tri(resid)] <- NA
+
+        data.frame(mean = mean(resid, na.rm = TRUE),
+                   max = max(resid, na.rm = TRUE)
+        )
+
+      }
+
+  } else if(max(as.matrix(data), na.rm = T) == 1 && min(as.matrix(data), na.rm = T) == 0) {
+    # estimate item threshold locations from data
+    erm_out <- eRm::RM(data)
+    item_locations <- erm_out$betapar * -1
+    names(item_locations) <- names(data)
+
+    # estimate theta values from data using MLE (temporary fix for RM with missing data)
+    thetas <- eRm::person.parameter(erm_out)[["theta.table"]][["Person Parameter"]]
+
+    # create object to store results from multicore loop
+    residcor <- list()
+    residcor <- foreach(icount(iterations)) %dopar%
+      {
+        # resample vector of theta values (based on sample properties)
+        inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
+
+        # simulate response data based on thetas and items above
+        testData <-
+          psychotools::rrm(inputThetas, item_locations, return_setting = FALSE) %>%
+          as.data.frame()
+
+        # TEMPORARY FIX START
+        # check that all items have at least 8 non-zero responses, otherwise eRm::RM() fails
         n_resp <-
           testData %>%
           as.matrix() %>%
@@ -4047,7 +4307,8 @@ RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
   return(out)
 }
 
-#' Calculate conditional outfit & infit MSQ statistics
+
+#' Calculate conditional infit MSQ statistics
 #'
 #' Automatically uses RM (dichotomous data) or PCM (polytomous data) depending
 #' on data structure.
@@ -4066,18 +4327,12 @@ RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
 #' which means that final set of iterations may be lower than specified by user.
 #'
 #' Optional sorting (only) for table output with conditional highlighting based
-#' on simulation cutoff values, either `sort = "infit"` or `sort = "outfit`.
-#'
-#' Optional conditional highlighting of misfit based on rule-of-thumb values for
-#' infit MSQ according to Smith et al. (1998), since Müller (2020) showed that
-#' these can be fairly accurate for conditional infit and thus useful for a
-#' quick look at item fit. Set `cutoff = "Smith98` to use this as cutoff with
-#' only infit presented.
+#' on simulation cutoff values, `sort = "infit"`.
 #'
 #' @param data Dataframe with response data
 #' @param simcut Object output from `RIgetfit()`
 #' @param output Optional "dataframe" or "quarto"
-#' @param sort Optional "infit" or "outfit"
+#' @param sort Optional "infit"
 #' @param cutoff Default `c(.001,.999)`
 #' @param ... Options passed on to `kbl_rise()` for table creation
 #' @export
@@ -4108,8 +4363,7 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
   n_complete <- nrow(na.omit(data))
 
   # create dataframe
-  item.fit.table <- data.frame(InfitMSQ = cfit$Infit,
-                               OutfitMSQ = cfit$Outfit) %>%
+  item.fit.table <- data.frame(InfitMSQ = cfit$Infit) %>%
     round(3) %>%
     rownames_to_column("Item") %>%
     add_column(`Relative location` = round(relative_item_avg_locations,2))
@@ -4130,18 +4384,14 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
         bind_rows(simcut[1:iterations]) %>%
         group_by(Item) %>%
         summarise(min_infit_msq = quantile(InfitMSQ, cutoff[1]),
-                  max_infit_msq = quantile(InfitMSQ, cutoff[2]),
-                  min_outfit_msq = quantile(OutfitMSQ, cutoff[1]),
-                  max_outfit_msq = quantile(OutfitMSQ, cutoff[2])
+                  max_infit_msq = quantile(InfitMSQ, cutoff[2])
         )
     } else {
       lo_hi <-
         bind_rows(simcut[1:iterations][-iterations_nodata]) %>%
         group_by(Item) %>%
         summarise(min_infit_msq = quantile(InfitMSQ, cutoff[1]),
-                  max_infit_msq = quantile(InfitMSQ, cutoff[2]),
-                  min_outfit_msq = quantile(OutfitMSQ, cutoff[1]),
-                  max_outfit_msq = quantile(OutfitMSQ, cutoff[2])
+                  max_infit_msq = quantile(InfitMSQ, cutoff[2])
         )
     }
 
@@ -4152,41 +4402,32 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
       fit_table <-
         bind_rows(simcut[1:iterations]) %>%
         group_by(Item) %>%
-        summarise(inf_thresh = paste0("[",round(quantile(InfitMSQ, cutoff[1]),3),", ",round(quantile(InfitMSQ, cutoff[2]),3),"]"),
-                  outf_thresh = paste0("[",round(quantile(OutfitMSQ, cutoff[1]),3),", ",round(quantile(OutfitMSQ, cutoff[2]),3),"]")
+        summarise(inf_thresh = paste0("[",round(quantile(InfitMSQ, cutoff[1]),3),", ",round(quantile(InfitMSQ, cutoff[2]),3),"]")
         )
     } else {
       fit_table <-
         bind_rows(simcut[1:iterations][-iterations_nodata]) %>%
         group_by(Item) %>%
-        summarise(inf_thresh = paste0("[",round(quantile(InfitMSQ, cutoff[1]),3),", ",round(quantile(InfitMSQ, cutoff[2]),3),"]"),
-                  outf_thresh = paste0("[",round(quantile(OutfitMSQ, cutoff[1]),3),", ",round(quantile(OutfitMSQ, cutoff[2]),3),"]")
+        summarise(inf_thresh = paste0("[",round(quantile(InfitMSQ, cutoff[1]),3),", ",round(quantile(InfitMSQ, cutoff[2]),3),"]")
         )
     }
     # add thresholds to dataframe and calculate differences between thresholds and observed values
     item.fit.table <-
       item.fit.table %>%
       add_column(`Infit thresholds` = fit_table$inf_thresh, .after = "InfitMSQ") %>%
-      add_column(`Outfit thresholds` = fit_table$outf_thresh, .after = "OutfitMSQ") %>%
       left_join(lo_hi, by = "Item") %>%
       mutate(infit_lo = abs(InfitMSQ - min_infit_msq),
              infit_hi = abs(InfitMSQ - max_infit_msq),
-             `Infit diff` = round(pmin(infit_lo,infit_hi),3),
-             outfit_lo = abs(OutfitMSQ - min_outfit_msq),
-             outfit_hi = abs(OutfitMSQ - max_outfit_msq),
-             `Outfit diff` = round(pmin(outfit_lo,outfit_hi),3)
+             `Infit diff` = round(pmin(infit_lo,infit_hi),3)
       ) %>%
-      mutate(`Infit diff` = ifelse(yes = "no misfit", no = `Infit diff`, InfitMSQ > min_infit_msq & InfitMSQ < max_infit_msq),
-             `Outfit diff` = ifelse(yes = "no misfit", no = `Outfit diff`, OutfitMSQ > min_outfit_msq & OutfitMSQ < max_outfit_msq)) %>%
+      mutate(`Infit diff` = ifelse(yes = "no misfit", no = `Infit diff`, InfitMSQ > min_infit_msq & InfitMSQ < max_infit_msq)) %>%
       dplyr::select(!contains(c("lo","hi","min","max"))) %>%
       add_column(`Relative location` = round(relative_item_avg_locations,2))
 
     if (output == "table" & sort == "items") {
       # set conditional highlighting based on cutoffs
       for (i in 1:nrow(lo_hi)) {
-        item.fit.table[i,"OutfitMSQ"] <- cell_spec(item.fit.table[i,"OutfitMSQ"],
-                                                   color = ifelse(item.fit.table[i,"OutfitMSQ"] < lo_hi[i,"min_outfit_msq"], "red",
-                                                                  ifelse(item.fit.table[i,"OutfitMSQ"] > lo_hi[i,"max_outfit_msq"], "red", "black")))
+
         item.fit.table[i,"InfitMSQ"] <- cell_spec(item.fit.table[i,"InfitMSQ"],
                                                   color = ifelse(item.fit.table[i,"InfitMSQ"] < lo_hi[i,"min_infit_msq"], "red",
                                                                  ifelse(item.fit.table[i,"InfitMSQ"] > lo_hi[i,"max_infit_msq"], "red", "black")))
@@ -4195,14 +4436,12 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
       # output table
       item.fit.table %>%
         kbl_rise(...) %>%
-        footnote(general = paste0("MSQ values based on conditional calculations (n = ", n_complete," complete cases).
+        kableExtra::footnote(general = paste0("MSQ values based on conditional calculations (n = ", n_complete," complete cases).
                                 Simulation based thresholds from ", actual_iterations," simulated datasets."))
 
     } else if (output == "table" & sort == "infit") {
       for (i in 1:nrow(lo_hi)) {
-        item.fit.table[i,"OutfitMSQ"] <- cell_spec(item.fit.table[i,"OutfitMSQ"],
-                                                   color = ifelse(item.fit.table[i,"OutfitMSQ"] < lo_hi[i,"min_outfit_msq"], "red",
-                                                                  ifelse(item.fit.table[i,"OutfitMSQ"] > lo_hi[i,"max_outfit_msq"], "red", "black")))
+
         item.fit.table[i,"InfitMSQ"] <- cell_spec(item.fit.table[i,"InfitMSQ"],
                                                   color = ifelse(item.fit.table[i,"InfitMSQ"] < lo_hi[i,"min_infit_msq"], "red",
                                                                  ifelse(item.fit.table[i,"InfitMSQ"] > lo_hi[i,"max_infit_msq"], "red", "black")))
@@ -4211,27 +4450,10 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
       item.fit.table %>%
         arrange(desc(`Infit diff`)) %>%
         kbl_rise(...) %>%
-        footnote(general = paste0("MSQ values based on conditional calculations (n = ", n_complete," complete cases).
+        kableExtra::footnote(general = paste0("MSQ values based on conditional calculations (n = ", n_complete," complete cases).
                                 Simulation based thresholds from ", actual_iterations," simulated datasets."))
 
-    } else if (output == "table" & sort == "outfit") {
-      for (i in 1:nrow(lo_hi)) {
-        item.fit.table[i,"OutfitMSQ"] <- cell_spec(item.fit.table[i,"OutfitMSQ"],
-                                                   color = ifelse(item.fit.table[i,"OutfitMSQ"] < lo_hi[i,"min_outfit_msq"], "red",
-                                                                  ifelse(item.fit.table[i,"OutfitMSQ"] > lo_hi[i,"max_outfit_msq"], "red", "black")))
-        item.fit.table[i,"InfitMSQ"] <- cell_spec(item.fit.table[i,"InfitMSQ"],
-                                                  color = ifelse(item.fit.table[i,"InfitMSQ"] < lo_hi[i,"min_infit_msq"], "red",
-                                                                 ifelse(item.fit.table[i,"InfitMSQ"] > lo_hi[i,"max_infit_msq"], "red", "black")))
-      }
-      item.fit.table %>%
-        arrange(desc(`Outfit diff`)) %>%
-        kbl_rise(...) %>%
-        footnote(general = paste0("MSQ values based on conditional calculations (n = ", n_complete," complete cases).
-                                Simulation based thresholds from ", actual_iterations," simulated datasets."))
-
-    }
-
-    else if(output == "dataframe") {
+    } else if(output == "dataframe") {
       return(janitor::clean_names(item.fit.table))
 
     } else if (output == "quarto") {
@@ -4240,7 +4462,7 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
   } else if (missing(simcut)) {
     if (output == "table" & missing(cutoff)) {
       kbl_rise(item.fit.table, ...) %>%
-        footnote(general = paste0("MSQ values based on conditional estimation (n = ", n_complete," complete cases)."))
+        kableExtra::footnote(general = paste0("MSQ values based on conditional estimation (n = ", n_complete," complete cases)."))
 
     } else if (output == "table" & cutoff == "Smith98") {
       # calculate cutoff values for conditional highlighting based on Smith et al, 1998.
@@ -4248,13 +4470,12 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
       msq_infit_hi <- round(1 + 2/sqrt(n_complete),3)
 
       item.fit.table %>%
-        dplyr::select(!OutfitMSQ) %>%
         mutate(InfitMSQ = cell_spec(InfitMSQ, color = ifelse(InfitMSQ < msq_infit_lo, "red",
                                                              ifelse(InfitMSQ > msq_infit_hi, "red", "black")
         ))) %>%
         add_column(!! paste0("1 ","\u00b1"," 2 / ","\u221A","n") := paste0("[",msq_infit_lo,", ", msq_infit_hi,"]")) %>%
         kbl_rise() %>%
-        footnote(general = paste0("MSQ values based on conditional estimation (n = ", n_complete," complete cases)."))
+        kableExtra::footnote(general = paste0("MSQ values based on conditional estimation (n = ", n_complete," complete cases)."))
     }
     else if (output == "dataframe") {
       return(janitor::clean_names(item.fit.table))
@@ -5075,7 +5296,7 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
       set_names(c("Item","Item-restscore result","% of iterations","Conditional MSQ infit",
                   "Relative average item location")) %>%
       kbl_rise() %>%
-      footnote(general = paste0("Results based on ",iterations,
+      kableExtra::footnote(general = paste0("Results based on ",iterations,
                                 " bootstrap iterations with n = ",samplesize,
                                 " and ",n_items," items. Conditional mean-square infit based on complete responders only (n = ",
                                 n_complete,")."))
@@ -5588,7 +5809,7 @@ RIinfitKfold <- function(data, k = 5, output = "raw", sim_iter = 100,
              #`Mean infit MSQ` = mean_infit,
              `Highest infit MSQ` = highest_infit) %>%
       kbl_rise() %>%
-      footnote(general = paste0("Infit MSQ values based on conditional estimation using n = ",
+      kableExtra::footnote(general = paste0("Infit MSQ values based on conditional estimation using n = ",
                                 samplesize," cases (",k," folds of data from a dataset of ",nrow(data),"). Cutoff values based on ",sim_iter," simulations from the each fold of data."))
   }
 }
@@ -5775,7 +5996,7 @@ RIrestscoreKfold <- function(data, k = 5, output = "table") {
     tbl %>%
       dplyr::rename(`Item-restscore\nresult` = item_restscore) %>%
       kbl_rise() %>%
-      footnote(general = paste0("Item-restscore summary of statistically significant BH adjusted p-values based on n = ",
+      kableExtra::footnote(general = paste0("Item-restscore summary of statistically significant BH adjusted p-values based on n = ",
                                 samplesize," cases (",k," folds of data from a dataset of ",nrow(data),")."))
   }
 

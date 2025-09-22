@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,14 @@
       <small>Source: <a href="https://github.com/pgmj/easyRasch/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.9" id="easyrasch-039-2025-09-22">easyRasch 0.3.9 (2025-09-22)<a class="anchor" aria-label="anchor" href="#easyrasch-039-2025-09-22"></a></h2>
+<ul><li>Removed output of outfit MSQ statistics since these are not useful in determining item fit/misfit to the Rasch model (Müller, 2020; Johansson, 2025).</li>
+<li>Added <code><a href="../reference/RIresidcorrG2.html">RIresidcorrG2()</a></code> and the corresponding parametric bootstrap to determine a critical value, <code>RIgetResidcorrG2()</code>, for the G2 metric to evaluate local independence (Chen &amp; Thissen, 1997).
+<ul><li>Using G<sup>2</sup> is recommended in addition to Yen’s Q<sup>3</sup> to evaluate local dependence as both have strengths and weaknesses.</li>
+</ul></li>
+<li>Namespace fix for explicit use of <code><a href="https://rdrr.io/pkg/kableExtra/man/footnote.html" class="external-link">kableExtra::footnote()</a></code> in tables, to avoid issues with <code>flextable</code> and potentially other packages.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.8" id="easyrasch-038-2025-09-18">easyRasch 0.3.8 (2025-09-18)<a class="anchor" aria-label="anchor" href="#easyrasch-038-2025-09-18"></a></h2>
 <ul><li>Major speedup for <code><a href="../reference/RIbootRestscore.html">RIbootRestscore()</a></code> for PCM (due to moving to <code>psychotools::PCModel.fit(hessian = FALSE)</code> instead of <code><a href="https://rdrr.io/pkg/eRm/man/PCM.html" class="external-link">eRm::PCM()</a></code>), and minor speed up for RM (due to not calculating SE).
