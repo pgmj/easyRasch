@@ -52,7 +52,8 @@ brms_model <- brm(
   value ~ 1 + (1 | item) + (1 | id),
   data    = df,
   chains  = 4,
-  cores   = 4
+  cores   = 4,
+  family = "bernoulli"
 )
 
 posterior_draws <- brms_model \%>\%
@@ -61,7 +62,7 @@ posterior_draws <- brms_model \%>\%
   t()
 
 RMUreliability(posterior_draws)
-RIreliability(raschdat1[,1:20], draws = 4000)
+RIreliability(eRm::raschdat1[,1:20], draws = 4000)
 }
 
 }

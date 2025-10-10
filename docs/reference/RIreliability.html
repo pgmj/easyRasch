@@ -104,7 +104,8 @@ Estimated using functions in the <code>TAM</code> package, see <code><a href="ht
 <span class="r-in"><span>  <span class="va">value</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">|</span> <span class="va">item</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">|</span> <span class="va">id</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  data    <span class="op">=</span> <span class="va">df</span>,</span></span>
 <span class="r-in"><span>  chains  <span class="op">=</span> <span class="fl">4</span>,</span></span>
-<span class="r-in"><span>  cores   <span class="op">=</span> <span class="fl">4</span></span></span>
+<span class="r-in"><span>  cores   <span class="op">=</span> <span class="fl">4</span>,</span></span>
+<span class="r-in"><span>  family <span class="op">=</span> <span class="st">"bernoulli"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">posterior_draws</span> <span class="op">&lt;-</span> <span class="va">brms_model</span> <span class="op">%&gt;%</span></span></span>
@@ -113,7 +114,7 @@ Estimated using functions in the <code>TAM</code> package, see <code><a href="ht
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="RMUreliability.html">RMUreliability</a></span><span class="op">(</span><span class="va">posterior_draws</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">RIreliability</span><span class="op">(</span><span class="va">raschdat1</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span>, draws <span class="op">=</span> <span class="fl">4000</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">RIreliability</span><span class="op">(</span><span class="fu">eRm</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/eRm/man/eRm.data.html" class="external-link">raschdat1</a></span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span>, draws <span class="op">=</span> <span class="fl">4000</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
