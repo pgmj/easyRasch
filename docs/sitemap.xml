@@ -1,5 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://pgmj.github.io/easyRasch/404.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/LICENSE-text.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/LICENSE.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/articles/easyrasch-vignette.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/articles/index.html</loc></url>
@@ -37,6 +38,7 @@
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIestThetasOLD.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIestThetasOLD2.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIgetResidCor.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/reference/RIgetResidCorG2.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIgetfit.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIgetfitPlot.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIheatmap.html</loc></url>
@@ -63,7 +65,9 @@
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIpcmPCA.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIpfit.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIrawdist.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/reference/RIreliability.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIresidcorr.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/reference/RIresidcorrG2.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIrestscore.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIrestscoreKfold.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIrmPCA.html</loc></url>
@@ -71,6 +75,7 @@
 <url><loc>https://pgmj.github.io/easyRasch/reference/RItargeting.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RItif.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RItileplot.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/reference/RMUreliability.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/SimPartialScore.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/SimPolyItem.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/index.html</loc></url>

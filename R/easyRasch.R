@@ -292,7 +292,7 @@ RIlistItemsMargin <- function(dfin, fontsize = 11) {
     formattable(align = c(
       "c",
       "l"
-    ), list(itemnr = formatter("span", style = ~ style(
+    ), list(itemnr = formatter("span", style = ~ formattable::style(
       color = "grey",
       font.weight = "bold"
     ))), table.attr = glue::glue("class=\"table table-striped\" style=\"font-size: {fontsize}px; font-family: Lato\""))
@@ -524,7 +524,7 @@ RIallresp <- function(dfin, pdf.out, fontsize = 15) {
       ) %>%
       formattable(
         list(
-          `Response category` = formatter("span", style = ~ style(font.weight = "bold"))
+          `Response category` = formatter("span", style = ~ formattable::style(font.weight = "bold"))
         ),
         table.attr =
           'class=\"table table-striped\" style="font-size: 15px;
@@ -1749,6 +1749,10 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
 
 #' Reliability of test
 #'
+#' NOTE: TIF is not reliable with small numbers of items, and should not be used
+#' as your primary indication of reliability (see doi: 10.1111/bmsp.12033).
+#' Please use `RIreliability()`.
+#'
 #' Test information shows the reliability curve of the test (not the sample).
 #'
 #' Use option `samplePSI = TRUE` to add graphical and written representation of
@@ -1765,6 +1769,9 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
 #' TIF 5 -> PSI 0.8
 #' TIF 10 -> PSI 0.9
 #'
+#' @references
+#' Milanzi, et al. (2015). Reliability measures in item response theory: Manifest versus latent correlation functions. \href{https://doi.org/10.1111/bmsp.12033}{doi:10.1111/bmsp.12033}
+#'
 #' @param dfin Dataframe with item data only
 #' @param lo Lower limit of x axis (default = -5)
 #' @param hi Upper limit of x axis (default = 5)
@@ -1773,6 +1780,10 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
 #' @param model Defaults to "PCM", use "RM" for dichotomous data
 #' @export
 RItif <- function(dfin, lo = -5, hi = 5, samplePSI = FALSE, cutoff = 3.33, model = "PCM") {
+
+  message("NOTE: TIF is not reliable, particularly with small numbers of items,
+          and should not be used as your primary indication of reliability (see doi: 10.1111/bmsp.12033).
+          Please use `RIreliability()`.")
   # convert TIF to PSI, if cutoff is set manually
   psi_tif <- round(1-(1/sqrt(cutoff))^2,2)
 
@@ -2608,7 +2619,7 @@ RIdifTable <- function(dfin, dif.var, cutoff = 0.5, table = TRUE) {
 
       formattable(difTable, list(
         'MaxDiff' =
-          formatter("span", style = ~ style(color = ifelse(MaxDiff < -cutoff, "red",
+          formatter("span", style = ~ formattable::style(color = ifelse(MaxDiff < -cutoff, "red",
                                                            ifelse(MaxDiff > cutoff, "red",  "black"))))),
         table.attr = 'class=\"table table-striped\" style="font-size: 15px; font-family: Lato"')
 
@@ -2661,7 +2672,7 @@ RIdifTable2 <- function(dfin, dif.var1, dif.var2, cutoff = 0.5) {
       dplyr::relocate(MaxDiff, .after = last_col()) %>%
       formattable(list(
         'MaxDiff' =
-          formatter("span", style = ~ style(color = ifelse(MaxDiff < -cutoff, "red",
+          formatter("span", style = ~ formattable::style(color = ifelse(MaxDiff < -cutoff, "red",
                                                            ifelse(MaxDiff > cutoff, "red",  "black"))))),
         table.attr = 'class=\"table table-striped\" style="font-size: 15px; font-family: Lato"')
 
@@ -2840,7 +2851,7 @@ RIdifTableRM <- function(dfin, dif.var, cutoff = 0.5) {
       dplyr::relocate(MaxDiff, .after = last_col()) %>%
       formattable(list(
         'MaxDiff' =
-          formatter("span", style = ~ style(color = ifelse(MaxDiff < -cutoff, "red",
+          formatter("span", style = ~ formattable::style(color = ifelse(MaxDiff < -cutoff, "red",
                                                            ifelse(MaxDiff > cutoff, "red",  "black"))))),
         table.attr = 'class=\"table table-striped\" style="font-size: 15px; font-family: Lato"')
 
@@ -6034,6 +6045,106 @@ RIdifTileplot <- function(data, dif_var) {
   plots <- patchwork::wrap_plots(difplots, axes = "collect", guides = NULL) +
     patchwork::plot_annotation(title = "Tileplots split by DIF variable")
   return(plots)
+}
+
+#' Reliability metrics
+#'
+#' Several metrics are reported, RMU, PSI, and EAP.
+#'
+#' RMU, Relative Measurement Uncertainty:
+#' This function uses the `TAM` library to estimate the Rasch model using
+#' Marginal Maximum Likelihood and then generates plausible values
+#' (PVs; Mislevy, 1991). The function uses borrowed code, see `?RMUreliability`.
+#'
+#' The PVs are then used with the RMU method described by Bignardi et al. (2025)
+#' to estimate a mean and confidence interval. The mean is generally similar to
+#' the expected a posteriori (EAP) reliability point estimate (Adams, 2005).
+#' The confidence interval uses the highest continuous density interval (HDCI)
+#' based on the distribution of correlations.
+#'
+#' Default setting is to generate 1000 PVs. More are recommended for stable
+#' estimates/CIs. How many more has not been systematically evaluated, but
+#' 4000 might be a good starting point. For smaller samples, more PVs is not
+#' very demanding computationally, but be wary of the time it takes to create
+#' thousands of PVs for each respondent in large samples.
+#'
+#' PSI, Person Separation Index:
+#' Estimated using functions in the `eRm` package, see `?eRm::SepRel`.
+#'
+#' EAP, Expected a posteriori:
+#' Estimated using functions in the `TAM` package, see `?TAM::EAPrel`.
+#'
+#' @examples
+#' \dontrun{
+#' # comparison of a fully Bayesian Rasch model and PVs
+#' df <- eRm::raschdat1[,1:20] %>%
+#'   rownames_to_column("id") %>%
+#'   pivot_longer(!id, names_to = "item")
+#'
+#' library(brms)
+#' brms_model <- brm(
+#'   value ~ 1 + (1 | item) + (1 | id),
+#'   data    = df,
+#'   chains  = 4,
+#'   cores   = 4
+#' )
+#'
+#' posterior_draws <- brms_model %>%
+#'   as_draws_df() %>%
+#'   dplyr::select(starts_with("r_id")) %>%
+#'   t()
+#'
+#' RMUreliability(posterior_draws)
+#' RIreliability(raschdat1[,1:20], draws = 4000)
+#' }
+#'
+#' @references
+#' \itemize{
+#'   \item Bignardi, G., Kievit, R., & Bürkner, P. C. (2025). A general method for estimating reliability using Bayesian Measurement Uncertainty. PsyArXiv. \href{https://osf.io/preprints/psyarxiv/h54k8}{doi:10.31234/osf.io/h54k8}
+#'   \item Mislevy, R. J. (1991). Randomization-Based Inference about Latent Variables from Complex Samples. Psychometrika, 56(2), 177–196. \href{https://doi.org/10.1007/BF02294457}{doi:10.1007/BF02294457}
+#'   \item Adams, R. J. (2005). Reliability as a measurement design effect. Studies in Educational Evaluation, 31(2), 162–172. \href{https://doi.org/10.1016/j.stueduc.2005.05.008}{doi:10.1016/j.stueduc.2005.05.008}
+#' }
+#'
+#' @param data Dataframe/tibble with only item response data coded as integers
+#' @param conf_int Desired confidence interval (HDCI)
+#' @param draws Number of plausible values to generate
+#' @export
+RIreliability <- function(data, conf_int = .95, draws = 1000) {
+
+  if(min(as.matrix(data), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
+  } else if(max(as.matrix(data), na.rm = T) == 1) {
+    model <- "RM"
+  } else if(max(as.matrix(data), na.rm = T) > 1) {
+    model <- "PCM"
+  }
+
+  require(TAM)
+
+  if (model == "PCM") {
+    tam_out <- TAM::tam.mml(resp = data, irtmodel = "PCM", verbose = FALSE)
+    erm_out <- eRm::PCM(data)
+  } else if (model == "RM") {
+    tam_out <- TAM::tam.mml(resp = data, irtmodel = "1PL", verbose = FALSE)
+    erm_out <- eRm::RM(data)
+  }
+
+  wle <- iarm::person_estimates(erm_out, properties = TRUE)[[2]] %>%
+    as.data.frame()
+  rownames(wle) <- NULL
+
+  plvals <- tam.pv(tam_out, nplausible = draws, verbose = FALSE)[["pv"]][,-1]
+
+  rmu <- RMUreliability(plvals, level = conf_int) %>%
+    mutate(across(where(is.numeric), ~ round(.x, 3)))
+
+  message(paste0("RMU reliability estimates based on ",draws," posterior draws (plausible values) from ",nrow(data)," respondents.",
+                 "\nSee Bignardi, Kievit, & Bürkner (2025). 'A general method for estimating reliability using Bayesian Measurement Uncertainty' for details. ",
+                 "The procedure has been modified in `easyRasch` to use `TAM::tam.pv()` to generate plausible values based on an MML estimated Rasch model."))
+  return(list(WLE = wle,
+              PSI = eRm::person.parameter(erm_out) %>% eRm::SepRel(),
+              EAP = tam_out$EAP.rel %>% round(3),
+              RMU = paste0("RMU = ",rmu$rmu_estimate," (95% HDCI [",rmu$hdci_lowerbound,", ",rmu$hdci_upperbound,"])")))
 }
 
 #' Temporary fix for upstream bug in `iarm::person_estimates()`

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,14 @@
       <small>Source: <a href="https://github.com/pgmj/easyRasch/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.0" id="easyrasch-040-2025-10-10">easyRasch 0.4.0 (2025-10-10)<a class="anchor" aria-label="anchor" href="#easyrasch-040-2025-10-10"></a></h2>
+<ul><li>Added <code><a href="../reference/RIreliability.html">RIreliability()</a></code> as a recommended function to estimate several forms of reliability, including RMU with a confidence interval.
+<ul><li>Code and idea borrowed from Bignardi, G., Kievit, R., &amp; Bürkner, P.-C. (2025). A general method for estimating reliability using Bayesian Measurement Uncertainty. OSF Preprints. <a href="https://doi.org/10.31234/osf.io/h54k8_v1" class="external-link uri">https://doi.org/10.31234/osf.io/h54k8_v1</a>
+</li>
+<li>NOTE: The <code><a href="../reference/RItif.html">RItif()</a></code> function is no longer recommended for use, since TIF is unreliable, particularly with small numbers of items (Milanzi et al., 2015, doi: 10.1111/bmsp.12033)</li>
+</ul></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.9" id="easyrasch-039-2025-09-22">easyRasch 0.3.9 (2025-09-22)<a class="anchor" aria-label="anchor" href="#easyrasch-039-2025-09-22"></a></h2>
 <ul><li>Removed output of outfit MSQ statistics since these are not useful in determining item fit/misfit to the Rasch model (Müller, 2020; Johansson, 2025).</li>
@@ -84,13 +92,13 @@
 <li>Experimental new function <code><a href="../reference/RIinfitKfold.html">RIinfitKfold()</a></code> for cross-validating item fit using <code><a href="https://rsample.tidymodels.org/reference/vfold_cv.html" class="external-link">rsample::vfold_cv()</a></code>; “V-fold cross-validation (also known as k-fold cross-validation) randomly splits the data into V groups of roughly equal size (called”folds”). A resample of the analysis data consists of V-1 of the folds”, see <a href="https://rsample.tidymodels.org/reference/vfold_cv.html" class="external-link uri">https://rsample.tidymodels.org/reference/vfold_cv.html</a>
 <ul><li>this has not yet been tested so there are no recommendations for how or when to use it.</li>
 </ul></li>
-<li>Slight speedup (~20%) for <code><a href="../reference/RIgetResidCor.html">RIgetResidCor()</a></code> by changing the accelerator used by <code>mirt()</code> to SQUAREM and avoiding the use of <code><a href="https://rdrr.io/r/base/sink.html" class="external-link">sink()</a></code>.</li>
+<li>Slight speedup (~20%) for <code><a href="../reference/RIgetResidCor.html">RIgetResidCor()</a></code> by changing the accelerator used by <code><a href="https://philchalmers.github.io/mirt/reference/mirt.html" class="external-link">mirt()</a></code> to SQUAREM and avoiding the use of <code><a href="https://rdrr.io/r/base/sink.html" class="external-link">sink()</a></code>.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.6.2" id="easyrasch-0362-2025-04-30">easyRasch 0.3.6.2 (2025-04-30)<a class="anchor" aria-label="anchor" href="#easyrasch-0362-2025-04-30"></a></h2>
 <ul><li>Added an automatic creation of the itemlabels object for <code><a href="../reference/RIitemHierarchy.html">RIitemHierarchy()</a></code> and <code><a href="../reference/RIitemcols.html">RIitemcols()</a></code> if it is missing.</li>
-<li>Specified the use of <code>slice()</code> as <code><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">dplyr::slice()</a></code> to avoid namespace issues with package <code>ordinal</code>.</li>
-<li>Bug fix in <code><a href="../reference/RIbootRestscore.html">RIbootRestscore()</a></code> where <code>count()</code> needed to be specified as <code><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">dplyr::count()</a></code>.</li>
+<li>Specified the use of <code><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice()</a></code> as <code><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">dplyr::slice()</a></code> to avoid namespace issues with package <code>ordinal</code>.</li>
+<li>Bug fix in <code><a href="../reference/RIbootRestscore.html">RIbootRestscore()</a></code> where <code><a href="https://rdrr.io/pkg/matrixStats/man/rowCounts.html" class="external-link">count()</a></code> needed to be specified as <code><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">dplyr::count()</a></code>.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.6.1" id="easyrasch-0361-2025-03-20">easyRasch 0.3.6.1 (2025-03-20)<a class="anchor" aria-label="anchor" href="#easyrasch-0361-2025-03-20"></a></h2>

@@ -20,9 +20,13 @@ RItif(dfin, lo = -5, hi = 5, samplePSI = FALSE, cutoff = 3.33, model = "PCM")
 \item{model}{Defaults to "PCM", use "RM" for dichotomous data}
 }
 \description{
-Test information shows the reliability curve of the test (not the sample).
+NOTE: TIF is not reliable with small numbers of items, and should not be used
+as your primary indication of reliability (see doi: 10.1111/bmsp.12033).
+Please use \code{RIreliability()}.
 }
 \details{
+Test information shows the reliability curve of the test (not the sample).
+
 Use option \code{samplePSI = TRUE} to add graphical and written representation of
 the current sample's theta mean/SD, test information (TIF) mean/SD, and
 Person Separation Index (PSI). According to Wright & Stone (1999), PSI is
@@ -36,4 +40,7 @@ TIF 2.5 corresponds to PSI 0.6
 TIF 3.33 -> PSI 0.7
 TIF 5 -> PSI 0.8
 TIF 10 -> PSI 0.9
+}
+\references{
+Milanzi, et al. (2015). Reliability measures in item response theory: Manifest versus latent correlation functions. \href{https://doi.org/10.1111/bmsp.12033}{doi:10.1111/bmsp.12033}
 }

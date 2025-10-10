@@ -1,3 +1,9 @@
+# easyRasch 0.4.0 (2025-10-10)
+
+- Added `RIreliability()` as a recommended function to estimate several forms of reliability, including RMU with a confidence interval.
+  - Code and idea borrowed from Bignardi, G., Kievit, R., & Bürkner, P.-C. (2025). A general method for estimating reliability using Bayesian Measurement Uncertainty. OSF Preprints. <https://doi.org/10.31234/osf.io/h54k8_v1>
+  - NOTE: The `RItif()` function is no longer recommended for use, since TIF is unreliable, particularly with small numbers of items (Milanzi et al., 2015, doi: 10.1111/bmsp.12033)
+
 # easyRasch 0.3.9 (2025-09-22)
 
 - Removed output of outfit MSQ statistics since these are not useful in determining item fit/misfit to the Rasch model (Müller, 2020; Johansson, 2025).
