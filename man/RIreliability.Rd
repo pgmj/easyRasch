@@ -14,7 +14,8 @@ RIreliability(data, conf_int = 0.95, draws = 1000)
 \item{draws}{Number of plausible values to generate}
 }
 \description{
-Several metrics are reported, RMU, PSI, and EAP.
+Several metrics are reported, RMU, PSI, and EAP. It is recommended to also
+use the function \code{RIrelRep()} to determine conditional reliability.
 }
 \details{
 RMU, Relative Measurement Uncertainty:

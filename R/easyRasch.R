@@ -6049,7 +6049,8 @@ RIdifTileplot <- function(data, dif_var) {
 
 #' Reliability metrics
 #'
-#' Several metrics are reported, RMU, PSI, and EAP.
+#' Several metrics are reported, RMU, PSI, and EAP. It is recommended to also
+#' use the function `RIrelRep()` to determine conditional reliability.
 #'
 #' RMU, Relative Measurement Uncertainty:
 #' This function uses the `TAM` library to estimate the Rasch model using
