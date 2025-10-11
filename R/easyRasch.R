@@ -1751,7 +1751,7 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
 #'
 #' NOTE: TIF is not reliable with small numbers of items, and should not be used
 #' as your primary indication of reliability (see doi: 10.1111/bmsp.12033).
-#' Please use `RIreliability()`.
+#' Please use `RIreliability()` and `RIrelRep()` instead.
 #'
 #' Test information shows the reliability curve of the test (not the sample).
 #'
@@ -1771,7 +1771,8 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
 #'
 #' @references
 #' Milanzi, et al. (2015). Reliability measures in item response theory: Manifest versus latent correlation functions. \href{https://doi.org/10.1111/bmsp.12033}{doi:10.1111/bmsp.12033}
-#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
 #' @param dfin Dataframe with item data only
 #' @param lo Lower limit of x axis (default = -5)
 #' @param hi Upper limit of x axis (default = 5)

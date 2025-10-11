@@ -311,7 +311,7 @@ RIrelRep <- function(data, items=c(names(data)), rel="alpha", missing="NA", meth
   z$table<-d
 
   #print the plot by default
-  print(z$p)
+  print(z$plot)
 
   #return the plot with the function
   return(z)

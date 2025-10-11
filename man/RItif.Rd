@@ -20,11 +20,13 @@ RItif(dfin, lo = -5, hi = 5, samplePSI = FALSE, cutoff = 3.33, model = "PCM")
 \item{model}{Defaults to "PCM", use "RM" for dichotomous data}
 }
 \description{
-NOTE: TIF is not reliable with small numbers of items, and should not be used
-as your primary indication of reliability (see doi: 10.1111/bmsp.12033).
-Please use \code{RIreliability()}.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }
 \details{
+NOTE: TIF is not reliable with small numbers of items, and should not be used
+as your primary indication of reliability (see doi: 10.1111/bmsp.12033).
+Please use \code{RIreliability()} and \code{RIrelRep()} instead.
+
 Test information shows the reliability curve of the test (not the sample).
 
 Use option \code{samplePSI = TRUE} to add graphical and written representation of
