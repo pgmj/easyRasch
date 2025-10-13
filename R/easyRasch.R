@@ -6114,6 +6114,8 @@ RIdifTileplot <- function(data, dif_var) {
 #' @export
 RIreliability <- function(data, conf_int = .95, draws = 1000) {
 
+  message("Note that PSI is calculated with max/min scoring individuals excluded.")
+
   if(min(as.matrix(data), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
   } else if(max(as.matrix(data), na.rm = T) == 1) {
@@ -6132,7 +6134,7 @@ RIreliability <- function(data, conf_int = .95, draws = 1000) {
     erm_out <- eRm::RM(data)
   }
 
-  wle <- iarm::person_estimates(erm_out, properties = TRUE)[[2]] %>%
+  wle <- RI_iarm_person_estimates(erm_out, properties = TRUE)[[2]] %>%
     as.data.frame()
   rownames(wle) <- NULL
 
