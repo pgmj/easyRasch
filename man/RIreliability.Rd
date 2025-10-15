@@ -4,7 +4,14 @@
 \alias{RIreliability}
 \title{Reliability metrics}
 \usage{
-RIreliability(data, conf_int = 0.95, draws = 1000)
+RIreliability(
+  data,
+  conf_int = 0.95,
+  draws = 1000,
+  estim = "WLE",
+  boot = FALSE,
+  cpu = 4
+)
 }
 \arguments{
 \item{data}{Dataframe/tibble with only item response data coded as integers}
@@ -12,21 +19,28 @@ RIreliability(data, conf_int = 0.95, draws = 1000)
 \item{conf_int}{Desired confidence interval (HDCI)}
 
 \item{draws}{Number of plausible values to generate}
+
+\item{estim}{Estimation method for theta (latent scores)}
+
+\item{boot}{Optional non-parametric bootstrap for empirical reliability}
+
+\item{cpu}{Number of cpu cores to use for bootstrap method}
 }
 \description{
-Several metrics are reported, RMU, PSI, and EAP. It is recommended to also
-use the function \code{RIrelRep()} to determine conditional reliability.
+Several metrics are reported, RMU, PSI, and 'empirical'. It is recommended to also
+use the function \code{RIrelRep()} to evaluate conditional reliability. RMU seems
+like the main metric to report.
 }
 \details{
 RMU, Relative Measurement Uncertainty:
-This function uses the \code{TAM} library to estimate the Rasch model using
+This function uses the \code{mirt} library to estimate the Rasch model using
 Marginal Maximum Likelihood and then generates plausible values
 (PVs; Mislevy, 1991). The function uses borrowed code, see \code{?RMUreliability}.
 
 The PVs are then used with the RMU method described by Bignardi et al. (2025)
-to estimate a mean and confidence interval. The mean is generally similar to
+to estimate a mean and confidence interval. The mean is similar to
 the expected a posteriori (EAP) reliability point estimate (Adams, 2005).
-The confidence interval uses the highest continuous density interval (HDCI)
+The confidence interval uses the 95\% highest continuous density interval (HDCI)
 based on the distribution of correlations.
 
 Default setting is to generate 1000 PVs. More are recommended for stable
@@ -36,10 +50,12 @@ very demanding computationally, but be wary of the time it takes to create
 thousands of PVs for each respondent in large samples.
 
 PSI, Person Separation Index:
-Estimated using functions in the \code{eRm} package, see \code{?eRm::SepRel}.
+Estimated using functions in the \code{eRm} package, see \code{?eRm::SepRel}. Note that
+this excludes min/max scoring individuals, which may result in unexpected
+results, especially compared to other methods.
 
-EAP, Expected a posteriori:
-Estimated using functions in the \code{TAM} package, see \code{?TAM::EAPrel}.
+Empirical:
+Estimated using \code{mirt::empirical_rxx()}, see \url{https://stats.stackexchange.com/questions/427631/difference-between-empirical-and-marginal-reliability-of-an-irt-model}
 }
 \examples{
 \dontrun{

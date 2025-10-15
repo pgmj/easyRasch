@@ -6050,18 +6050,19 @@ RIdifTileplot <- function(data, dif_var) {
 
 #' Reliability metrics
 #'
-#' Several metrics are reported, RMU, PSI, and EAP. It is recommended to also
-#' use the function `RIrelRep()` to determine conditional reliability.
+#' Several metrics are reported, RMU, PSI, and 'empirical'. It is recommended to also
+#' use the function `RIrelRep()` to evaluate conditional reliability. RMU seems
+#' like the main metric to report.
 #'
 #' RMU, Relative Measurement Uncertainty:
-#' This function uses the `TAM` library to estimate the Rasch model using
+#' This function uses the `mirt` library to estimate the Rasch model using
 #' Marginal Maximum Likelihood and then generates plausible values
 #' (PVs; Mislevy, 1991). The function uses borrowed code, see `?RMUreliability`.
 #'
 #' The PVs are then used with the RMU method described by Bignardi et al. (2025)
-#' to estimate a mean and confidence interval. The mean is generally similar to
+#' to estimate a mean and confidence interval. The mean is similar to
 #' the expected a posteriori (EAP) reliability point estimate (Adams, 2005).
-#' The confidence interval uses the highest continuous density interval (HDCI)
+#' The confidence interval uses the 95% highest continuous density interval (HDCI)
 #' based on the distribution of correlations.
 #'
 #' Default setting is to generate 1000 PVs. More are recommended for stable
@@ -6071,10 +6072,12 @@ RIdifTileplot <- function(data, dif_var) {
 #' thousands of PVs for each respondent in large samples.
 #'
 #' PSI, Person Separation Index:
-#' Estimated using functions in the `eRm` package, see `?eRm::SepRel`.
+#' Estimated using functions in the `eRm` package, see `?eRm::SepRel`. Note that
+#' this excludes min/max scoring individuals, which may result in unexpected
+#' results, especially compared to other methods.
 #'
-#' EAP, Expected a posteriori:
-#' Estimated using functions in the `TAM` package, see `?TAM::EAPrel`.
+#' Empirical:
+#' Estimated using `mirt::empirical_rxx()`, see <https://stats.stackexchange.com/questions/427631/difference-between-empirical-and-marginal-reliability-of-an-irt-model>
 #'
 #' @examples
 #' \dontrun{
@@ -6111,8 +6114,11 @@ RIdifTileplot <- function(data, dif_var) {
 #' @param data Dataframe/tibble with only item response data coded as integers
 #' @param conf_int Desired confidence interval (HDCI)
 #' @param draws Number of plausible values to generate
+#' @param estim Estimation method for theta (latent scores)
+#' @param boot Optional non-parametric bootstrap for empirical reliability
+#' @param cpu Number of cpu cores to use for bootstrap method
 #' @export
-RIreliability <- function(data, conf_int = .95, draws = 1000) {
+RIreliability <- function(data, conf_int = .95, draws = 1000, estim = "WLE", boot = FALSE, cpu = 4) {
 
   message("Note that PSI is calculated with max/min scoring individuals excluded.")
 
@@ -6124,13 +6130,23 @@ RIreliability <- function(data, conf_int = .95, draws = 1000) {
     model <- "PCM"
   }
 
-  require(TAM)
-
   if (model == "PCM") {
-    tam_out <- TAM::tam.mml(resp = data, irtmodel = "PCM", verbose = FALSE)
+    mirt_out <- mirt(
+      data,
+      model = 1,
+      itemtype = "Rasch",
+      verbose = FALSE,
+      accelerate = "squarem"
+    )
     erm_out <- eRm::PCM(data)
   } else if (model == "RM") {
-    tam_out <- TAM::tam.mml(resp = data, irtmodel = "1PL", verbose = FALSE)
+    mirt_out <- mirt(
+      data,
+      model = 1,
+      itemtype = "1PL",
+      verbose = FALSE,
+      accelerate = "squarem"
+    )
     erm_out <- eRm::RM(data)
   }
 
@@ -6138,20 +6154,86 @@ RIreliability <- function(data, conf_int = .95, draws = 1000) {
     as.data.frame()
   rownames(wle) <- NULL
 
-  plvals <- tam.pv(tam_out, nplausible = draws, verbose = FALSE)[["pv"]][,-1]
+  empirical_rel <- mirt::fscores(mirt_out,
+                                 method = estim,
+                                 theta_lim = c(-10, 10),
+                                 full.scores.SE = TRUE,
+                                 verbose = FALSE) %>%
+    mirt::empirical_rxx()
 
-  rmu <- RMUreliability(plvals, level = conf_int) %>%
+  if (boot == TRUE) {
+    require(doParallel)
+    registerDoParallel(cores = cpu)
+    # bootstrap CI for empirical
+    fit <- data.frame()
+    fit <- foreach(i = 1:draws, .combine = rbind) %dopar% {
+
+      dat <- data[sample(1:nrow(data), nrow(data), replace = TRUE), ]
+
+      if (model == "PCM") {
+        mirt_out2 <- mirt(
+          dat,
+          model = 1,
+          itemtype = "Rasch",
+          verbose = FALSE,
+          accelerate = "squarem"
+        )
+      } else if (model == "RM") {
+        mirt_out2 <- mirt(
+          dat,
+          model = 1,
+          itemtype = "1PL",
+          verbose = FALSE,
+          accelerate = "squarem"
+        )
+      }
+
+      mirt::fscores(mirt_out2,
+                    method = estim,
+                    theta_lim = c(-10, 10),
+                    full.scores.SE = TRUE,
+                    verbose = FALSE) %>%
+        mirt::empirical_rxx()
+
+    }
+
+    emp_boot <- mean_hdci(fit) %>%
+      mutate(across(where(is.numeric), ~ round(.x, 3)))
+
+  }
+
+  plvals <- mirt::fscores(mirt_out, method = estim,
+                          theta_lim = c(-10, 10),
+                          plausible.draws = draws,
+                          plausible.type = "MH",
+                          verbose = FALSE)
+
+  rmu <- do.call(cbind.data.frame, plvals) %>%
+    RMUreliability(level = conf_int) %>%
     mutate(across(where(is.numeric), ~ round(.x, 3)))
 
   message(paste0("RMU reliability estimates based on ",draws," posterior draws (plausible values) from ",nrow(data)," respondents.",
                  "\nSee Bignardi, Kievit, & Bürkner (2025). 'A general method for estimating reliability using Bayesian Measurement Uncertainty' for details. ",
-                 "The procedure has been modified in `easyRasch` to use `TAM::tam.pv()` to generate plausible values based on an MML estimated Rasch model."))
-  return(list(WLE = wle,
-              PSI = eRm::person.parameter(erm_out) %>% eRm::SepRel(),
-              EAP = tam_out$EAP.rel %>% round(3),
-              RMU = paste0("RMU = ",rmu$rmu_estimate," (95% HDCI [",rmu$hdci_lowerbound,", ",rmu$hdci_upperbound,"])")))
-}
+                 "The procedure has been modified in `easyRasch` to use `mirt::fscores(plausible.type = 'MH')` to generate plausible values based on an MML estimated Rasch model."))
 
+  if (boot == TRUE) {
+
+    return(list(WLE = wle,
+                PSI = eRm::person.parameter(erm_out) %>% eRm::SepRel(),
+                Empirical = paste0(estim,"_empirical = ",round(empirical_rel,3)),
+                Empirical_bootstrap = paste0(estim,"_empirical = ",emp_boot$y," (95% HDCI [",emp_boot$ymin,", ",emp_boot$ymax,"]) (",draws," bootstrap resamples)"),
+                RMU = paste0(estim,"-RMU = ",rmu$rmu_estimate," (95% HDCI [",rmu$hdci_lowerbound,", ",rmu$hdci_upperbound,"]) (",draws," draws)")
+    )
+    )
+  } else {
+    return(list(WLE = wle,
+                PSI = eRm::person.parameter(erm_out) %>% eRm::SepRel(),
+                Empirical = paste0(estim,"_empirical = ",round(empirical_rel,3)),
+                RMU = paste0(estim,"-RMU = ",rmu$rmu_estimate," (95% HDCI [",rmu$hdci_lowerbound,", ",rmu$hdci_upperbound,"]) (",draws," draws)")
+    )
+    )
+  }
+}
 #' Temporary fix for upstream bug in `iarm::person_estimates()`
 #'
 #' To get `RIscoreSE()` working properly for cases with theta range up til

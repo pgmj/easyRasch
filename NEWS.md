@@ -1,3 +1,10 @@
+# easyRasch 0.4.1.1 (2025-10-15)
+
+- Changed method for `RIreliability()` plausible values to use package `mirt` instead of `TAM`, leading to 2-5x speedup.
+  - New option for `RIreliability()` is `estim` which defaults to use `WLE`, Warm's weighted likelihood estimation for low bias (Warm, 1989). This option is passed to `mirt::fscores()`, see `?mirt::fscores` for options.
+  - `mirt::fscores()` uses setting 'MH' to obtain Metropolis-Hastings samples from the posterior.
+  - Removed EAP reliability in favor of `mirt::empirical_rxx()` (partly since RMU is very similar to EAP), and added optional non-parametric bootstrap method to get confidence interval for empirical.
+
 # easyRasch 0.4.1 (2025-10-10)
 
 - Added `RIrelRep()` to estimate conditional reliability with alpha or omega

@@ -1,7 +1,7 @@
 Package: easyRasch
 Title: Psychometric Analysis in R with Rasch Measurement Theory
-Version: 0.4.1
-Date: 2025-10-11
+Version: 0.4.1.1
+Date: 2025-10-15
 URL: https://github.com/pgmj/easyRasch, https://pgmj.github.io/easyRasch/
 Authors@R:
     person("Magnus", "Johansson", , "magnus.p.johansson@ri.se", role = c("aut", "cre"),
@@ -33,7 +33,6 @@ Depends:
     foreach,
     furrr,
     doParallel,
-    TAM,
     Bayesrel
 VignetteBuilder:
     quarto
