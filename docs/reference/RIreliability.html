@@ -11,7 +11,7 @@ like the main metric to report."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,7 +55,10 @@ like the main metric to report.</p>
 <span>  draws <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  estim <span class="op">=</span> <span class="st">"WLE"</span>,</span>
 <span>  boot <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  cpu <span class="op">=</span> <span class="fl">4</span></span>
+<span>  cpu <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  pv <span class="op">=</span> <span class="st">"mirt"</span>,</span>
+<span>  iter <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -85,6 +88,18 @@ like the main metric to report.</p>
 
 <dt id="arg-cpu">cpu<a class="anchor" aria-label="anchor" href="#arg-cpu"></a></dt>
 <dd><p>Number of cpu cores to use for bootstrap method</p></dd>
+
+
+<dt id="arg-pv">pv<a class="anchor" aria-label="anchor" href="#arg-pv"></a></dt>
+<dd><p>Choice of R package. Optional "TAM", requires that you have TAM installed</p></dd>
+
+
+<dt id="arg-iter">iter<a class="anchor" aria-label="anchor" href="#arg-iter"></a></dt>
+<dd><p>Number of times the RMU estimation is done on the draws</p></dd>
+
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>Set to <code>FALSE</code> to avoid the messages</p></dd>
 
 </dl></div>
     <div class="section level2">

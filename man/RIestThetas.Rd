@@ -17,13 +17,14 @@ for each person
 }
 \details{
 IMPORTANT: only use with complete response data. If you have missing item responses
-\code{RIestThetasCATr()} is recommended instead.
+\code{RIestThetasCATr()} or \code{RIestThetasOLD()} is recommended instead.
 
 Uses \code{iarm::person_estimates()} to estimate person locations
 (thetas) for a dataframe with item data as columns and persons as rows.
 
-Defaults to use WLE estimation (lower bias than MLE, see Warm, 1989) and PCM.
+Defaults to use WLE estimation (lower bias than MLE, see Warm, 1989;
+Kreiner, 2025) and PCM.
 
 Note: If you want to use a pre-specified set of item parameters, please use
-\code{RIestThetasCATr()}.
+\code{RIestThetasCATr()} or \code{RIestThetasOLD()}.
 }

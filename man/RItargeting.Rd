@@ -4,7 +4,14 @@
 \alias{RItargeting}
 \title{Targeting, Wright map derivative.}
 \usage{
-RItargeting(dfin, model = "PCM", xlim = c(-4, 4), output = "figure", bins = 30)
+RItargeting(
+  dfin,
+  model = "PCM",
+  xlim = c(-4, 4),
+  output = "figure",
+  bins = 30,
+  fast_thetas = FALSE
+)
 }
 \arguments{
 \item{dfin}{Dataframe with item data only}
@@ -16,6 +23,8 @@ RItargeting(dfin, model = "PCM", xlim = c(-4, 4), output = "figure", bins = 30)
 \item{output}{Default "figure", or "list" to output 3 figures to a list object}
 
 \item{bins}{Optionally, set number of bins for histograms}
+
+\item{fast_thetas}{If you want fast output, but slightly less accurate person locations}
 }
 \description{
 Outputs a figure consisting of three figures with the

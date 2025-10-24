@@ -1486,8 +1486,9 @@ RIresidcorrG2 <- function(data, cutoff, output = "table", ...) {
 #' @param xlim Optionally, set lower/upper limits for x axis
 #' @param output Default "figure", or "list" to output 3 figures to a list object
 #' @param bins Optionally, set number of bins for histograms
+#' @param fast_thetas If you want fast output, but slightly less accurate person locations
 #' @export
-RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", bins = 30) {
+RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", bins = 30, fast_thetas = FALSE) {
   if(RIcheckdata(dfin) == TRUE) {
     warning("Warning! Your data has less than 3 responses in some response categories. Results may not be reliable.")
   }
@@ -1518,8 +1519,12 @@ RItargeting <- function(dfin, model = "PCM", xlim = c(-4,4), output = "figure", 
       } else if (RIcheckdata(dfin) == FALSE) {
         erm_out <- PCM(dfin) # run PCM model
         item.locations <- as.data.frame(thresholds(erm_out)[[3]][[1]][, -1] - mean(thresholds(erm_out)[[3]][[1]][, -1], na.rm=T))
+        if (fast_thetas == TRUE) {
+          pthetas <- RIestThetas(dfin)$WLE
+        } else {
         # person locations
         pthetas <- RIestThetasCATr(dfin)
+        }
       }
 
       names(item.locations) <- paste0("t", c(1:ncol(item.locations))) # re-label variables
@@ -3117,7 +3122,7 @@ RIscoreSE <- function(data, output = "table", point_size = 3,
 #' (thetas) for a dataframe with item data as columns and persons as rows.
 #' Defaults to use WL estimation (lower bias than ML, see Warm, 1989).
 #'
-#' A version for multi-core processing is available as `RIestThetasCATr2()`.
+#' A version for multi-core processing is available as `RIestThetasCATr()`.
 #'
 #' @param data Dataframe with response data only (no demographics etc), items as columns
 #' @param itemParams Optional item (threshold) location matrix
@@ -3190,15 +3195,16 @@ RIestThetasOLD <- function(data, itemParams, method = "WL",
 #' for each person
 #'
 #' IMPORTANT: only use with complete response data. If you have missing item responses
-#' `RIestThetasCATr()` is recommended instead.
+#' `RIestThetasCATr()` or `RIestThetasOLD()` is recommended instead.
 #'
 #' Uses `iarm::person_estimates()` to estimate person locations
 #' (thetas) for a dataframe with item data as columns and persons as rows.
 #'
-#' Defaults to use WLE estimation (lower bias than MLE, see Warm, 1989) and PCM.
+#' Defaults to use WLE estimation (lower bias than MLE, see Warm, 1989;
+#' Kreiner, 2025) and PCM.
 #'
 #' Note: If you want to use a pre-specified set of item parameters, please use
-#' `RIestThetasCATr()`.
+#' `RIestThetasCATr()` or `RIestThetasOLD()`.
 #'
 #' @param data Dataframe with response data only (no demographics etc), items as columns
 #' @param method Estimation method (defaults to "WLE")
@@ -6117,10 +6123,18 @@ RIdifTileplot <- function(data, dif_var) {
 #' @param estim Estimation method for theta (latent scores)
 #' @param boot Optional non-parametric bootstrap for empirical reliability
 #' @param cpu Number of cpu cores to use for bootstrap method
+#' @param pv Choice of R package. Optional "TAM", requires that you have TAM installed
+#' @param iter Number of times the RMU estimation is done on the draws
+#' @param verbose Set to `FALSE` to avoid the messages
 #' @export
-RIreliability <- function(data, conf_int = .95, draws = 1000, estim = "WLE", boot = FALSE, cpu = 4) {
+RIreliability <- function(data, conf_int = .95, draws = 1000, estim = "WLE", boot = FALSE, cpu = 4, pv = "mirt", iter = 50, verbose = TRUE) {
 
-  message("Note that PSI is calculated with max/min scoring individuals excluded.")
+  if (verbose == TRUE) {
+    message("Note that PSI is calculated with max/min scoring individuals excluded.")
+    message(paste0("RMU reliability estimates based on ",draws," posterior draws (plausible values) from ",nrow(data)," respondents.",
+                   "\nSee Bignardi, Kievit, & Bürkner (2025). 'A general method for estimating reliability using Bayesian Measurement Uncertainty' for details. ",
+                   "The procedure has been modified in `easyRasch` to use plausible values based on an MML estimated Rasch model."))
+  }
 
   if(min(as.matrix(data), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
@@ -6202,19 +6216,42 @@ RIreliability <- function(data, conf_int = .95, draws = 1000, estim = "WLE", boo
 
   }
 
-  plvals <- mirt::fscores(mirt_out, method = estim,
-                          theta_lim = c(-10, 10),
-                          plausible.draws = draws,
-                          plausible.type = "MH",
-                          verbose = FALSE)
+  if (pv == "mirt") {
+    plvals <- mirt::fscores(mirt_out, method = estim,
+                            theta_lim = c(-10, 10),
+                            plausible.draws = draws,
+                            plausible.type = "MH",
+                            verbose = FALSE)
 
-  rmu <- do.call(cbind.data.frame, plvals) %>%
-    RMUreliability(level = conf_int) %>%
-    mutate(across(where(is.numeric), ~ round(.x, 3)))
+    rmu_draws <- do.call(cbind.data.frame, plvals)
+    rmu_iter <- map_dfr(1:iter, ~ RMUreliability(rmu_draws, level = conf_int)[1:3])
 
-  message(paste0("RMU reliability estimates based on ",draws," posterior draws (plausible values) from ",nrow(data)," respondents.",
-                 "\nSee Bignardi, Kievit, & Bürkner (2025). 'A general method for estimating reliability using Bayesian Measurement Uncertainty' for details. ",
-                 "The procedure has been modified in `easyRasch` to use `mirt::fscores(plausible.type = 'MH')` to generate plausible values based on an MML estimated Rasch model."))
+    rmu <- rmu_iter %>%
+      summarise(rmu_estimate = mean(rmu_estimate),
+                hdci_lowerbound = mean(hdci_lowerbound),
+                hdci_upperbound = mean(hdci_upperbound)
+      ) %>%
+      mutate(across(where(is.numeric), ~ round(.x, 3)))
+
+  } else if (pv == "TAM") {
+    estim = "EAP"
+    if (model == "PCM") {
+      tam_out <- TAM::tam.mml(resp = data, irtmodel = "PCM", verbose = FALSE)
+    } else if (model == "RM") {
+      tam_out <- TAM::tam.mml(resp = data, irtmodel = "1PL", verbose = FALSE)
+    }
+
+    plvals <- TAM::tam.pv(tam_out, nplausible = draws, verbose = FALSE)[["pv"]][,-1]
+
+    rmu_iter <- map_dfr(1:iter, ~ RMUreliability(plvals, level = conf_int)[1:3])
+
+    rmu <- rmu_iter %>%
+      summarise(rmu_estimate = mean(rmu_estimate),
+                hdci_lowerbound = mean(hdci_lowerbound),
+                hdci_upperbound = mean(hdci_upperbound)
+      ) %>%
+      mutate(across(where(is.numeric), ~ round(.x, 3)))
+  }
 
   if (boot == TRUE) {
 
@@ -6222,18 +6259,20 @@ RIreliability <- function(data, conf_int = .95, draws = 1000, estim = "WLE", boo
                 PSI = eRm::person.parameter(erm_out) %>% eRm::SepRel(),
                 Empirical = paste0(estim,"_empirical = ",round(empirical_rel,3)),
                 Empirical_bootstrap = paste0(estim,"_empirical = ",emp_boot$y," (95% HDCI [",emp_boot$ymin,", ",emp_boot$ymax,"]) (",draws," bootstrap resamples)"),
-                RMU = paste0(estim,"-RMU = ",rmu$rmu_estimate," (95% HDCI [",rmu$hdci_lowerbound,", ",rmu$hdci_upperbound,"]) (",draws," draws)")
+                RMU = paste0(estim,"-RMU = ",rmu$rmu_estimate," (95% HDCI [",rmu$hdci_lowerbound,", ",rmu$hdci_upperbound,"]) (",draws," draws) using package ",pv," and ",iter," RMU iterations.")
     )
     )
   } else {
     return(list(WLE = wle,
                 PSI = eRm::person.parameter(erm_out) %>% eRm::SepRel(),
                 Empirical = paste0(estim,"_empirical = ",round(empirical_rel,3)),
-                RMU = paste0(estim,"-RMU = ",rmu$rmu_estimate," (95% HDCI [",rmu$hdci_lowerbound,", ",rmu$hdci_upperbound,"]) (",draws," draws)")
+                RMU = paste0(estim,"-RMU = ",rmu$rmu_estimate," (95% HDCI [",rmu$hdci_lowerbound,", ",rmu$hdci_upperbound,"]) (",draws," draws) using package ",pv," and ",iter," RMU iterations.")
     )
     )
   }
 }
+
+
 #' Temporary fix for upstream bug in `iarm::person_estimates()`
 #'
 #' To get `RIscoreSE()` working properly for cases with theta range up til

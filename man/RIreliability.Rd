@@ -10,7 +10,10 @@ RIreliability(
   draws = 1000,
   estim = "WLE",
   boot = FALSE,
-  cpu = 4
+  cpu = 4,
+  pv = "mirt",
+  iter = 50,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -25,6 +28,12 @@ RIreliability(
 \item{boot}{Optional non-parametric bootstrap for empirical reliability}
 
 \item{cpu}{Number of cpu cores to use for bootstrap method}
+
+\item{pv}{Choice of R package. Optional "TAM", requires that you have TAM installed}
+
+\item{iter}{Number of times the RMU estimation is done on the draws}
+
+\item{verbose}{Set to \code{FALSE} to avoid the messages}
 }
 \description{
 Several metrics are reported, RMU, PSI, and 'empirical'. It is recommended to also

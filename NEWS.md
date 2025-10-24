@@ -1,3 +1,10 @@
+# easyRasch 0.4.1.2 (2025-10-24)
+- New functionality in `RIreliability()` with setting `iter` that defaults to estimating the RMU 50 times from the same set of draws to achieve better stability in estimates.
+  - see <https://pgmj.github.io/reliability.html> for examples and comparisons with other metrics.
+  - New option for `RIreliability()` is `pv` to enable users to specify `"TAM"` if desired.
+  - `RIreliability()` also has new option `verbose = TRUE`, which can be set to `FALSE` to disable message output.
+- New option for `RItargeting()` - `fast_thetas = TRUE` is handy when you have large datasets but don't need exact results. It uses `RIestThetas()`, which is super fast but cannot handle missing data properly (it uses sum scores).
+
 # easyRasch 0.4.1.1 (2025-10-15)
 
 - Changed method for `RIreliability()` plausible values to use package `mirt` instead of `TAM`, leading to 2-5x speedup.

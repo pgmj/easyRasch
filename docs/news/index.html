@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,16 @@
       <small>Source: <a href="https://github.com/pgmj/easyRasch/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.1.2" id="easyrasch-0412-2025-10-24">easyRasch 0.4.1.2 (2025-10-24)<a class="anchor" aria-label="anchor" href="#easyrasch-0412-2025-10-24"></a></h2>
+<ul><li>New functionality in <code><a href="../reference/RIreliability.html">RIreliability()</a></code> with setting <code>iter</code> that defaults to estimating the RMU 50 times from the same set of draws to achieve better stability in estimates.
+<ul><li>see <a href="https://pgmj.github.io/reliability.html" class="external-link uri">https://pgmj.github.io/reliability.html</a> for examples and comparisons with other metrics.</li>
+<li>New option for <code><a href="../reference/RIreliability.html">RIreliability()</a></code> is <code>pv</code> to enable users to specify <code>"TAM"</code> if desired.</li>
+<li>
+<code><a href="../reference/RIreliability.html">RIreliability()</a></code> also has new option <code>verbose = TRUE</code>, which can be set to <code>FALSE</code> to disable message output.</li>
+</ul></li>
+<li>New option for <code><a href="../reference/RItargeting.html">RItargeting()</a></code> - <code>fast_thetas = TRUE</code> is handy when you have large datasets but don’t need exact results. It uses <code><a href="../reference/RIestThetas.html">RIestThetas()</a></code>, which is super fast but cannot handle missing data properly (it uses sum scores).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.1.1" id="easyrasch-0411-2025-10-15">easyRasch 0.4.1.1 (2025-10-15)<a class="anchor" aria-label="anchor" href="#easyrasch-0411-2025-10-15"></a></h2>
 <ul><li>Changed method for <code><a href="../reference/RIreliability.html">RIreliability()</a></code> plausible values to use package <code>mirt</code> instead of <code>TAM</code>, leading to 2-5x speedup.

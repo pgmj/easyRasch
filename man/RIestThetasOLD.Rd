@@ -23,5 +23,5 @@ Uses \code{thetaEst()} function from \code{catR} package to estimate person loca
 (thetas) for a dataframe with item data as columns and persons as rows.
 Defaults to use WL estimation (lower bias than ML, see Warm, 1989).
 
-A version for multi-core processing is available as \code{RIestThetasCATr2()}.
+A version for multi-core processing is available as \code{RIestThetasCATr()}.
 }
