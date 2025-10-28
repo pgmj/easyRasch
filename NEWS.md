@@ -1,4 +1,9 @@
+# easyRasch 0.4.1.3 (2025-10-28)
+
+- New option for `RIreliability()` to set `theta_range`.
+
 # easyRasch 0.4.1.2 (2025-10-24)
+
 - New functionality in `RIreliability()` with setting `iter` that defaults to estimating the RMU 50 times from the same set of draws to achieve better stability in estimates.
   - see <https://pgmj.github.io/reliability.html> for examples and comparisons with other metrics.
   - New option for `RIreliability()` is `pv` to enable users to specify `"TAM"` if desired.

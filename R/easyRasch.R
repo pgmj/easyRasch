@@ -6127,7 +6127,9 @@ RIdifTileplot <- function(data, dif_var) {
 #' @param iter Number of times the RMU estimation is done on the draws
 #' @param verbose Set to `FALSE` to avoid the messages
 #' @export
-RIreliability <- function(data, conf_int = .95, draws = 1000, estim = "WLE", boot = FALSE, cpu = 4, pv = "mirt", iter = 50, verbose = TRUE) {
+RIreliability <- function(data, conf_int = .95, draws = 1000,
+                          estim = "WLE", boot = FALSE, cpu = 4, pv = "mirt",
+                          iter = 50, verbose = TRUE, theta_range = c(-10,10)) {
 
   if (verbose == TRUE) {
     message("Note that PSI is calculated with max/min scoring individuals excluded.")
@@ -6164,13 +6166,13 @@ RIreliability <- function(data, conf_int = .95, draws = 1000, estim = "WLE", boo
     erm_out <- eRm::RM(data)
   }
 
-  wle <- RI_iarm_person_estimates(erm_out, properties = TRUE)[[2]] %>%
+  wle <- RI_iarm_person_estimates(erm_out, properties = TRUE, sthetarange = theta_range)[[2]] %>%
     as.data.frame()
   rownames(wle) <- NULL
 
   empirical_rel <- mirt::fscores(mirt_out,
                                  method = estim,
-                                 theta_lim = c(-10, 10),
+                                 theta_lim = theta_range,
                                  full.scores.SE = TRUE,
                                  verbose = FALSE) %>%
     mirt::empirical_rxx()
@@ -6204,7 +6206,7 @@ RIreliability <- function(data, conf_int = .95, draws = 1000, estim = "WLE", boo
 
       mirt::fscores(mirt_out2,
                     method = estim,
-                    theta_lim = c(-10, 10),
+                    theta_lim = theta_range,
                     full.scores.SE = TRUE,
                     verbose = FALSE) %>%
         mirt::empirical_rxx()
@@ -6218,7 +6220,7 @@ RIreliability <- function(data, conf_int = .95, draws = 1000, estim = "WLE", boo
 
   if (pv == "mirt") {
     plvals <- mirt::fscores(mirt_out, method = estim,
-                            theta_lim = c(-10, 10),
+                            theta_lim = theta_range,
                             plausible.draws = draws,
                             plausible.type = "MH",
                             verbose = FALSE)
@@ -6286,7 +6288,8 @@ RIreliability <- function(data, conf_int = .95, draws = 1000, estim = "WLE", boo
 #' @param allperson All respondents or not
 #' @export
 
-RI_iarm_person_estimates <- function(object, properties = F, allperson = F){
+RI_iarm_person_estimates <- function(object, properties = F, allperson = F,
+                                     sthetarange = c(-10, 10)){
   if (!any("Rm"%in%class(object),class(object)%in%c("raschmodel","pcmodel"))) stop("object must be of class Rm, raschmodel or pcmodel!")
   if(class(object)[1]=="pcmodel") object$model <- "pcmodel"
   if(class(object)[1]=="raschmodel") object$model <- "raschmodel"
@@ -6346,8 +6349,8 @@ RI_iarm_person_estimates <- function(object, properties = F, allperson = F){
         }
       }
       if (object$model%in%c("pcmodel","raschmodel")) mm[1, 2] <- NA else  mm[1, 2] <- person.parameter(object)$pred.list[[1]]$y[1]
-      try(mm[1, 2] <- uniroot(s.theta(0.25), c(-10, 10))$root)
-      mm[m + 1, 2] <- uniroot(s.theta(m - 0.25), c(-10, 10))$root # this is where the change was made
+      try(mm[1, 2] <- uniroot(s.theta(0.25), sthetarange)$root)
+      mm[m + 1, 2] <- uniroot(s.theta(m - 0.25), sthetarange)$root # this is where the change was made
       rvec = 0:m
       pers_prop <- function(x, persons){
         pr <- (exp(x[2]*rvec)*gr)/as.vector(exp(x[2]*rvec)%*%gr)
