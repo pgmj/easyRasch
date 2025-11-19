@@ -1,11 +1,9 @@
 ### easyRasch analysis package, https://github.com/pgmj/easyRasch
 ### (formerly known as `RISEkbmRasch`)
-### Package created by magnus.p.johansson@ri.se ORCID: 0000-0003-1669-592X
+### Package created by pgmj@pm.me ORCID: 0000-0003-1669-592X
 
 ### The code in this file was written by nicklas.korsell@ri.se
-### The contents of this file is licensed according to
-### Creative Commons Attribution 4.0 International Public License
-### https://creativecommons.org/licenses/by/4.0/
+### The contents of this file is licensed according to the MIT License
 
 #' Simulate polytomous Rasch model data for a single item
 #'

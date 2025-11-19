@@ -1,9 +1,7 @@
-### easyRasch analysis package, https://github.com/pgmj/easyRasch
+### easyRasch R package, https://github.com/pgmj/easyRasch
 ### (formerly known as `RISEkbmRasch`)
-### Created by magnus.p.johansson@ri.se ORCID: 0000-0003-1669-592X
-### The contents of this file is licensed according to
-### Creative Commons Attribution 4.0 International Public License
-### https://creativecommons.org/licenses/by/4.0/
+### Created by pgmj@pm.me ORCID: 0000-0003-1669-592X
+### The contents of this file is licensed according to the MIT License
 
 ### See https://pgmj.github.io/raschrvignette/RaschRvign.html for vignette.
 
@@ -5435,7 +5433,7 @@ RIitemcols <- function(data, ncols = 1, labelwrap = 25, text_ypos = 6, viridis_e
     scale_color_viridis_d(guide = "none", direction = -1, option = "A", end = viridis_end) +
     labs(x = "Response category", y = "% of responses") +
     guides(color = "none") +
-    theme_rise(fontfamily = font) +
+    theme_minimal() +
     theme(legend.position = "top",
           strip.text.y.left = element_text(angle = 0))
 
@@ -5485,7 +5483,7 @@ RIciccPlot <- function(data, class_intervals = 5, method = "cut",
 
   sink(nullfile()) # suppress output from the rows below
 
-  iccplots <- map(1:ncol(data), ~ iarm::ICCplot(as.data.frame(data),
+  iccplots <- map(1:ncol(data), ~ RI_iarm_ICCplot(as.data.frame(data),
                                                 itemnumber = .x,
                                                 method = method,
                                                 cinumber = class_intervals,
@@ -5834,6 +5832,8 @@ RIinfitKfold <- function(data, k = 5, output = "raw", sim_iter = 100,
 
 #' Plot k-fold infit based on raw output
 #'
+#' NOTE: currently this function seems to not work on Windows OS.
+#'
 #' Outputs a figure showing highest and lowest expected values based on all
 #' simulations and cross-validation folds from an object created with
 #' `RIinfitKfold(data)`.
@@ -5894,7 +5894,7 @@ RIinfitKfoldPlot <- function(kfold) {
                shape = 18, size = 8,
                position = position_nudge(y = -0.1)) +
     scale_color_identity() +
-    theme_rise(fontfamily = "sans") +
+    theme_minimal() +
     theme(legend.position = "none") +
     labs(x = "Conditional infit",
          caption = str_wrap(paste0("Note. Results based on ",k,
@@ -6126,6 +6126,7 @@ RIdifTileplot <- function(data, dif_var) {
 #' @param pv Choice of R package. Optional "TAM", requires that you have TAM installed
 #' @param iter Number of times the RMU estimation is done on the draws
 #' @param verbose Set to `FALSE` to avoid the messages
+#' @param theta_range The range of possible theta values
 #' @export
 RIreliability <- function(data, conf_int = .95, draws = 1000,
                           estim = "WLE", boot = FALSE, cpu = 4, pv = "mirt",
@@ -6166,9 +6167,9 @@ RIreliability <- function(data, conf_int = .95, draws = 1000,
     erm_out <- eRm::RM(data)
   }
 
-  wle <- RI_iarm_person_estimates(erm_out, properties = TRUE, sthetarange = theta_range)[[2]] %>%
-    as.data.frame()
-  rownames(wle) <- NULL
+  # wle <- RI_iarm_person_estimates(erm_out, properties = TRUE, sthetarange = theta_range)[[2]] %>%
+  #   as.data.frame()
+  # rownames(wle) <- NULL
 
   empirical_rel <- mirt::fscores(mirt_out,
                                  method = estim,
@@ -6257,7 +6258,7 @@ RIreliability <- function(data, conf_int = .95, draws = 1000,
 
   if (boot == TRUE) {
 
-    return(list(WLE = wle,
+    return(list(#WLE = wle,
                 PSI = eRm::person.parameter(erm_out) %>% eRm::SepRel(),
                 Empirical = paste0(estim,"_empirical = ",round(empirical_rel,3)),
                 Empirical_bootstrap = paste0(estim,"_empirical = ",emp_boot$y," (95% HDCI [",emp_boot$ymin,", ",emp_boot$ymax,"]) (",draws," bootstrap resamples)"),
@@ -6265,7 +6266,7 @@ RIreliability <- function(data, conf_int = .95, draws = 1000,
     )
     )
   } else {
-    return(list(WLE = wle,
+    return(list(#WLE = wle,
                 PSI = eRm::person.parameter(erm_out) %>% eRm::SepRel(),
                 Empirical = paste0(estim,"_empirical = ",round(empirical_rel,3)),
                 RMU = paste0(estim,"-RMU = ",rmu$rmu_estimate," (95% HDCI [",rmu$hdci_lowerbound,", ",rmu$hdci_upperbound,"]) (",draws," draws) using package ",pv," and ",iter," RMU iterations.")
@@ -6274,198 +6275,137 @@ RIreliability <- function(data, conf_int = .95, draws = 1000,
   }
 }
 
-
-#' Temporary fix for upstream bug in `iarm::person_estimates()`
+#' Conditional reliability using RMU
 #'
-#' To get `RIscoreSE()` working properly for cases with theta range up til
-#' c(-10,10).
+#' Currently experimental function that creates a list object containing one table
+#' and two plots showing the range of plausible values at each ordinal sum score
+#' level (corresponds to possible theta values). Means and 95% HDCIs are shown in figures
+#' and in table. One plot makes mean adjustments for WL estimate thetas, since the
+#' plausible values are based on EAP estimates. This is similar to the bias adjustment made
+#' when bootstrapping.
 #'
-#' code from package `iarm`
-#' <https://github.com/cran/iarm/blob/master/R/Person-Fit.R>
-#'
-#' @param object Output from PCM() or RM()
-#' @param properties All properties or not
-#' @param allperson All respondents or not
+#' @param data Dataframe with item responses
+#' @param draws Number of plausible values to generate
+#' @param n Number of persons to sample from each sum score level
+#' @param conf_level Desired confidence interval (HDCI)
+#' @param estim Estimation method for theta (latent scores)
+#' @param theta_range The range of possible theta values
 #' @export
-
-RI_iarm_person_estimates <- function(object, properties = F, allperson = F,
-                                     sthetarange = c(-10, 10)){
-  if (!any("Rm"%in%class(object),class(object)%in%c("raschmodel","pcmodel"))) stop("object must be of class Rm, raschmodel or pcmodel!")
-  if(class(object)[1]=="pcmodel") object$model <- "pcmodel"
-  if(class(object)[1]=="raschmodel") object$model <- "raschmodel"
-  if (object$model%in%c("raschmodel","pcmodel")) {X <- object$data
-  } else {X <- object$X
-  }
-  if (object$model%in%c("RM","raschmodel")) {
-    k <- dim(X)[2]
-    if (object$model == "RM") coeff <- (-1)*coef(object)
-    else coeff <- itempar(object)
-    m <- k
-    respm <- rbind(rep(0, k), lower.tri(matrix(1, k, k)) + diag(k))
-  } else {
-    if (object$model == "PCM"){
-      coeff <- thresholds(object)[[3]][[1]][, -1]- mean(thresholds(object)[[3]][[1]][, -1], na.rm=T)
-    } else {
-      coeff <- coef(threshpar(object),type="matrix")
-    }
-    k <- dim(X)[2]
-    mi <- apply(X, 2, max, na.rm = TRUE)
-    m <- sum(mi)
-    respm <- matrix(0, ncol = k, nrow = m + 1)
-    respm[, 1] <- c(0:mi[1], rep(mi[1], nrow(respm) - mi[1] - 1))
-    for (i in 2:k) respm[, i] <- c(rep(0, cumsum(mi)[i - 1] + 1), 1:mi[i], rep(mi[i], nrow(respm) - cumsum(mi)[i]  -1))
-  }
-  if (object$model=="pcmodel"){
-    mode <- "PCM"
-  } else {
-    if (object$model=="raschmodel"){
-      mode  <- "RM"
-    } else {
-      mode <- object$model
-    }
-  }
-  mm <- cbind(0:m, RI_iarm_persons_mle(respm, coeff, model=mode, type = "MLE" )[, 1],
-              RI_iarm_persons_mle(respm, coeff, model=mode, type="WLE")[,1])
-  rownames(mm) <- rep(" ", m + 1)
-  colnames(mm) <- c("Raw Score", "MLE", "WLE")
-  if (allperson){
-    properties <- F
-    rv <- rowSums(X, na.rm = TRUE)
-    mm <- mm[rv+1,]
-    mm
-  } else {
-    if (properties == F) {
-      mm
-    } else {
-      if (object$model%in%c("RM","raschmodel")){
-        koeff <- as.list(coeff)
-      } else {
-        koeff <- lapply(as.list(as.data.frame(t(coeff))), function(x) cumsum(na.omit(x)))
-      }
-      gr <- elementary_symmetric_functions(koeff)[[1]]
-      s.theta <- function(r){
-        function(x){
-          ((exp(x*(0:m))*gr)/as.vector(exp(x*(0:m))%*%gr))%*%(0:m) - r
-        }
-      }
-      if (object$model%in%c("pcmodel","raschmodel")) mm[1, 2] <- NA else  mm[1, 2] <- person.parameter(object)$pred.list[[1]]$y[1]
-      try(mm[1, 2] <- uniroot(s.theta(0.25), sthetarange)$root)
-      mm[m + 1, 2] <- uniroot(s.theta(m - 0.25), sthetarange)$root # this is where the change was made
-      rvec = 0:m
-      pers_prop <- function(x, persons){
-        pr <- (exp(x[2]*rvec)*gr)/as.vector(exp(x[2]*rvec)%*%gr)
-        bias <- pr%*%persons - x[2]
-        sem <- sqrt((persons - as.vector(pr%*%persons))^2%*%pr)
-        rsem <- sqrt((persons - x[2])^2%*%pr)
-        scoresem <- sqrt((rvec- x[1])^2%*%pr)
-        c(SEM = sem, Bias = bias, RMSE = rsem, Score.SEM = scoresem)
-      }
-      result <- list(cbind(mm[, 1:2],t(apply(mm[, c(1, 2)], 1, pers_prop, persons = mm[, 2]))),
-                     cbind(mm[, c(1,3)], t(apply(mm[, c(1, 3)], 1, pers_prop, persons = mm[, 3]))))
-      result
-    }
-  }
-}
-
-#' Temporary fix for upstream bug in `iarm::person_estimates()`
 #'
-#' To get `RIscoreSE()` working properly for cases with theta range up til
-#' c(-10,10).
 #'
-#' code from package `iarm`
-#' <https://github.com/cran/iarm/blob/master/R/Person-Fit.R>
-#'
-#' @param respm temp
-#' @param thresh temp
-#' @param model temp
-#' @param theta temp
-#' @param type temp
-#' @param extreme temp
-#' @param maxit temp
-#' @param maxdelta temp
-#' @param tol temp
-#' @param maxval temp
-#' @export
+RIcrel <- function(data, draws = 500, n = 10, conf_level = 0.95, estim = "WLE",
+                   theta_range = c(-6, 6)) {
 
-RI_iarm_persons_mle <- function (respm, thresh, model=c("RM","PCM"), theta = rep(0, dim(respm)[1]),
-                         type = c("MLE","WLE"), extreme=TRUE, maxit = 20, maxdelta = 3, tol = 1e-04, maxval = 9) {
-  # thresh Matrix mit  Schwellenwerten  oder betas
-  n <- dim(respm)[1]
-  k <- dim(respm)[2]
-  rv <- rowSums(respm, na.rm = TRUE)
-  mode <- match.arg(model)
-  typ <- match.arg(type)
-  cll.rasch <- function(theta){
-    ksi   <- exp(theta)
-    mm <- outer(ksi,1/exp(thresh))
-    mm[is.na(respm)] <- 0
-    dll <- rv - rowSums(mm/(1+mm))
-    d2ll <- - rowSums(mm/(1+mm)^2)
-    d3ll <- 0
-    if (typ=="WLE") {
-      d3ll <- - rowSums((mm*(1-mm))/(1+mm)^3)
-      if (extreme==FALSE){
-        d3ll[rv==0] <- 0
-        d3ll[rv==maxr] <- 0
-      }
-    }
-    list(dll=dll,d2ll=d2ll,d3ll=d3ll)
+  if (min(as.matrix(data), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
   }
-  cll.pcm <- function(theta){
-    dlogki <-function(i) {
-      mmn <- exp(outer(theta,1:mi[i]) + matrix(psi.l[[i]],ncol=mi[i],nrow=n,byrow=T))
-      kd <- 1 + rowSums(mmn)
-      kd1 <- rowSums(matrix(1:mi[i],ncol=mi[i],nrow=n,byrow=T)*mmn)
-      kd2 <- rowSums(matrix((1:mi[i])^2,ncol=mi[i],nrow=n,byrow=T)*mmn)
-      kd3 <- rowSums(matrix((1:mi[i])^3,ncol=mi[i],nrow=n,byrow=T)*mmn)
-      cbind(dlli=kd1/kd, d2lli=kd2/kd -(kd1/kd)^2, d3lli=-kd3/kd + 3*kd2*kd1/(kd^2) -2*(kd1/kd)^3)
-    }
-    mm <- sapply(1:k,dlogki)
-    mm[is.na(rbind(respm,respm,respm))] <- 0
-    dll <- rv -rowSums(mm[1:n,])
-    d2ll <- -rowSums(mm[(n+1):(2*n),])
-    d3ll <- 0
-    if (typ=="WLE") {
-      d3ll <- rowSums(mm[(2*n+1):(3*n),])
-      if (extreme==FALSE){
-        d3ll[rv==0] <- 0
-        d3ll[rv==maxr] <- 0
-      }
-    }
-    list(dll=dll,d2ll=d2ll,d3ll=d3ll)
+  else if (max(as.matrix(data), na.rm = T) == 1) {
+    model <- "RM"
   }
-  iter <- 1
-  conv <- 1
-  if (mode=="RM") {
-    maxr <- apply(respm,1,function(x) sum(!is.na(x)))
-    clog <- cll.rasch
+  else if (max(as.matrix(data), na.rm = T) > 1) {
+    model <- "PCM"
   }
-  if (mode=="PCM") {
-    thresh.l <- apply(thresh,1,function(x) as.vector(na.omit(x)), simplify=F)
-    psi.l <- lapply(thresh.l, function(x){(-1)*cumsum(x)})
-    mi <- sapply(psi.l, length)
-    m <- sum(mi)
-    maxr <- apply(respm,1,function(x) sum(mi[!is.na(x)]))
-    clog <- cll.pcm
+  if (model == "PCM") {
+    mirt_out <- mirt(data, model = 1, itemtype = "Rasch",
+                     verbose = FALSE, accelerate = "squarem")
+  }
+  else if (model == "RM") {
+    mirt_out <- mirt(data, model = 1, itemtype = "Rasch",
+                     verbose = FALSE, accelerate = "squarem")
   }
 
-  while ((conv > tol) & (iter <= maxit)) {
-    theta0 <- theta
-    fn <- clog(theta)
-    delta <- -fn[[1]]/fn[[2]]
-    if (typ=="WLE") {
-      delta <- -fn[[1]]/fn[[2]] - fn[[3]]/(2 * fn[[2]]^2)
-    }
-    maxdelta <- maxdelta/1.05
-    delta <- ifelse(abs(delta) > maxdelta, sign(delta) * maxdelta, delta)
-    theta <- theta + delta
-    theta <- ifelse(abs(theta) > maxval, sign(theta) * maxval, theta)
-    conv <- max(abs(theta - theta0))
-    iter <- iter + 1
+  # create df with sumscores and rowids
+  d <- data %>%
+    mutate(sumscore = rowSums(.)) %>%
+    tibble::rowid_to_column("rowid")
+
+  # which sumscores are available in data?
+  n_scores <- dplyr::count(d,sumscore)
+
+  # make function to get rowids for each sumscore
+  getrows <- function(x) {
+    d %>%
+      dplyr::filter(sumscore == {x}) %>%
+      pull(rowid) %>%
+      as.numeric()
   }
-  se <- sqrt(abs(-1/fn[[2]]))
-  se <- ifelse(abs(theta) == maxval, NA, se)
-  theta <- ifelse(theta == maxval, Inf, ifelse(theta == -maxval, -Inf, theta))
-  res <- structure(data.frame(est = theta, se = se), model = mode, type = typ)
-  return(res)
+
+  rowids <- map(n_scores$sumscore, ~ getrows(.x))
+
+  wlescores <- mirt::fscores(mirt_out, method = "WLE",
+                             theta_lim = theta_range,
+                             verbose = FALSE,
+                             full.scores = FALSE) %>%
+    as.data.frame() %>%
+    arrange(F1) %>%
+    mutate(wle = round(F1,3)) %>%
+    distinct(wle) %>%
+    mutate(raw_score = n_scores$sumscore)
+
+  plvals <- mirt::fscores(mirt_out, method = "WLE",
+                          theta_lim = theta_range,
+                          plausible.draws = draws,
+                          plausible.type = "MH",
+                          verbose = FALSE)
+
+  rmu_draws <- do.call(cbind.data.frame, plvals)
+  names(rmu_draws) <- paste0("pv",1:draws)
+
+  # make new df with each sumscore draws
+  score_df <- function(x) {
+    rmu_draws[rowids[[x]],] %>%
+      slice(1:n) %>%
+      tibble::rowid_to_column("rowid") %>%
+      pivot_longer(!rowid) %>%
+      add_column(score = x - 1)
+  }
+
+  plot_data <- map_dfr(1:nrow(n_scores), ~ score_df(.x))
+
+  plot <- ggplot(plot_data,
+                 aes(x = value, y = factor(score),
+                     fill = factor(score))) +
+    stat_halfeye(point_interval = "mean_hdci", .width = c(.84,.95)) +
+    labs(y = "Ordinal sum score",
+         caption = str_wrap("Note. Point and whiskers indicate mean and highest continuous density interval (HDCI) at 84% and 95%.")) +
+    scale_fill_viridis_d(begin = 0.24) +
+    theme_minimal(base_size = 14) +
+    theme(axis.title = element_text(margin = margin(t = 12)),
+          legend.position = "none",
+          plot.caption = element_text(hjust = 0, face = "italic",size = 11))
+
+  wle_adj_plot <-
+    plot_data %>%
+    left_join(wlescores, by = join_by("score" == "raw_score")) %>%
+    group_by(score) %>%
+    mutate(adj_value = value - (mean(value) - wle)) %>%
+    ungroup() %>%
+
+    ggplot(aes(x = adj_value, y = factor(score),
+               fill = factor(score))) +
+    stat_halfeye(point_interval = "mean_hdci", .width = c(.84,.95)) +
+    labs(y = "Ordinal sum score",
+         caption = str_wrap("Note. Point and whiskers indicate mean and highest continuous density interval (HDCI) at 84% and 95%.")) +
+    scale_fill_viridis_d(begin = 0.24) +
+    theme_minimal(base_size = 14) +
+    theme(axis.title = element_text(margin = margin(t = 12)),
+          legend.position = "none",
+          plot.caption = element_text(hjust = 0, face = "italic",size = 11))
+
+  table <- plot_data %>%
+    group_by(score) %>%
+    summarise(mean_hdci = mean_hdci(value)) %>%
+    dplyr::select(!score) %>%
+    unnest(cols = c(mean_hdci)) %>%
+    add_column(score = n_scores$sumscore) %>%
+    mutate(minmax_range = abs(ymax - ymin))
+
+  list(table = table,
+       plot = plot +
+         labs(x = "EAP latent score",
+              subtitle = "EAP plausible values"),
+       wle_adj_plot = wle_adj_plot +
+         labs(x = "WLE latent score and plausible values",
+              subtitle = "WLE mean adjusted plausible values")
+  )
 }

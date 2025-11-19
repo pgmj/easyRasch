@@ -13,7 +13,8 @@ RIreliability(
   cpu = 4,
   pv = "mirt",
   iter = 50,
-  verbose = TRUE
+  verbose = TRUE,
+  theta_range = c(-10, 10)
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ RIreliability(
 \item{iter}{Number of times the RMU estimation is done on the draws}
 
 \item{verbose}{Set to \code{FALSE} to avoid the messages}
+
+\item{theta_range}{The range of possible theta values}
 }
 \description{
 Several metrics are reported, RMU, PSI, and 'empirical'. It is recommended to also
