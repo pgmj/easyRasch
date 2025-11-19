@@ -10,6 +10,9 @@ RIinfitKfoldPlot(kfold)
 \item{kfold}{Object with "raw" output from \code{RIinfitKfold()} (default)}
 }
 \description{
+NOTE: currently this function seems to not work on Windows OS.
+}
+\details{
 Outputs a figure showing highest and lowest expected values based on all
 simulations and cross-validation folds from an object created with
 \code{RIinfitKfold(data)}.

@@ -247,25 +247,7 @@ RI_iarm_persons_mle <- function (respm, thresh, model=c("RM","PCM"), theta = rep
 #' @importFrom utils capture.output
 #' @export
 #' @author Pedro Henrique Ribeiro Santiago \email{pedro.ribeirosantiago@@adelaide.edu.au}, Marianne Mueller
-#' @examples
-#' \dontrun{# Creates a plot for Item 1 using total scores
-#' ICCplot(desc2[,5:13], itemnumber=1, method="score", itemdescrip="Item 1")
-#'
-#' # Creates a plot for Item 1 using 8 class intervals
-#' ICCplot(desc2[,5:13], itemnumber=1, method="cut", cinumber=8, itemdescrip="Item 1")
-#'
-#' # Creates a plot for Item 1 using 8 class intervals without RUMM style axis
-#' ICCplot(desc2[,5:13], itemnumber=1, method="cut", cinumber=8, itemdescrip="Item 1", axis.rumm="no")
-#'
-#' # Creates a plot for Item 3 using 8 class intervals and evaluating DIF according to gender
-#' ICCplot(desc2[,5:13], itemnumber=3, method="cut", cinumber=8, itemdescrip="Item 3",
-#' dif="yes", difvar=desc2$gender, diflabels=c("Men", "Women"))
-#'
-#' # Creates a plot with three items using 5 class intervals and evaluating DIF according to gender
-#' ICCplot(desc2[,5:13], itemnumber=1:3, method="cut", cinumber=5,
-#' itemdescrip=c("Item 1","Item 2","Item 3"), dif="yes"
-#' difvar=desc2$gender, diflabels=c("Men", "Women"))
-#'}
+
 RI_iarm_ICCplot <- function(data, itemnumber, pallete='Paired', xticks=1.0, yticks=0.5,
                     thetain=-6.000, thetaend=6.000, method="score", grid="yes", cinumber=6, itemdescrip="",
                     axis.rumm="yes", dif="no", difvar=NA, diflabels=c("Group1", "Group 2", "Group 3", "Group 4", "Group5"),
