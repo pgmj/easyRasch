@@ -427,7 +427,7 @@ RI_iarm_ICCplot <- function(data, itemnumber, pallete='Paired', xticks=1.0, ytic
               panel.grid = panelgrid,
               panel.grid.major.y = gridy,
               panel.grid.major.x = gridx,
-              panel.border = element_rect(colour="black", size=0.25, fill=NA),
+              panel.border = element_rect(colour="black", linewidth=0.25, fill=NA),
               panel.background = background) +
         scale_x_continuous(breaks = round(seq(min(cend$theta), max(cend$theta), by = xticks),1),
                            limits=classbreak) +
@@ -491,7 +491,7 @@ RI_iarm_ICCplot <- function(data, itemnumber, pallete='Paired', xticks=1.0, ytic
               panel.grid = panelgrid,
               panel.grid.major.y = gridy,
               panel.grid.major.x = gridx,
-              panel.border = element_rect(colour="black", size=0.25, fill=NA),
+              panel.border = element_rect(colour="black", linewidth=0.25, fill=NA),
               panel.background = background) +
         scale_x_continuous(breaks = round(seq(min(cend$theta), max(cend$theta), by = xticks),1),
                            limits=classbreak) +
@@ -596,7 +596,7 @@ RI_iarm_ICCplot <- function(data, itemnumber, pallete='Paired', xticks=1.0, ytic
               panel.grid = panelgrid,
               panel.grid.major.y = gridy,
               panel.grid.major.x = gridx,
-              panel.border = element_rect(colour="black", size=0.25, fill=NA),
+              panel.border = element_rect(colour="black", linewidth=0.25, fill=NA),
               panel.background = background) +
         scale_x_continuous(breaks = round(seq(min(cend$theta), max(cend$theta), by = xticks),1),
                            limits=classbreak) +
@@ -699,7 +699,7 @@ RI_iarm_ICCplot <- function(data, itemnumber, pallete='Paired', xticks=1.0, ytic
               panel.grid = panelgrid,
               panel.grid.major.y = gridy,
               panel.grid.major.x = gridx,
-              panel.border = element_rect(colour="black", size=0.25, fill=NA),
+              panel.border = element_rect(colour="black", linewidth=0.25, fill=NA),
               panel.background = background) +
         scale_x_continuous(breaks = round(seq(min(cend$theta), max(cend$theta), by = xticks),1),
                            limits= classbreak) +
