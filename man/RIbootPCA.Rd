@@ -4,7 +4,13 @@
 \alias{RIbootPCA}
 \title{Parametric bootstrap procedure for PCA of Rasch model residuals}
 \usage{
-RIbootPCA(data, iterations = 200, cpu = 4)
+RIbootPCA(
+  data,
+  iterations = 200,
+  cpu = 4,
+  rotation = "oblimin",
+  maxiter = 5000
+)
 }
 \arguments{
 \item{data}{Dataframe with item responses}
@@ -12,6 +18,10 @@ RIbootPCA(data, iterations = 200, cpu = 4)
 \item{iterations}{Number of bootstrap iterations}
 
 \item{cpu}{Number of CPU cores to use}
+
+\item{rotation}{Defaults to "oblimin"}
+
+\item{maxiter}{Maximum number of iterations}
 }
 \description{
 Estimates item and person parameters from data and simulates data fitting the

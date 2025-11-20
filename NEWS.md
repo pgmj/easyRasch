@@ -4,6 +4,8 @@
   - Outputs a list object with a table showing mean and 95% HDCI at each ordinal sum score (corresponds to possible thetas)
   - Outputs two figures, one of which is bias-corrected using WLE estimates.
   - Note that this is an experimental function that has yet to be evaluated.
+- PCA of residuals has added options for max iterations and rotation.
+  - If you get a warning message "convergence not obtained in GPFoblq", increase max iterations.
 - Minor bug fixes
 
 # easyRasch 0.4.1.3 (2025-10-28)

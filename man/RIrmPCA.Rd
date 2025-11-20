@@ -5,14 +5,24 @@
 \title{Fits the Rasch model for dichotomous data using \code{eRm::RM()}, and
 conducts a PCA of residuals to get eigenvalues.}
 \usage{
-RIrmPCA(data, output = "table", fontsize = 15)
+RIrmPCA(
+  dfin,
+  output = "table",
+  fontsize = 15,
+  maxiter = 5000,
+  rotation = "oblimin"
+)
 }
 \arguments{
-\item{data}{Dataframe with item data only}
-
 \item{output}{Optional "dataframe" or "quarto"}
 
 \item{fontsize}{Set font size}
+
+\item{maxiter}{Maximum number of iterations. Increase if convergence not obtained.}
+
+\item{rotation}{Defaults to "oblimin"}
+
+\item{data}{Dataframe with item data only}
 }
 \description{
 See \code{?RIpcmPCA} for more details.

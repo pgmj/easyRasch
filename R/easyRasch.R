@@ -554,14 +554,17 @@ RIallresp <- function(dfin, pdf.out, fontsize = 15) {
   }
 }
 
-#' Fits the Rasch PCM model using eRm, and
-#' conducts a PCA of residuals to get eigenvalues using `psych::pca()`
-#' and reports the top 5 values. Proportion of explained variance is calculated
-#' using `stats::prcomp()`.
+#' Fits a Rasch PCM using eRm, and conducts a PCA of residuals to get eigenvalues
+#' using `psych::pca()` and reports the top 5 values.
+#'
+#' Proportion of explained variance is calculated using `stats::prcomp()`.
 #'
 #' Note from `?psych::pca`:
 #' The eigenvectors are rescaled by the sqrt of the eigenvalues to produce
 #' the component loadings more typical in factor analysis.
+#'
+#' Possible rotations are:
+#' "none", "varimax", "quartimax", "promax", "oblimin", "simplimax", and "cluster".
 #'
 #' See Chou & Wang (2010, DOI: 10.1177/0013164410379322) for a simulation study
 #' testing PCA eigenvalues across multiple conditions.
@@ -569,8 +572,11 @@ RIallresp <- function(dfin, pdf.out, fontsize = 15) {
 #' @param dfin Dataframe with item data only
 #' @param output Defaults to "table", optional "dataframe"
 #' @param fontsize Set font size for table
+#' @param maxiter Maximum number of iterations. Increase if convergence not obtained.
+#' @param rotation Defaults to "oblimin"
 #' @export
-RIpcmPCA <- function(dfin, output = "table", fontsize = 15) {
+RIpcmPCA <- function(dfin, output = "table", fontsize = 15, maxiter = 5000,
+                     rotation = "oblimin") {
 
   df.erm <- PCM(dfin) # run PCM model, replace with RSM (rating scale) or RM (dichotomous) for other models
   # get estimates, code borrowed from https://bookdown.org/chua/new_rasch_demo2/PC-model.html
@@ -584,7 +590,8 @@ RIpcmPCA <- function(dfin, output = "table", fontsize = 15) {
     n_factors = ncol(dfin)
   }
   # PCA of Rasch residuals
-  pca <- pca(std.resids, nfactors = n_factors, rotate = "oblimin")
+  pca <- pca(std.resids, nfactors = n_factors,
+             rotate = rotation, maxit = maxiter)
   # get proportion of explained variance
   pca2 <- prcomp(std.resids, rank. = n_factors)
   PoV <- pca2$sdev^2/sum(pca2$sdev^2)
@@ -619,15 +626,19 @@ RIpcmPCA <- function(dfin, output = "table", fontsize = 15) {
 #' @param data Dataframe with item data only
 #' @param output Optional "dataframe" or "quarto"
 #' @param fontsize Set font size
+#' @param maxiter Maximum number of iterations. Increase if convergence not obtained.
+#' @param rotation Defaults to "oblimin"
 #' @export
-RIrmPCA <- function(data, output = "table", fontsize = 15) {
+RIrmPCA <- function(dfin, output = "table", fontsize = 15, maxiter = 5000,
+                     rotation = "oblimin") {
 
   erm_out <- RM(data)
   ple <- eRm::person.parameter(erm_out)
   item.fit <- eRm::itemfit(ple)
   std.resids <- item.fit$st.res
   # PCA of Rasch residuals
-  pca <- psych::pca(std.resids, nfactors = ncol(data), rotate = "oblimin")
+  pca <- psych::pca(std.resids, nfactors = ncol(data),
+                    rotate = rotation, maxit = maxiter)
   # create table with top 5 eigenvalues
   pca_table <- pca$values %>%
     round(2) %>%
@@ -5521,9 +5532,12 @@ RIciccPlot <- function(data, class_intervals = 5, method = "cut",
 #' @param data Dataframe with item responses
 #' @param iterations Number of bootstrap iterations
 #' @param cpu Number of CPU cores to use
+#' @param maxiter Maximum number of iterations
+#' @param rotation Defaults to "oblimin"
 #' @export
 #'
-RIbootPCA <- function(data, iterations = 200, cpu = 4) {
+RIbootPCA <- function(data, iterations = 200, cpu = 4, rotation = "oblimin",
+                      maxiter = 5000) {
 
   sample_n <- nrow(data)
   items_n <- ncol(data)
@@ -5575,7 +5589,8 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4) {
       ple <- eRm::person.parameter(erm_out)
       item.fit <- eRm::itemfit(ple)
       std.resids <- item.fit$st.res
-      pca <- psych::pca(std.resids, nfactors = ncol(data), rotate = "oblimin")
+      pca <- psych::pca(std.resids, nfactors = ncol(data),
+                        rotate = rotation, maxit = maxiter)
       eigenvalue <- pca$values %>% round(3) %>% head(1)
 
     }
@@ -5675,7 +5690,8 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4) {
       ple <- eRm::person.parameter(pcm_out)
       item.fit <- eRm::itemfit(ple)
       std.resids <- item.fit$st.res
-      pca <- psych::pca(std.resids, nfactors = ncol(data), rotate = "oblimin")
+      pca <- psych::pca(std.resids, nfactors = ncol(data),
+                        rotate = rotation, maxit = maxiter)
       eigenvalue <- pca$values %>% round(3) %>% head(1)
 
     }
