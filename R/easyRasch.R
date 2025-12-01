@@ -2516,8 +2516,7 @@ RIoutfitLoc <- function(dfin, samplesize, nsamples) {
 #' Defaults to PCM, use `model = "RM"` for dichotomous data.
 #'
 #' Note. This function does not work with missing responses in the dataset.
-#' You can temporarily remove respondents with missing data when running the
-#' function, ie. `RIloadLoc(na.omit(df))`
+#' Missing data is automatically filtered out.
 #'
 #' @param dfin Dataframe with item data only
 #' @param output Either "figure" (default) or "dataframe"
@@ -2526,6 +2525,8 @@ RIoutfitLoc <- function(dfin, samplesize, nsamples) {
 #' @export
 #' @return A plot with item locations (y) and loadings (x)
 RIloadLoc <- function(dfin, output = "figure", pcx = c("PC1","PC2","PC3"), model = "PCM") {
+
+  dfin <- na.omit(dfin)
 
   if(model == "PCM") {
     if(max(as.matrix(dfin), na.rm = TRUE) == 1) {
@@ -3967,8 +3968,13 @@ RIdifThreshFigLR <- function(dfin, dif.var) {
 #' @export
 RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
 
-  require(doParallel)
   registerDoParallel(cores = cpu)
+
+  # get vector of random seeds for reproducible simulations
+  seeds <- c(.Random.seed, as.integer(.Random.seed + 1))
+  if (iterations > length(seeds)) {
+    stop(paste0("Maximum possible iterations is ",length(seeds),"."))
+  }
 
   # get sample size
   sample_n <- nrow(data)
@@ -4004,8 +4010,10 @@ RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
 
     # create object to store results from multicore loop
     residcor <- list()
-    residcor <- foreach(icount(iterations)) %dopar%
-      {
+    residcor <- foreach(i = 1:iterations) %dopar% {
+
+        # reproducible seed
+        set.seed(seeds[i])
         # resampled vector of theta values (based on sample properties)
         inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
@@ -4067,8 +4075,10 @@ RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
 
     # create object to store results from multicore loop
     residcor <- list()
-    residcor <- foreach(icount(iterations)) %dopar%
-      {
+    residcor <- foreach(i = 1:iterations) %dopar% {
+
+        # reproducible seed
+        set.seed(seeds[i])
         # resample vector of theta values (based on sample properties)
         inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
@@ -4159,8 +4169,13 @@ RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
 #' @export
 RIgetResidCorG2 <- function(data, iterations = 500, cpu = 4) {
 
-  require(doParallel)
   registerDoParallel(cores = cpu)
+
+  # get vector of random seeds for reproducible simulations
+  seeds <- c(.Random.seed, as.integer(.Random.seed + 1))
+  if (iterations > length(seeds)) {
+    stop(paste0("Maximum possible iterations is ",length(seeds),"."))
+  }
 
   # get sample size
   sample_n <- nrow(data)
@@ -4196,8 +4211,10 @@ RIgetResidCorG2 <- function(data, iterations = 500, cpu = 4) {
 
     # create object to store results from multicore loop
     residcor <- list()
-    residcor <- foreach(icount(iterations)) %dopar%
-      {
+    residcor <- foreach(i = 1:iterations) %dopar% {
+
+      # reproducible seed
+      set.seed(seeds[i])
         # resampled vector of theta values (based on sample properties)
         inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
@@ -4262,8 +4279,10 @@ RIgetResidCorG2 <- function(data, iterations = 500, cpu = 4) {
 
     # create object to store results from multicore loop
     residcor <- list()
-    residcor <- foreach(icount(iterations)) %dopar%
-      {
+    residcor <- foreach(i = 1:iterations) %dopar% {
+
+      # reproducible seed
+      set.seed(seeds[i])
         # resample vector of theta values (based on sample properties)
         inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
@@ -4547,7 +4566,12 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
   }
   sample_n <- nrow(data)
 
-  require(doParallel)
+  # get vector of random seeds for reproducible simulations
+  seeds <- c(.Random.seed, as.integer(.Random.seed + 1))
+  if (iterations > length(seeds)) {
+    stop(paste0("Maximum possible iterations is ",length(seeds),"."))
+  }
+
   registerDoParallel(cores = cpu)
 
   if (min(as.matrix(data), na.rm = T) > 0) {
@@ -4562,12 +4586,15 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
     if (na.omit == TRUE) {
       thetas <- RIestThetas(data)$WLE
     } else {
-    mirt_out <- mirt(data, itemtype = "Rasch", verbose = FALSE)
-    thetas <- mirt::fscores(mirt_out, method = "WLE", verbose = FALSE)
+      mirt_out <- mirt(data, itemtype = "Rasch", verbose = FALSE)
+      thetas <- mirt::fscores(mirt_out, method = "WLE", verbose = FALSE)
     }
 
     fitstats <- list()
-    fitstats <- foreach(icount(iterations)) %dopar% {
+    #registerDoRNG(seeds[17])
+    fitstats <- foreach(i = 1:iterations) %dopar% {
+      # reproducible seed
+      set.seed(seeds[i])
       # resampled vector of theta values (based on sample properties)
       inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
@@ -4625,10 +4652,12 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
     }
 
     # estimate theta values from data using WLE
-    thetas <- RIestThetasCATr(data)
+    thetas <- RIestThetasCATr(data, cpu = cpu)
 
     fitstats <- list()
-    fitstats <- foreach(icount(iterations)) %dopar% {
+    fitstats <- foreach(i = 1:iterations) %dopar% {
+      # reproducible seed
+      set.seed(seeds[i])
       # resampled vector of theta values (based on sample properties)
       inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
@@ -4669,7 +4698,7 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
       }
 
       # get conditional MSQ
-      pcm_out <- psychotools::PCModel.fit(testData, hessian = FALSE)
+      pcm_out <- psychotools::pcmodel(testData, hessian = FALSE)
       cfit <- iarm::out_infit(pcm_out)
 
       # create dataframe
@@ -4687,6 +4716,7 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
 
   return(fitstats)
 }
+
 
 #' Creates a plot with distribution of simulation based item fit values
 #'
@@ -4926,8 +4956,13 @@ RIgetfitPlot <- function(simcut, data, cutoff = c(.001, .999), output = "infit")
 RIpboot <- function(data, iterations, cpu = 4) {
   sample_n <- nrow(data)
 
-  require(doParallel)
   registerDoParallel(cores = cpu)
+
+  # get vector of random seeds for reproducible simulations
+  seeds <- c(.Random.seed, as.integer(.Random.seed + 1))
+  if (iterations > length(seeds)) {
+    stop(paste0("Maximum possible iterations is ",length(seeds),"."))
+  }
 
   if (missing(iterations)) {
     stop("Please set a number of iterations.")
@@ -4945,7 +4980,10 @@ RIpboot <- function(data, iterations, cpu = 4) {
     thetas <- RIestThetas(data)
 
     datasets <- list()
-    datasets <- foreach(icount(iterations)) %dopar% {
+    datasets <- foreach(i = 1:iterations) %dopar% {
+
+      # reproducible seed
+      set.seed(seeds[i])
       # resampled vector of theta values (based on sample properties)
       inputThetas <- sample(thetas$WLE, size = sample_n, replace = TRUE)
 
@@ -4972,7 +5010,10 @@ RIpboot <- function(data, iterations, cpu = 4) {
     thetas <- RIestThetas(data)
 
     datasets <- list()
-    datasets <- foreach(icount(iterations)) %dopar% {
+    datasets <- foreach(i = 1:iterations) %dopar% {
+
+      # reproducible seed
+      set.seed(seeds[i])
       # resampled vector of theta values (based on sample properties)
       inputThetas <- sample(thetas$WLE, size = sample_n, replace = TRUE)
 
@@ -5229,6 +5270,12 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
 
   n_items <- ncol(dat)
 
+  # get vector of random seeds for reproducible simulations
+  seeds <- c(.Random.seed, as.integer(.Random.seed + 1))
+  if (iterations > length(seeds)) {
+    stop(paste0("Maximum possible iterations is ",length(seeds),"."))
+  }
+
   if(min(as.matrix(dat), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
   } else if (samplesize > nrow(dat)) {
@@ -5264,11 +5311,12 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
   cfit_df <- data.frame(item = names(dat),
                         infit = round(cfit$Infit,2))
 
-  require(doParallel)
   registerDoParallel(cores = cpu)
 
   fit <- data.frame()
   fit <- foreach(i = 1:iterations, .combine = rbind) %dopar% {
+    # reproducible seed
+    set.seed(seeds[i])
 
     data <- dat[sample(1:nrow(dat), samplesize, replace = TRUE), ]
 
@@ -5368,11 +5416,18 @@ RIbootLRT <- function(dat, iterations = 1000, samplesize = 500, cpu = 4) {
     model <- "PCM"
   }
 
-  require(doParallel)
   registerDoParallel(cores = cpu)
+
+  # get vector of random seeds for reproducible simulations
+  seeds <- c(.Random.seed, as.integer(.Random.seed + 1), as.integer(.Random.seed + 2))
+  if (iterations > length(seeds)) {
+    stop(paste0("Maximum possible iterations is ",length(seeds),"."))
+  }
 
   fit <- data.frame()
   fit <- foreach(i = 1:iterations, .combine = rbind) %dopar% {
+    # reproducible seed
+    set.seed(seeds[i])
 
     data <- dat[sample(1:nrow(dat), samplesize, replace = TRUE), ]
 
@@ -5542,14 +5597,20 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4, rotation = "oblimin",
   sample_n <- nrow(data)
   items_n <- ncol(data)
 
-  require(doParallel)
   registerDoParallel(cores = cpu)
+
+  # get vector of random seeds for reproducible simulations
+  seeds <- c(.Random.seed, as.integer(.Random.seed + 1))
+  if (iterations > length(seeds)) {
+    stop(paste0("Maximum possible iterations is ",length(seeds),"."))
+  }
+
 
   if (min(as.matrix(data), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
   } else if (max(as.matrix(data), na.rm = T) == 1 && min(as.matrix(data), na.rm = T) == 0) {
     # estimate item threshold locations from data
-    erm_out <- eRm::RM(data)
+    erm_out <- eRm::RM(data, se = FALSE)
     item_locations <- erm_out$betapar * -1
     names(item_locations) <- names(data)
 
@@ -5562,7 +5623,9 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4, rotation = "oblimin",
     }
 
     fitstats <- list()
-    fitstats <- foreach(icount(iterations)) %dopar% {
+    fitstats <- foreach(i = 1:iterations) %dopar% {
+      # reproducible seed
+      set.seed(seeds[i])
       # resampled vector of theta values (based on sample properties)
       inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
@@ -5585,7 +5648,7 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4, rotation = "oblimin",
       }
       # END TEMP FIX
 
-      erm_out <- RM(testData)
+      erm_out <- RM(testData, se = FALSE)
       ple <- eRm::person.parameter(erm_out)
       item.fit <- eRm::itemfit(ple)
       std.resids <- item.fit$st.res
@@ -5614,12 +5677,12 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4, rotation = "oblimin",
         as.data.frame() %>%
         set_names(paste0("Threshold ", 1:maxcat))
       # person locations
-      thetas <- RIestThetasCATr(data, itemParams = as.matrix(item.locations))
+      thetas <- RIestThetasCATr(data, itemParams = as.matrix(item.locations), cpu = cpu)
 
     } else if (RIcheckdata(data) == FALSE) {
 
       # person locations
-      thetas <- RIestThetasCATr(data)
+      thetas <- RIestThetasCATr(data, cpu = cpu)
 
     }
 
@@ -5645,7 +5708,9 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4, rotation = "oblimin",
     }
 
     fitstats <- list()
-    fitstats <- foreach(icount(iterations)) %dopar% {
+    fitstats <- foreach(i = 1:iterations) %dopar% {
+      # reproducible seed
+      set.seed(seeds[i])
       # resampled vector of theta values (based on sample properties)
       inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
@@ -5686,7 +5751,7 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4, rotation = "oblimin",
       }
 
       # get PCA eigenvalue
-      pcm_out <- eRm::PCM(testData)
+      pcm_out <- eRm::PCM(testData, se = FALSE)
       ple <- eRm::person.parameter(pcm_out)
       item.fit <- eRm::itemfit(ple)
       std.resids <- item.fit$st.res
@@ -5697,15 +5762,29 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4, rotation = "oblimin",
     }
   }
 
-  stats <- list(results = unlist(fitstats),
+  df_fitstats <- unlist(fitstats) %>%
+    as.data.frame(nm = "eigenvalue") %>%
+    mutate(eigenvalue = car::recode(eigenvalue,"'Missing cells in generated data.'=NA"))
+
+  if (any(is.na(df_fitstats$eigenvalue))) {
+    missing <- df_fitstats %>%
+      dplyr::count(eigenvalue) %>%
+      mutate(percent = n*100/sum(n)) %>%
+      filter(is.na(eigenvalue))
+    warning(paste0(missing$n," simulated datasets (",missing$percent,"%) contained missing cells."))
+  }
+
+  df_fitstats <- na.omit(df_fitstats)
+
+  stats <- list(results = df_fitstats,
                 samplesize = sample_n,
                 number_of_items = items_n,
-                actual_iterations = length(fitstats),
-                p95 = quantile(unlist(fitstats), .95),
-                p99 = quantile(unlist(fitstats), .99),
-                p995 = quantile(unlist(fitstats), .995),
-                p999 = quantile(unlist(fitstats), .999),
-                max = max(unlist(fitstats)))
+                actual_iterations = nrow(df_fitstats),
+                p95 = quantile(df_fitstats$eigenvalue, .95),
+                p99 = quantile(df_fitstats$eigenvalue, .99),
+                p995 = quantile(df_fitstats$eigenvalue, .995),
+                p999 = quantile(df_fitstats$eigenvalue, .999),
+                max = max(df_fitstats$eigenvalue))
 
   return(stats)
 }
@@ -5753,7 +5832,7 @@ RIinfitKfold <- function(data, k = 5, output = "raw", sim_iter = 100,
     infit_folds <- map(
       1:k,
       function(x) {
-        cfit <- iarm::out_infit(PCM(analysis(datafold$splits[[x]])))
+        cfit <- iarm::out_infit(pcmodel(analysis(datafold$splits[[x]]), hessian = FALSE))
         data.frame(InfitMSQ = cfit$Infit) %>%
           round(3) %>%
           rownames_to_column("Item")
@@ -5763,7 +5842,7 @@ RIinfitKfold <- function(data, k = 5, output = "raw", sim_iter = 100,
     infit_folds <- map(
       1:k,
       function(x) {
-        cfit <- iarm::out_infit(RM(analysis(datafold$splits[[x]])))
+        cfit <- iarm::out_infit(RM(analysis(datafold$splits[[x]]), se = FALSE))
         data.frame(InfitMSQ = cfit$Infit) %>%
           round(3) %>%
           rownames_to_column("Item")
@@ -5836,13 +5915,13 @@ RIinfitKfold <- function(data, k = 5, output = "raw", sim_iter = 100,
   } else if (output == "table") {
     tbl %>%
       dplyr::rename(`Lower cutoff` = sim_min_infit_msq,
-             `Upper cutoff` = sim_max_infit_msq,
-             `Lowest infit MSQ` = lowest_infit,
-             #`Mean infit MSQ` = mean_infit,
-             `Highest infit MSQ` = highest_infit) %>%
+                    `Upper cutoff` = sim_max_infit_msq,
+                    `Lowest infit MSQ` = lowest_infit,
+                    #`Mean infit MSQ` = mean_infit,
+                    `Highest infit MSQ` = highest_infit) %>%
       kbl_rise() %>%
       kableExtra::footnote(general = paste0("Infit MSQ values based on conditional estimation using n = ",
-                                samplesize," cases (",k," folds of data from a dataset of ",nrow(data),"). Cutoff values based on ",sim_iter," simulations from the each fold of data."))
+                                            samplesize," cases (",k," folds of data from a dataset of ",nrow(data),"). Cutoff values based on ",sim_iter," simulations from the each fold of data."))
   }
 }
 
@@ -5982,7 +6061,7 @@ RIrestscoreKfold <- function(data, k = 5, output = "table") {
       1:k,
       function(x) {
 
-        i1 <- PCM(analysis(datafold$splits[[x]])) %>%
+        i1 <- PCM(analysis(datafold$splits[[x]]), se = FALSE) %>%
           item_restscore() %>%
           as.data.frame()
 
@@ -5998,7 +6077,7 @@ RIrestscoreKfold <- function(data, k = 5, output = "table") {
     restscore_folds <- map(
       1:k,
       function(x) {
-        i1 <- RM(analysis(datafold$splits[[x]])) %>%
+        i1 <- RM(analysis(datafold$splits[[x]]), se = FALSE) %>%
           item_restscore() %>%
           as.data.frame()
 
@@ -6195,7 +6274,6 @@ RIreliability <- function(data, conf_int = .95, draws = 1000,
     mirt::empirical_rxx()
 
   if (boot == TRUE) {
-    require(doParallel)
     registerDoParallel(cores = cpu)
     # bootstrap CI for empirical
     fit <- data.frame()

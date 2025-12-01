@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,16 @@
       <small>Source: <a href="https://github.com/pgmj/easyRasch/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.2" id="easyrasch-042-2025-12-01">easyRasch 0.4.2 (2025-12-01)<a class="anchor" aria-label="anchor" href="#easyrasch-042-2025-12-01"></a></h2>
+<ul><li>Most simulation functions now produce reproducible results based on your chosen seed.
+<ul><li>Use <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> at the start of your analysis document, for instance with <code>set.seed(473662)</code> (use a random number). See <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">?set.seed</a></code> for details.</li>
+<li>Updated functions are: <code><a href="../reference/RIgetfit.html">RIgetfit()</a></code>, <code>RIgetResidcorr()</code>, <code>RIbootrestscore()</code>, <code><a href="../reference/RIbootLRT.html">RIbootLRT()</a></code>, <code><a href="../reference/RIbootPCA.html">RIbootPCA()</a></code>, <code><a href="../reference/RIgetResidCorG2.html">RIgetResidCorG2()</a></code>, <code><a href="../reference/RIpboot.html">RIpboot()</a></code>
+</li>
+</ul></li>
+<li>
+<code><a href="../reference/RIbootPCA.html">RIbootPCA()</a></code> should now be more reliable, quite a bit faster, and also output the number of simulated datasets that contained missing cells and could not be estimated.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.1.4" id="easyrasch-0414-2025-11-19">easyRasch 0.4.1.4 (2025-11-19)<a class="anchor" aria-label="anchor" href="#easyrasch-0414-2025-11-19"></a></h2>
 <ul><li>New experimental function <code><a href="../reference/RIcrel.html">RIcrel()</a></code> for conditional reliability estimates based on the Relative Measurement Uncertainty (RMU).

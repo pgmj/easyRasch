@@ -1,3 +1,11 @@
+# easyRasch 0.4.2 (2025-12-01)
+
+- Most simulation functions now produce reproducible results based on your chosen seed.
+  - Use `set.seed()` at the start of your analysis document, for instance with `set.seed(473662)` (use a random number). See `?set.seed` for details.
+  - Updated functions are: `RIgetfit()`, `RIgetResidcorr()`, `RIbootrestscore()`, `RIbootLRT()`, `RIbootPCA()`,
+    `RIgetResidCorG2()`, `RIpboot()`
+- `RIbootPCA()` should now be more reliable, quite a bit faster, and also output the number of simulated datasets that contained missing cells and could not be estimated.
+
 # easyRasch 0.4.1.4 (2025-11-19)
 
 - New experimental function `RIcrel()` for conditional reliability estimates based on the Relative Measurement Uncertainty (RMU).

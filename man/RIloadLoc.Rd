@@ -24,6 +24,5 @@ Defaults to PCM, use \code{model = "RM"} for dichotomous data.
 }
 \details{
 Note. This function does not work with missing responses in the dataset.
-You can temporarily remove respondents with missing data when running the
-function, ie. \code{RIloadLoc(na.omit(df))}
+Missing data is automatically filtered out.
 }
