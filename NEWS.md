@@ -1,3 +1,8 @@
+# easyRasch 0.4.2.1 (2025-12-10)
+
+- `RIitemcols()` now also shows variable name in facet labels, and respects the order of variables in data
+- `RIinfitKfoldPlot()` gets some bug fixes for text display.
+
 # easyRasch 0.4.2 (2025-12-01)
 
 - Most simulation functions now produce reproducible results based on your chosen seed.
@@ -11,7 +16,7 @@
 - New experimental function `RIcrel()` for conditional reliability estimates based on the Relative Measurement Uncertainty (RMU).
   - Outputs a list object with a table showing mean and 95% HDCI at each ordinal sum score (corresponds to possible thetas)
   - Outputs two figures, one of which is bias-corrected using WLE estimates.
-  - Note that this is an experimental function that has yet to be evaluated.
+  - *Note that this is an experimental function that has yet to be evaluated.*
 - PCA of residuals has added options for max iterations and rotation.
   - If you get a warning message "convergence not obtained in GPFoblq", increase max iterations.
 - Minor bug fixes

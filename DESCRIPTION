@@ -1,10 +1,10 @@
 Package: easyRasch
 Title: Psychometric Analysis in R with Rasch Measurement Theory
-Version: 0.4.2
-Date: 2025-12-01
+Version: 0.4.2.1
+Date: 2025-12-15
 URL: https://github.com/pgmj/easyRasch, https://pgmj.github.io/easyRasch/
 Authors@R:
-    person("Magnus", "Johansson", , "magnus.p.johansson@ri.se", role = c("aut", "cre"),
+    person("Magnus", "Johansson", , "pgmj@pm.me", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1669-592X"))
 Description: Multiple functions to simplify the Rasch analysis workflow. From
     descriptive statistics to fit statistics, response category analysis,

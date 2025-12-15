@@ -5475,25 +5475,37 @@ RIitemcols <- function(data, ncols = 1, labelwrap = 25, text_ypos = 6, viridis_e
                              item = names(data))
   }
 
-  data %>%
+  itemlabels <- itemlabels %>%
+    dplyr::filter(itemnr %in% names(data)) %>%
+    mutate(it = paste0(itemnr," - ",item)) %>%
+    mutate(labs = paste0("<b>",itemnr,"</b>"," - ",item))
+
+  plot_data <- data %>%
     pivot_longer(everything()) %>%
     dplyr::count(name, value) %>%
-    mutate(name = factor(name, levels = rev(names(data))),
+    mutate(name = factor(name, levels = names(data)),
            value = factor(value)) %>%
     group_by(name) %>%
     mutate(percent = round(n/sum(n)*100,1)) %>%
     ungroup() %>%
     dplyr::rename(itemnr = name) %>%
-    left_join(itemlabels, by = "itemnr") %>%
+    left_join(itemlabels, by = "itemnr") %>%  # this changes itemnr from factor to chr
+    mutate(itemnr = factor(itemnr, levels = itemlabels$itemnr),
+           item = factor(item, levels = itemlabels$item)) %>%
+    mutate(it = paste0(itemnr," - ",item)) %>%
+    mutate(it = factor(it, levels = itemlabels$it))
+  #labels = itemlabels$labs))
 
+  plot_data %>%
     ggplot(aes(x = value, y = percent)) +
     geom_col(aes(fill = value)) +
     geom_text(aes(label = paste0("n = ",n),
                   color = value),
               y = text_ypos) +
-    facet_wrap(~item, ncol = ncols,
+    facet_wrap(~it,
+               ncol = ncols,
                strip.position = "left",
-               labeller = labeller(item = label_wrap_gen(labelwrap))) +
+               labeller = labeller(it = label_wrap_gen(labelwrap))) +
     scale_fill_viridis_d(guide = "none") +
     scale_y_continuous(position = "right") +
     scale_color_viridis_d(guide = "none", direction = -1, option = "A", end = viridis_end) +
@@ -5943,6 +5955,7 @@ RIinfitKfoldPlot <- function(kfold) {
                              infit_max_sim = kfold$table$sim_max_infit_msq)
 
   item_names <- names(analysis(kfold[["data"]][["splits"]][[1]]))
+  n_items <- length(item_names)
   k = length(kfold$results)
   n = length(kfold[["data"]][["splits"]][[1]][["in_id"]])
 
@@ -5973,6 +5986,16 @@ RIinfitKfoldPlot <- function(kfold) {
     mutate(overfit_color = case_when(overfit == 1 ~ "sienna2",
                                      TRUE ~ "lightgrey"))
 
+  stacksize <- bind_rows(kfold$results) %>%
+    count(round(InfitMSQ,2), .by = "Item") %>%
+    arrange(n) %>%
+    tail(1) %>%
+    pull(n)
+
+  if (stacksize > 6) {
+    stacksize <- 6
+  }
+
   p <-
     bind_rows(kfold$results) %>%
     mutate(Item = factor(Item, levels = rev(item_names))) %>%
@@ -5981,19 +6004,19 @@ RIinfitKfoldPlot <- function(kfold) {
     geom_point(data = infit_limits,
                aes(x = infit_min_sim,
                    color = overfit_color),
-               shape = 18, size = 8,
+               shape = 18, size = 8+(8-stacksize),
                position = position_nudge(y = -0.1)) +
     geom_point(data = infit_limits,
                aes(x = infit_max_sim,
                    color = underfit_color),
-               shape = 18, size = 8,
+               shape = 18, size = 8+(8-stacksize),
                position = position_nudge(y = -0.1)) +
     scale_color_identity() +
     theme_minimal() +
     theme(legend.position = "none") +
     labs(x = "Conditional infit",
          caption = str_wrap(paste0("Note. Results based on ",k,
-                                   " folds of data (n =",n,
+                                   " folds of data (n = ",n,
                                    " per fold). Diamonds indicate cutoff values based on all folds.
                                    Orange diamonds indicate misfit and show percentage misfit."), 80))
 
@@ -6001,10 +6024,10 @@ RIinfitKfoldPlot <- function(kfold) {
     p <-
       p +
       geom_text(data = underfit,
-                aes(label = paste0(percent,"%"),
+                aes(label = round(percent,0),
                     x = infit_max_sim),
                 position = position_nudge(y = -0.1),
-                size = 4, color = "white")
+                size = 2+(7-stacksize), color = "white")
 
   }
 
@@ -6012,17 +6035,16 @@ RIinfitKfoldPlot <- function(kfold) {
     p <-
       p +
       geom_text(data = overfit,
-                aes(label = paste0(percent,"%"),
+                aes(label = round(percent,0),
                     x = infit_min_sim),
                 position = position_nudge(y = -0.1),
-                size = 4, color = "white")
+                size = 2+(7-stacksize), color = "white")
 
   }
 
   p
 
 }
-
 
 #' Cross-validation of item-restscore
 #'
