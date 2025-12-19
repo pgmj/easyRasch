@@ -2593,7 +2593,7 @@ RIloadLoc <- function(dfin, output = "figure", pcx = c("PC1","PC2","PC3"), model
 }
 
 
-#' DIF PCM analysis - requires having set up dif.variables previously
+#' DIF analysis - requires having set up dif.variables previously
 #'
 #' Makes use of the psychotree package, which also allows for interactions
 #' between DIF variables, see `RIdifTable2()`.
@@ -2606,19 +2606,28 @@ RIloadLoc <- function(dfin, output = "figure", pcx = c("PC1","PC2","PC3"), model
 #' @param dfin Dataframe with item data only
 #' @param dif.var DIF variable
 #' @param cutoff Cutoff in item location logit difference for table highlighting
-#' @param table Set to TRUE = output a table object, and FALSE = dataframe `difTablePCM`
 #' @export
-RIdifTable <- function(dfin, dif.var, cutoff = 0.5, table = TRUE) {
+RIdifTable <- function(dfin, dif.var, cutoff = 0.5) {
   df.tree <- data.frame(matrix(ncol = 0, nrow = nrow(dfin))) # we need to make a new dataframe
   df.tree$difdata <- as.matrix(dfin) # containing item data in a nested dataframe
   # and DIF variables:
   df.tree$dif.var<-dif.var
   pctree.out<-pctree(difdata ~ dif.var, data = df.tree)
 
+  if(min(as.matrix(dfin), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
+  } else if(na.omit(dfin) %>% nrow() == 0) {
+    stop("No complete cases in data.")
+  } else if(max(as.matrix(dfin), na.rm = T) == 1) {
+    pctree.out <- raschtree(difdata ~ dif.var, data = df.tree)
+  } else if(max(as.matrix(dfin), na.rm = T) > 1) {
+    pctree.out <- pctree(difdata ~ dif.var, data = df.tree)
+  }
+
   if(nrow(itempar(pctree.out) %>% as.data.frame() %>% t()) > 1) {
     plot(pctree.out)
 
-    difTable <- itempar(pctree.out) %>% # identify the nodes to compare (see plot above)
+    table <- itempar(pctree.out) %>% # identify the nodes to compare (see plot above)
       as.data.frame() %>%
       t() %>%
       as.data.frame() %>%
@@ -2630,24 +2639,22 @@ RIdifTable <- function(dfin, dif.var, cutoff = 0.5, table = TRUE) {
       mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
       rownames_to_column(var = "Item") %>%
       mutate(Item = names(dfin)) %>%
-      dplyr::relocate(MaxDiff, .after = last_col())
-    if(table == TRUE) {
-
-      formattable(difTable, list(
+      dplyr::relocate(MaxDiff, .after = last_col()) %>%
+      formattable(list(
         'MaxDiff' =
           formatter("span", style = ~ formattable::style(color = ifelse(MaxDiff < -cutoff, "red",
-                                                           ifelse(MaxDiff > cutoff, "red",  "black"))))),
-        table.attr = 'class=\"table table-striped\" style="font-size: 15px; font-family: Lato"')
+                                                                        ifelse(MaxDiff > cutoff, "red",  "black"))))),
+        table.attr = 'class=\"table table-striped\" style="font-size: 15px; font-family: Sans"')
 
-      } else {
-
-        difTablePCM <<- difTable
-    }
+    return(list(plot = plot(pctree.out),
+                table = table)
+    )
 
   } else {
     print("No statistically significant DIF found.")
   }
 }
+
 
 #' DIF PCM interaction analysis
 #'
@@ -2664,17 +2671,29 @@ RIdifTable <- function(dfin, dif.var, cutoff = 0.5, table = TRUE) {
 #' @param cutoff Cutoff in item location logit difference for table highlighting
 #' @export
 RIdifTable2 <- function(dfin, dif.var1, dif.var2, cutoff = 0.5) {
+
   df.tree <- data.frame(matrix(ncol = 0, nrow = nrow(dfin))) # we need to make a new dataframe
   df.tree$difdata <- as.matrix(dfin) # containing item data in a nested dataframe
   # and DIF variables:
   df.tree$dif.var1 <- dif.var1
   df.tree$dif.var2 <- dif.var2
-  pctree.out<-pctree(difdata ~ dif.var1 + dif.var2, data = df.tree)
+
+  if(min(as.matrix(dfin), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
+  } else if(na.omit(dfin) %>% nrow() == 0) {
+    stop("No complete cases in data.")
+  } else if(max(as.matrix(dfin), na.rm = T) == 1) {
+    pctree.out <- raschtree(difdata ~ dif.var1 + dif.var2, data = df.tree)
+  } else if(max(as.matrix(dfin), na.rm = T) > 1) {
+    pctree.out <- pctree(difdata ~ dif.var1 + dif.var2, data = df.tree)
+  }
+
+
 
   if(nrow(itempar(pctree.out) %>% as.data.frame() %>% t()) > 1) {
     plot(pctree.out)
 
-    itempar(pctree.out) %>% # identify the nodes to compare (see plot above)
+    table <- itempar(pctree.out) %>% # identify the nodes to compare (see plot above)
       as.data.frame() %>%
       t() %>%
       as.data.frame() %>%
@@ -2689,8 +2708,12 @@ RIdifTable2 <- function(dfin, dif.var1, dif.var2, cutoff = 0.5) {
       formattable(list(
         'MaxDiff' =
           formatter("span", style = ~ formattable::style(color = ifelse(MaxDiff < -cutoff, "red",
-                                                           ifelse(MaxDiff > cutoff, "red",  "black"))))),
+                                                                        ifelse(MaxDiff > cutoff, "red",  "black"))))),
         table.attr = 'class=\"table table-striped\" style="font-size: 15px; font-family: Lato"')
+
+    return(list(plot = plot(pctree.out),
+                table = table)
+    )
 
   } else {
     print("No statistically significant DIF found.")

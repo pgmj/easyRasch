@@ -1,3 +1,7 @@
+# easyRasch 0.4.2.2 (2025-12-19)
+
+- `RIdifTable()` and `RIdifTable2()` now both identify RM or PCM from data automatically and uses the correct model.
+
 # easyRasch 0.4.2.1 (2025-12-10)
 
 - `RIitemcols()` now also shows variable name in facet labels, and respects the order of variables in data
