@@ -1,3 +1,9 @@
+# easyRasch 0.4.2.3 (2026-01-13)
+
+- There is a fix for MacOS Tahoe 26.1 removing support for OpenGL, see <https://stackoverflow.com/questions/66011929/package-rgl-in-r-not-loading-in-mac-os/66127391>
+  - MacOS users need to add `options(rgl.useNULL = TRUE)` to their scripts before loading `easyRasch`.
+- New function `RIu3poly()` since `PerFit::U3poly()` has inconsistent results. The new function runs 100 iterations of `PerFit::U3poly()` and returns the median proportion of flagged respondents.
+
 # easyRasch 0.4.2.2 (2025-12-19)
 
 - `RIdifTable()` and `RIdifTable2()` now both identify RM or PCM from data automatically and uses the correct model.

@@ -6431,7 +6431,6 @@ RIreliability <- function(data, conf_int = .95, draws = 1000,
 #' @param theta_range The range of possible theta values
 #' @export
 #'
-#'
 RIcrel <- function(data, draws = 500, n = 10, conf_level = 0.95, estim = "WLE",
                    theta_range = c(-6, 6)) {
 
@@ -6547,4 +6546,50 @@ RIcrel <- function(data, draws = 500, n = 10, conf_level = 0.95, estim = "WLE",
          labs(x = "WLE latent score and plausible values",
               subtitle = "WLE mean adjusted plausible values")
   )
+}
+
+
+#' Person fit with U3 for polytomous data
+#'
+#' This function will estimate person parameters with WLE and item parameters
+#' with CML and use these as input to the `PerFit::U3poly()` function. Since
+#' the results from `PerFit::U3poly()` are inconsistent, the same analysis is
+#' iterated 100 times, and the median proportion of flagged respondents
+#' is returned.
+#'
+#' @param data Dataframe with item responses
+#' @export
+#'
+RIu3poly <- function(data) {
+
+  # check data
+  if(min(as.matrix(data), na.rm = T) > 0) {
+    stop("The lowest response category needs to coded as 0. Please recode your data.")
+  } else if(nrow(na.omit(data)) == 0) {
+    stop("No complete cases in data.")
+  }
+
+  # CML estimation of item parameters
+  params <- RIitemparams(data, output = "dataframe") %>%
+    select(!Location) %>%
+    as.matrix()
+  # WL estimation of person parameters
+  thetas <- RIestThetas(data)$WLE
+
+  u3_prop <- function(x) {
+    cf <- U3poly(
+      matrix = x,
+      Ncat = max(as.matrix(x)) + 1, # make sure to input number of response categories, not thresholds
+      IRT.PModel = "PCM",
+      IP = params,
+      Ability = thetas
+    ) %>%
+      cutoff()
+
+    cf$Prop.flagged
+  }
+
+  u3_results <- map_vec(1:100, ~ u3_prop(data))
+  return(median(u3_results))
+
 }

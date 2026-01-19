@@ -21,6 +21,11 @@ Most functions have been developed for analysis of polytomous data (more than tw
 
 ## Installation
 
+**MacOS users NOTE: If you have MacOS Tahoe 26.1 or later, you may need to add the code below to your R script BEFORE loading easyRasch**
+```r 
+options(rgl.useNULL = TRUE)
+```
+
 First, install the [`pak`](https://pak.r-lib.org/) package:
 ```r
 install.packages('pak')

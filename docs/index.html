@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,12 +66,15 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>First, install the <a href="https://pak.r-lib.org/" class="external-link"><code>pak</code></a> package:</p>
+<p><strong>MacOS users NOTE: If you have MacOS Tahoe 26.1 or later, you may need to add the code below to your R script BEFORE loading easyRasch</strong></p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>rgl.useNULL <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>First, install the <a href="https://pak.r-lib.org/" class="external-link"><code>pak</code></a> package:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'pak'</span><span class="op">)</span></span></code></pre></div>
 <p>(If you have the <code>devtools</code> package installed, you can instead use <code>devtools::install_github("pgmj/easyRasch")</code>)</p>
 <p>Then install the package and its dependencies:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu">pkg_install</span><span class="op">(</span><span class="st">"pgmj/easyRasch"</span><span class="op">)</span></span></code></pre></div>
 <p>While not strictly necessary, it is highly recommended to install Quarto (and update your Rstudio and R installation if needed):</p>
 <ul>
@@ -81,7 +84,7 @@
 <div class="section level3">
 <h3 id="upgrading">Upgrading<a class="anchor" aria-label="anchor" href="#upgrading"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/detach.html" class="external-link">detach</a></span><span class="op">(</span><span class="st">"package:easyRasch"</span>, unload <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># not needed if you haven't loaded the package in your current session</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu">pkg_install</span><span class="op">(</span><span class="st">"pgmj/easyRasch"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -99,7 +102,7 @@
 <li>the <strong>second variable</strong> named <code>item</code>, containing either the questionnaire item or a description of it (or description of a task, etc)</li>
 </ul>
 <p>Sample code for four items:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">itemlabels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>itemnr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"q"</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span>,</span>
 <span>                         item <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Was the package easy to install?"</span>, </span>
 <span>                                  <span class="st">"Did you run in to any issues?"</span>, </span>
