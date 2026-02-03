@@ -4,7 +4,7 @@
 \alias{RIgetResidCor}
 \title{Get simulation based cutoff values for Yen's Q^3^ residual correlations}
 \usage{
-RIgetResidCor(data, iterations = 500, cpu = 4)
+RIgetResidCor(data, iterations = 500, cpu = 4, seed = 123)
 }
 \arguments{
 \item{data}{Dataframe with response data}
@@ -12,6 +12,8 @@ RIgetResidCor(data, iterations = 500, cpu = 4)
 \item{iterations}{Number of simulation iterations (needed)}
 
 \item{cpu}{Number of CPU cores to use (4 is default)}
+
+\item{seed}{For random number generation and reproducibility}
 }
 \description{
 Based on Christensen et al. (2017, DOI: 10.1177/0146621616677520),

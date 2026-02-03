@@ -1,3 +1,9 @@
+# easyRasch 0.4.3 (2026-02-03)
+
+- Changes in `RIgetfit()` and `RIgetResidCor()` to use of random number generation to be more in line with how it should be done.
+  - Added package `doRNG` to package imports/dependencies.
+- Changed DESCRIPTION file to list package dependencies under Imports, in line with package development guidelines.
+
 # easyRasch 0.4.2.3 (2026-01-13)
 
 - There is a fix for MacOS Tahoe 26.1 removing support for OpenGL, see <https://stackoverflow.com/questions/66011929/package-rgl-in-r-not-loading-in-mac-os/66127391>

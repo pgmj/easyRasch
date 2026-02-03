@@ -4,7 +4,7 @@
 \alias{RIgetfit}
 \title{Get simulation based cutoff values for item fit values}
 \usage{
-RIgetfit(data, iterations = 250, cpu = 4, na.omit = TRUE)
+RIgetfit(data, iterations = 250, cpu = 4, na.omit = TRUE, seed = 123)
 }
 \arguments{
 \item{data}{Dataframe with response data}
@@ -14,6 +14,8 @@ RIgetfit(data, iterations = 250, cpu = 4, na.omit = TRUE)
 \item{cpu}{Number of CPU cores to use}
 
 \item{na.omit}{Defaults to TRUE to produce conditional fit comparable values}
+
+\item{seed}{For random number generation and reproducibility}
 }
 \description{
 This function uses your response data to simulate datasets that fit the

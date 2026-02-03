@@ -3988,16 +3988,14 @@ RIdifThreshFigLR <- function(dfin, dif.var) {
 #' @param data Dataframe with response data
 #' @param iterations Number of simulation iterations (needed)
 #' @param cpu Number of CPU cores to use (4 is default)
+#' @param seed For random number generation and reproducibility
 #' @export
-RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
+RIgetResidCor <- function(data, iterations = 500, cpu = 4, seed = 123) {
 
+  # Use doRNG for proper reproducible parallel processing
+  # This ensures each worker gets independent random streams
   registerDoParallel(cores = cpu)
-
-  # get vector of random seeds for reproducible simulations
-  seeds <- c(.Random.seed, as.integer(.Random.seed + 1))
-  if (iterations > length(seeds)) {
-    stop(paste0("Maximum possible iterations is ",length(seeds),"."))
-  }
+  registerDoRNG(seed)  # Set a master seed for reproducibility
 
   # get sample size
   sample_n <- nrow(data)
@@ -4035,57 +4033,55 @@ RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
     residcor <- list()
     residcor <- foreach(i = 1:iterations) %dopar% {
 
-        # reproducible seed
-        set.seed(seeds[i])
-        # resampled vector of theta values (based on sample properties)
-        inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
+      # resampled vector of theta values (based on sample properties)
+      inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
-        # simulate response data based on thetas and items above
-        testData <- SimPartialScore(
-          deltaslist = itemlist,
-          thetavec = inputThetas
+      # simulate response data based on thetas and items above
+      testData <- SimPartialScore(
+        deltaslist = itemlist,
+        thetavec = inputThetas
+      ) %>%
+        as.data.frame()
+
+      names(testData) <- names(data)
+
+      # check that simulated dataset has responses in all categories
+      data_check <- testData %>%
+        # make factor to not drop any consequtive response categories with 0 responses
+        mutate(across(everything(), ~ factor(.x, levels = c(0:itemlength[[as.character(expression(.x))]])))) %>%
+        pivot_longer(everything()) %>% # screws up factor levels, which makes the next step necessary
+        dplyr::count(name, value, .drop = FALSE) %>%
+        pivot_wider(
+          names_from = "name",
+          values_from = "n"
         ) %>%
-          as.data.frame()
+        dplyr::select(!value) %>%
+        # mark missing cells with NA for later logical examination
+        mutate(across(everything(), ~ car::recode(.x, "0=NA", as.factor = FALSE))) %>%
+        as.data.frame() %>%
+        dplyr::select(all_of(names(data))) # get item sorting correct
 
-        names(testData) <- names(data)
-
-        # check that simulated dataset has responses in all categories
-        data_check <- testData %>%
-          # make factor to not drop any consequtive response categories with 0 responses
-          mutate(across(everything(), ~ factor(.x, levels = c(0:itemlength[[as.character(expression(.x))]])))) %>%
-          pivot_longer(everything()) %>% # screws up factor levels, which makes the next step necessary
-          dplyr::count(name, value, .drop = FALSE) %>%
-          pivot_wider(
-            names_from = "name",
-            values_from = "n"
-          ) %>%
-          dplyr::select(!value) %>%
-          # mark missing cells with NA for later logical examination
-          mutate(across(everything(), ~ car::recode(.x, "0=NA", as.factor = FALSE))) %>%
-          as.data.frame() %>%
-          dplyr::select(all_of(names(data))) # get item sorting correct
-
-        # match response data generated with itemlength
-        item_ccount <- list()
-        for (i in 1:n_items) {
-          item_ccount[i] <- list(data_check[c(1:itemlength[[i]]),i])
-        }
-
-        # check if any item has 0 responses in a response category that should have data
-        if (any(is.na(unlist(item_ccount)))) {
-          return("Missing cells in generated data.")
-        }
-
-        # create Yen's Q3 residual correlation matrix
-        mirt.rasch <- mirt(testData, model = 1, itemtype = "Rasch", verbose = FALSE, accelerate = 'squarem')
-        resid <- residuals(mirt.rasch, type = "Q3", digits = 2, verbose = FALSE)
-        diag(resid) <- NA
-
-        data.frame(mean = mean(resid, na.rm = TRUE),
-                   max = max(resid, na.rm = TRUE)
-        )
-
+      # match response data generated with itemlength
+      item_ccount <- list()
+      for (i in 1:n_items) {
+        item_ccount[i] <- list(data_check[c(1:itemlength[[i]]),i])
       }
+
+      # check if any item has 0 responses in a response category that should have data
+      if (any(is.na(unlist(item_ccount)))) {
+        return("Missing cells in generated data.")
+      }
+
+      # create Yen's Q3 residual correlation matrix
+      mirt.rasch <- mirt(testData, model = 1, itemtype = "Rasch", verbose = FALSE, accelerate = 'squarem')
+      resid <- residuals(mirt.rasch, type = "Q3", digits = 2, verbose = FALSE)
+      diag(resid) <- NA
+
+      data.frame(mean = mean(resid, na.rm = TRUE),
+                 max = max(resid, na.rm = TRUE)
+      )
+
+    }
 
   } else if(max(as.matrix(data), na.rm = T) == 1 && min(as.matrix(data), na.rm = T) == 0) {
     # estimate item threshold locations from data
@@ -4100,40 +4096,38 @@ RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
     residcor <- list()
     residcor <- foreach(i = 1:iterations) %dopar% {
 
-        # reproducible seed
-        set.seed(seeds[i])
-        # resample vector of theta values (based on sample properties)
-        inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
+      # resample vector of theta values (based on sample properties)
+      inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
-        # simulate response data based on thetas and items above
-        testData <-
-          psychotools::rrm(inputThetas, item_locations, return_setting = FALSE) %>%
-          as.data.frame()
+      # simulate response data based on thetas and items above
+      testData <-
+        psychotools::rrm(inputThetas, item_locations, return_setting = FALSE) %>%
+        as.data.frame()
 
-        # TEMPORARY FIX START
-        # check that all items have at least 8 positive responses, otherwise eRm::RM() fails
-        n_resp <-
-          testData %>%
-          as.matrix() %>%
-          colSums2() %>%
-          t() %>%
-          as.vector()
+      # TEMPORARY FIX START
+      # check that all items have at least 8 positive responses, otherwise eRm::RM() fails
+      n_resp <-
+        testData %>%
+        as.matrix() %>%
+        colSums2() %>%
+        t() %>%
+        as.vector()
 
-        if (min(n_resp, na.rm = TRUE) < 8) {
-          return("Missing cells in generated data.")
-        }
-        # END TEMP FIX
-
-        # create Yen's Q3 residual correlation matrix
-        mirt.rasch <- mirt(testData, model = 1, itemtype = "Rasch", verbose = FALSE, accelerate = 'squarem')
-        resid <- residuals(mirt.rasch, type = "Q3", digits = 2, verbose = FALSE)
-        diag(resid) <- NA
-
-        data.frame(mean = mean(resid, na.rm = TRUE),
-                   max = max(resid, na.rm = TRUE)
-        )
-
+      if (min(n_resp, na.rm = TRUE) < 8) {
+        return("Missing cells in generated data.")
       }
+      # END TEMP FIX
+
+      # create Yen's Q3 residual correlation matrix
+      mirt.rasch <- mirt(testData, model = 1, itemtype = "Rasch", verbose = FALSE, accelerate = 'squarem')
+      resid <- residuals(mirt.rasch, type = "Q3", digits = 2, verbose = FALSE)
+      diag(resid) <- NA
+
+      data.frame(mean = mean(resid, na.rm = TRUE),
+                 max = max(resid, na.rm = TRUE)
+      )
+
+    }
   }
 
   # identify datasets with inappropriate missingness
@@ -4169,6 +4163,7 @@ RIgetResidCor <- function(data, iterations = 500, cpu = 4) {
 
   return(out)
 }
+
 
 #' Get simulation based cutoff values for G^2^ local dependency test
 #'
@@ -4580,8 +4575,9 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
 #' @param iterations Number of simulation iterations (use 200-400)
 #' @param cpu Number of CPU cores to use
 #' @param na.omit Defaults to TRUE to produce conditional fit comparable values
+#' @param seed For random number generation and reproducibility
 #' @export
-RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
+RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE, seed = 123) {
   # since we want comparable values to conditional item fit, which only uses
   # complete cases, we remove any missing responses by default
   if (na.omit == TRUE) {
@@ -4589,13 +4585,10 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
   }
   sample_n <- nrow(data)
 
-  # get vector of random seeds for reproducible simulations
-  seeds <- c(.Random.seed, as.integer(.Random.seed + 1))
-  if (iterations > length(seeds)) {
-    stop(paste0("Maximum possible iterations is ",length(seeds),"."))
-  }
-
+  # Use doRNG for proper reproducible parallel processing
+  # This ensures each worker gets independent random streams
   registerDoParallel(cores = cpu)
+  registerDoRNG(seed)  # Set a master seed for reproducibility
 
   if (min(as.matrix(data), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
@@ -4614,10 +4607,9 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
     }
 
     fitstats <- list()
-    #registerDoRNG(seeds[17])
-    fitstats <- foreach(i = 1:iterations) %dopar% {
-      # reproducible seed
-      set.seed(seeds[i])
+
+    fitstats <- foreach(i = 1:iterations, .packages = c("eRm", "iarm", "psychotools", "dplyr", "tidyr")) %dopar% {
+
       # resampled vector of theta values (based on sample properties)
       inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
@@ -4678,9 +4670,9 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE) {
     thetas <- RIestThetasCATr(data, cpu = cpu)
 
     fitstats <- list()
-    fitstats <- foreach(i = 1:iterations) %dopar% {
-      # reproducible seed
-      set.seed(seeds[i])
+
+    fitstats <- foreach(i = 1:iterations, .packages = c("eRm", "iarm", "psychotools", "dplyr", "tidyr", "car")) %dopar% {
+
       # resampled vector of theta values (based on sample properties)
       inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
 
