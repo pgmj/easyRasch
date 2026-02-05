@@ -1,3 +1,9 @@
+# easyRasch 0.4.3.1 (2026-02-05)
+
+- Changed back DESCRIPTION (from previous change), since the Imports functionality requires some code rewriting that I don't have time to do right now.
+  - `iarm` is under Imports, to enable loading the `easyRasch` package without errors.
+- Changed the license to GPL-3, since I think this is required due to some of the code included.
+
 # easyRasch 0.4.3 (2026-02-03)
 
 - Changes in `RIgetfit()` and `RIgetResidCor()` to use of random number generation to be more in line with how it should be done.
