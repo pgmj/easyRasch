@@ -36,8 +36,7 @@ Depends:
     rsample,
     doRNG
 Imports:
-    iarm
-Suggests:
+    iarm,
     PerFit
 VignetteBuilder:
     quarto
