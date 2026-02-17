@@ -1,3 +1,11 @@
+# easyRasch 0.4.3.2 (2026-02-17)
+
+- Reset multicore/parallel processing to sequential processing before returning results from functions with multicore/parallel processing.
+  - Functions modified: `RIestThetasCATr`, `RIgetfit`, `RIbootRestscore`, `RIbootLRT`, `RIbootPCA`
+- Attempt to make an "invisible" workaround for the issues with iarm/rgl for MacOS users, which includes temporarily modifying `options(rgl.useNULL = TRUE)`
+  - Functions modified: `RIitemfit`, `RIgetfit`, `RIrestscore`, `RIpartgamLD`, `RIbootRestscore`, `RIinfitKfold`,
+    `RIrestscoreKfold`
+  
 # easyRasch 0.4.3.1 (2026-02-05)
 
 - Changed back DESCRIPTION (from previous change), since the Imports functionality requires some code rewriting that I don't have time to do right now.

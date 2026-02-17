@@ -4,7 +4,7 @@
 \alias{RIbootLRT}
 \title{Bootstrapped Likelihood Ratio Test}
 \usage{
-RIbootLRT(dat, iterations = 1000, samplesize = 500, cpu = 4)
+RIbootLRT(dat, iterations = 1000, samplesize = 300, cpu = 4)
 }
 \arguments{
 \item{dat}{A dataframe with response data}

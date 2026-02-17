@@ -3318,7 +3318,7 @@ RIestThetasCATr <- function(data, itemParams, method = "WL", cpu = 4,
     model <- "PCM"
   }
 
-  library(furrr)
+  library(furrr) # should probably not be loaded inside the package?
   plan(multisession, workers = cpu)
   # define function to call from purrr::map_dbl later.
   estTheta <- function(personResponse, itemParameters = itemParams, rmod = model,
@@ -3332,7 +3332,8 @@ RIestThetasCATr <- function(data, itemParams, method = "WL", cpu = 4,
     itemParams <- thresholds(erm_out)[[3]][[1]][, -1] - mean(thresholds(erm_out)[[3]][[1]][, -1], na.rm=T)
 
     # Transpose dataframe to make persons to columns, then output a vector with thetas
-    data %>%
+    estimated_thetas <-
+      data %>%
       t() %>%
       as.data.frame() %>%
       future_map_dbl(., estTheta)
@@ -3342,7 +3343,8 @@ RIestThetasCATr <- function(data, itemParams, method = "WL", cpu = 4,
     itemParams <- as.matrix(coef(df.erm, "beta")*-1)
 
     # Transpose dataframe to make persons to columns, then output a vector with thetas
-    data %>%
+    estimated_thetas <-
+      data %>%
       t() %>%
       as.data.frame() %>%
       future_map_dbl(., ~ estTheta(.x, rmod = NULL))
@@ -3350,18 +3352,23 @@ RIestThetasCATr <- function(data, itemParams, method = "WL", cpu = 4,
   } else if (!missing(itemParams) & model == "PCM") {
 
     # Transpose dataframe to make persons to columns, then output a vector with thetas
-    data %>%
+    estimated_thetas <-
+      data %>%
       t() %>%
       as.data.frame() %>%
       future_map_dbl(., estTheta)
 
   } else if (!missing(itemParams) & model == "RM") {
     # Transpose dataframe to make persons to columns, then output a vector with thetas
-    data %>%
+    estimated_thetas <-
+      data %>%
       t() %>%
       as.data.frame() %>%
       future_map_dbl(., ~ estTheta(.x, rmod = NULL))
   }
+  plan(sequential)
+  return(estimated_thetas)
+
 }
 
 
@@ -4421,6 +4428,8 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
     relative_item_avg_locations <- item_avg_locations - person_avg_locations
   }
 
+  options(rgl.useNULL = TRUE) # temp MacOS fix for iarm dependency vcdExtra->rgl
+
   # get conditional MSQ
   cfit <- iarm::out_infit(erm_out)
   # get count of complete cases
@@ -4487,6 +4496,8 @@ RIitemfit <- function(data, simcut, output = "table", sort = "items", cutoff = c
       mutate(`Infit diff` = ifelse(yes = "no misfit", no = `Infit diff`, InfitMSQ > min_infit_msq & InfitMSQ < max_infit_msq)) %>%
       dplyr::select(!contains(c("lo","hi","min","max"))) %>%
       add_column(`Relative location` = round(relative_item_avg_locations,2))
+
+    options(rgl.useNULL = FALSE) # reset temp fix iarm
 
     if (output == "table" & sort == "items") {
       # set conditional highlighting based on cutoffs
@@ -4584,6 +4595,7 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE, seed = 123
     data <- na.omit(data)
   }
   sample_n <- nrow(data)
+  options(rgl.useNULL = TRUE) # temp MacOS fix for iarm dependency vcdExtra->rgl
 
   # Use doRNG for proper reproducible parallel processing
   # This ensures each worker gets independent random streams
@@ -4608,7 +4620,7 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE, seed = 123
 
     fitstats <- list()
 
-    fitstats <- foreach(i = 1:iterations, .packages = c("eRm", "iarm", "psychotools", "dplyr", "tidyr")) %dopar% {
+    fitstats <- foreach(i = 1:iterations) %dopar% { # .packages = c("eRm", "iarm", "psychotools", "dplyr", "tidyr")
 
       # resampled vector of theta values (based on sample properties)
       inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
@@ -4671,7 +4683,7 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE, seed = 123
 
     fitstats <- list()
 
-    fitstats <- foreach(i = 1:iterations, .packages = c("eRm", "iarm", "psychotools", "dplyr", "tidyr", "car")) %dopar% {
+    fitstats <- foreach(i = 1:iterations) %dopar% { # , .packages = c("eRm", "iarm", "psychotools", "dplyr", "tidyr", "car")
 
       # resampled vector of theta values (based on sample properties)
       inputThetas <- sample(thetas, size = sample_n, replace = TRUE)
@@ -4729,6 +4741,8 @@ RIgetfit <- function(data, iterations = 250, cpu = 4, na.omit = TRUE, seed = 123
   fitstats$sample_n <- sample_n
   fitstats$sample_summary <- summary(thetas)
 
+  stopImplicitCluster() # reset multicore
+  options(rgl.useNULL = FALSE) # reset rgl workaround
   return(fitstats)
 }
 
@@ -5079,7 +5093,9 @@ RIrestscore <- function(data, output = "table", sort, p.adj = "BH") {
     relative_item_avg_locations <- item_avg_locations - person_avg_locations
   }
 
-  i1 <- item_restscore(erm_out, p.adj = p.adj)
+  options(rgl.useNULL = TRUE) # temp MacOS fix for iarm dependency vcdExtra->rgl
+
+  i1 <- iarm::item_restscore(erm_out, p.adj = p.adj)
   i1 <- as.data.frame(i1)
 
   i2 <- data.frame("Observed" = as.numeric(i1[[1]][1:ncol(data),1]) %>% round(2),
@@ -5097,6 +5113,8 @@ RIrestscore <- function(data, output = "table", sort, p.adj = "BH") {
                   `Model expected value` = Expected) %>%
     add_column(Location = round(item_avg_locations,2),
                `Relative location` = round(relative_item_avg_locations,2))
+
+  options(rgl.useNULL = FALSE) # temp MacOS fix for iarm dependency vcdExtra->rgl
 
   if (output == "table" & missing(sort)) {
     kbl_rise(i2)
@@ -5134,6 +5152,8 @@ RIpartgamLD <- function(data, output = "table") {
     stop("No complete cases in data.")
   }
 
+  options(rgl.useNULL = TRUE) # temp MacOS fix for iarm dependency vcdExtra->rgl
+
   sink(nullfile()) # suppress output from the rows below
   ld <- iarm::partgam_LD(as.data.frame(data))
   sink() # disable suppress output
@@ -5145,6 +5165,7 @@ RIpartgamLD <- function(data, output = "table") {
     dplyr::filter(str_detect(sig,"\\*"))
 
   if (nrow(test) == 0) {
+    options(rgl.useNULL = FALSE) # temp MacOS fix for iarm dependency vcdExtra->rgl
     return("No statistically significant local dependency found.")
   }
 
@@ -5157,6 +5178,8 @@ RIpartgamLD <- function(data, output = "table") {
     dplyr::select(!c(pvalue,sig)) %>%
     relocate(padj_bh, .after = "upper") %>%
     filter(gamma > 0)
+
+  options(rgl.useNULL = FALSE) # temp MacOS fix for iarm dependency vcdExtra->rgl
 
   if (output == "table") {
     ld2 %>%
@@ -5206,6 +5229,8 @@ RIpartgamDIF <- function(data, dif.var, output = "table") {
     stop("No complete cases in data.")
   }
 
+  options(rgl.useNULL = TRUE) # temp MacOS fix for iarm dependency vcdExtra->rgl
+
   sink(nullfile()) # suppress output from the rows below
   ld <- iarm::partgam_DIF(as.data.frame(data), dif.var)
   sink() # disable suppress output
@@ -5217,6 +5242,7 @@ RIpartgamDIF <- function(data, dif.var, output = "table") {
     dplyr::filter(str_detect(sig,"\\*"))
 
   if (nrow(test) == 0) {
+    options(rgl.useNULL = FALSE) # temp MacOS fix for iarm dependency vcdExtra->rgl
     return("No statistically significant DIF found.")
   }
 
@@ -5228,6 +5254,8 @@ RIpartgamDIF <- function(data, dif.var, output = "table") {
     arrange(desc(abs(gamma))) %>%
     dplyr::select(!c(pvalue,sig,var)) %>%
     relocate(padj_bh, .after = "upper")
+
+  options(rgl.useNULL = FALSE) # temp MacOS fix for iarm dependency vcdExtra->rgl
 
   if (output == "table") {
     ld2 %>%
@@ -5284,6 +5312,7 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
                             output = "table", cutoff = 5) {
 
   n_items <- ncol(dat)
+  options(rgl.useNULL = TRUE) # temp MacOS fix for iarm dependency vcdExtra->rgl
 
   # get vector of random seeds for reproducible simulations
   seeds <- c(.Random.seed, as.integer(.Random.seed + 1))
@@ -5340,7 +5369,7 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
     } else if (model == "RM") {
       erm_out <- eRm::RM(data, se = FALSE)
     }
-    i1 <- item_restscore(erm_out)
+    i1 <- iarm::item_restscore(erm_out)
     i1 <- as.data.frame(i1)
 
     i1d <- data.frame("observed" = as.numeric(i1[[1]][1:ncol(data),1]),
@@ -5373,10 +5402,14 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
     pull(percent)
 
   if (isTRUE(test < cutoff)) {
+    stopImplicitCluster()
+    options(rgl.useNULL = FALSE) # temp MacOS fix for iarm dependency vcdExtra->rgl
     message(paste0("No item indicates misfit in more than ",cutoff,"% of iterations."))
   }
 
   if (output == "table") {
+    stopImplicitCluster()
+    options(rgl.useNULL = FALSE) # temp MacOS fix for iarm dependency vcdExtra->rgl
     fit_tbl %>%
       left_join(itemlocs, by = "item") %>%
       filter(!item_restscore == "no misfit",
@@ -5392,9 +5425,14 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
                                 n_complete,")."))
 
   } else if (output == "dataframe") {
+    stopImplicitCluster()
+    options(rgl.useNULL = FALSE) # temp MacOS fix for iarm dependency vcdExtra->rgl
     return(fit_tbl)
 
   } else if (output == "quarto") {
+    stopImplicitCluster()
+    options(rgl.useNULL = FALSE) # temp MacOS fix for iarm dependency vcdExtra->rgl
+
     fit_tbl %>%
       left_join(itemlocs, by = "item") %>%
       filter(!item_restscore == "no misfit",
@@ -5418,7 +5456,7 @@ RIbootRestscore <- function(dat, iterations = 200, samplesize = 600, cpu = 4,
 #' @param samplesize How large sample to use in each bootstrap
 #' @param cpu How many CPU's to use
 #' @export
-RIbootLRT <- function(dat, iterations = 1000, samplesize = 500, cpu = 4) {
+RIbootLRT <- function(dat, iterations = 1000, samplesize = 300, cpu = 4) {
 
   if(min(as.matrix(dat), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
@@ -5436,6 +5474,7 @@ RIbootLRT <- function(dat, iterations = 1000, samplesize = 500, cpu = 4) {
   # get vector of random seeds for reproducible simulations
   seeds <- c(.Random.seed, as.integer(.Random.seed + 1), as.integer(.Random.seed + 2))
   if (iterations > length(seeds)) {
+    stopImplicitCluster()
     stop(paste0("Maximum possible iterations is ",length(seeds),"."))
   }
 
@@ -5447,22 +5486,25 @@ RIbootLRT <- function(dat, iterations = 1000, samplesize = 500, cpu = 4) {
     data <- dat[sample(1:nrow(dat), samplesize, replace = TRUE), ]
 
     if (model == "PCM") {
-      lrt_out <- clr_tests(data, model = "PCM")[3]
+      lrt_out <- iarm::clr_tests(data, model = "PCM")[3]
     } else if (model == "RM") {
-      lrt_out <- clr_tests(data, model = "RM")[3]
+      lrt_out <- iarm::clr_tests(data, model = "RM")[3]
     }
 
     as.numeric(lrt_out)
 
   }
 
-  fit %>%
+  stopImplicitCluster()
+  out <- fit %>%
     as.data.frame() %>%
     set_names("pvalue") %>%
     mutate(Result = ifelse(pvalue < .05, "Statistically significant", "Not statistically significant")) %>%
     dplyr::count(Result) %>%
     mutate(Percent = round(n*100/sum(n),1)) %>%
     knitr::kable()
+
+  return(out)
 }
 
 #' Item response distribution figure
@@ -5624,14 +5666,11 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4, rotation = "oblimin",
   sample_n <- nrow(data)
   items_n <- ncol(data)
 
-  registerDoParallel(cores = cpu)
-
   # get vector of random seeds for reproducible simulations
   seeds <- c(.Random.seed, as.integer(.Random.seed + 1))
   if (iterations > length(seeds)) {
     stop(paste0("Maximum possible iterations is ",length(seeds),"."))
   }
-
 
   if (min(as.matrix(data), na.rm = T) > 0) {
     stop("The lowest response category needs to coded as 0. Please recode your data.")
@@ -5649,6 +5688,7 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4, rotation = "oblimin",
       thetas <- mirt::fscores(mirt_out, method = "WLE", verbose = FALSE)
     }
 
+    registerDoParallel(cores = cpu)
     fitstats <- list()
     fitstats <- foreach(i = 1:iterations) %dopar% {
       # reproducible seed
@@ -5812,7 +5852,7 @@ RIbootPCA <- function(data, iterations = 200, cpu = 4, rotation = "oblimin",
                 p995 = quantile(df_fitstats$eigenvalue, .995),
                 p999 = quantile(df_fitstats$eigenvalue, .999),
                 max = max(df_fitstats$eigenvalue))
-
+  stopImplicitCluster()
   return(stats)
 }
 
@@ -5851,8 +5891,10 @@ RIinfitKfold <- function(data, k = 5, output = "raw", sim_iter = 100,
     rmodel = "PCM"
   }
 
-  require(rsample) # install package if necessary
-  datafold <- vfold_cv(data, v = k)
+  options(rgl.useNULL = TRUE) # temp MacOS fix for iarm dependency vcdExtra->rgl
+
+  #require(rsample) # install package if necessary
+  datafold <- rsample::vfold_cv(data, v = k)
   samplesize <- nrow(data) - round(nrow(data) / k, 0)
 
   if (rmodel == "PCM") {
@@ -5931,8 +5973,13 @@ RIinfitKfold <- function(data, k = 5, output = "raw", sim_iter = 100,
     relocate(sim_min_infit_msq, .after = "Item")
 
   if (output == "dataframe") {
+    stopImplicitCluster()
+    options(rgl.useNULL = FALSE) # temp MacOS fix for iarm dependency vcdExtra->rgl
+
     return(tbl)
   } else if (output == "raw") {
+    stopImplicitCluster()
+    options(rgl.useNULL = FALSE) # temp MacOS fix for iarm dependency vcdExtra->rgl
 
     list(table = tbl,
          results = infit_folds,
@@ -5940,6 +5987,9 @@ RIinfitKfold <- function(data, k = 5, output = "raw", sim_iter = 100,
          simcut = simcut2)
 
   } else if (output == "table") {
+    stopImplicitCluster()
+    options(rgl.useNULL = FALSE) # temp MacOS fix for iarm dependency vcdExtra->rgl
+
     tbl %>%
       dplyr::rename(`Lower cutoff` = sim_min_infit_msq,
                     `Upper cutoff` = sim_max_infit_msq,
@@ -6089,8 +6139,9 @@ RIrestscoreKfold <- function(data, k = 5, output = "table") {
     rmodel = "PCM"
   }
 
-  require(rsample) # install package if necessary
-  datafold <- vfold_cv(data, v = k)
+  options(rgl.useNULL = TRUE)
+  #require(rsample) # install package if necessary
+  datafold <- rsample::vfold_cv(data, v = k)
   samplesize <- nrow(data) - round(nrow(data) / k, 0)
 
   if (rmodel == "PCM") {
@@ -6099,7 +6150,7 @@ RIrestscoreKfold <- function(data, k = 5, output = "table") {
       function(x) {
 
         i1 <- PCM(analysis(datafold$splits[[x]]), se = FALSE) %>%
-          item_restscore() %>%
+          iarm::item_restscore() %>%
           as.data.frame()
 
         i1d <- data.frame("observed" = as.numeric(i1[[1]][1:ncol(data),1]),
@@ -6115,7 +6166,7 @@ RIrestscoreKfold <- function(data, k = 5, output = "table") {
       1:k,
       function(x) {
         i1 <- RM(analysis(datafold$splits[[x]]), se = FALSE) %>%
-          item_restscore() %>%
+          iarm::item_restscore() %>%
           as.data.frame()
 
         i1d <- data.frame("observed" = as.numeric(i1[[1]][1:ncol(data),1]),
@@ -6140,9 +6191,11 @@ RIrestscoreKfold <- function(data, k = 5, output = "table") {
   #   left_join(itemlabels, by = join_by("Item" == "itemnr"))
 
   if (output == "dataframe") {
+    options(rgl.useNULL = FALSE)
     return(tbl)
 
   } else if (output == "table") {
+    options(rgl.useNULL = FALSE)
     tbl %>%
       dplyr::rename(`Item-restscore\nresult` = item_restscore) %>%
       kbl_rise() %>%
@@ -6569,14 +6622,14 @@ RIu3poly <- function(data) {
   thetas <- RIestThetas(data)$WLE
 
   u3_prop <- function(x) {
-    cf <- U3poly(
+    cf <- PerFit::U3poly(
       matrix = x,
       Ncat = max(as.matrix(x)) + 1, # make sure to input number of response categories, not thresholds
       IRT.PModel = "PCM",
       IP = params,
       Ability = thetas
     ) %>%
-      cutoff()
+      PerFit::cutoff()
 
     cf$Prop.flagged
   }

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,17 @@
       <small>Source: <a href="https://github.com/pgmj/easyRasch/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.3.2" id="easyrasch-0432-2026-02-17">easyRasch 0.4.3.2 (2026-02-17)<a class="anchor" aria-label="anchor" href="#easyrasch-0432-2026-02-17"></a></h2>
+<ul><li>Reset multicore/parallel processing to sequential processing before returning results from functions with multicore/parallel processing.
+<ul><li>Functions modified: <code>RIestThetasCATr</code>, <code>RIgetfit</code>, <code>RIbootRestscore</code>, <code>RIbootLRT</code>, <code>RIbootPCA</code>
+</li>
+</ul></li>
+<li>Attempt to make an “invisible” workaround for the issues with iarm/rgl for MacOS users, which includes temporarily modifying <code>options(rgl.useNULL = TRUE)</code>
+<ul><li>Functions modified: <code>RIitemfit</code>, <code>RIgetfit</code>, <code>RIrestscore</code>, <code>RIpartgamLD</code>, <code>RIbootRestscore</code>, <code>RIinfitKfold</code>, <code>RIrestscoreKfold</code>
+</li>
+</ul></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.3.1" id="easyrasch-0431-2026-02-05">easyRasch 0.4.3.1 (2026-02-05)<a class="anchor" aria-label="anchor" href="#easyrasch-0431-2026-02-05"></a></h2>
 <ul><li>Changed back DESCRIPTION (from previous change), since the Imports functionality requires some code rewriting that I don’t have time to do right now.
