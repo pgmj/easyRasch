@@ -1,0 +1,92 @@
+# Reliability Representativeness of Coefficient Alpha or Omega
+
+`easyRasch` NOTE: This function is borrowed from
+<https://github.com/melissagwolf/dynamic/blob/master/R/RelRep.R>,
+commit:
+<https://github.com/melissagwolf/dynamic/commit/d31d103ece10d3c62f87fe413e5a1253b81e1286>.
+See the paper by McNeish & Dumas (2025), full reference below, for
+details.
+
+This function evaluates how well a reliability summary index like alpha
+or omega represents the conditional reliability of a distribution of
+composite scores. It compares the conditional reliability function to a
+summary index and outputs a representativeness plot, a table of
+representativeness indices,and the full conditional reliability table
+for each possible sum score.
+
+Authors of this function: Daniel McNeish & Denis Dumas
+
+## Usage
+
+``` r
+RIrelRep(
+  data,
+  items = c(names(data)),
+  rel = "alpha",
+  missing = "NA",
+  method = "CI",
+  width = NULL,
+  raw.low = NULL,
+  raw.high = NULL
+)
+```
+
+## Arguments
+
+- data:
+
+  The original data to which the model was applied.
+
+- items:
+
+  Column names of the items on the scale being evaluated (entered as
+  strings). If omitted, all variables in the data will be used.
+
+- rel:
+
+  Reliability coefficient to analyze. Options are "alpha" (the default)
+  or "omega".
+
+- missing:
+
+  The missing data indicator in the data. Not needed in R, only present
+  to simply use of this function in a Shiny application.
+
+- method:
+
+  how the test interval is created. Options are "CI" (the default),
+  "width", or "raw". "CI" uses a 95% Bayesian highest posterior density
+  credible interval. "width" builds an interval using a predetermined
+  relative distance from the reliability coefficient (e.g., .05 from
+  alpha). "raw" builds an interval using a predetermined raw values
+  (e.g., .70 to .90)
+
+- width:
+
+  Only required if method="width". Specifies a predetermined relative
+  distance from the coefficient to each bound of the interval. The total
+  width of the interval will be twice this value (e.g., if .05 is
+  entered, the total interval width is .10 because it will span .05
+  above the coefficient and .05 below the coefficient)
+
+- raw.low:
+
+  Only required if method="raw". Manually specifies the lower bound of
+  the test interval. Must be between 0 and 1.
+
+- raw.high:
+
+  Only required if method="raw". Manually specifies the upper bound of
+  the test interval. Must be between 0 and 1.
+
+## Value
+
+Conditional reliability table and Reliability Representativeness plot
+and table.
+
+## References
+
+McNeish, D., & Dumas, D. (2025). Reliability representativeness: How
+well does coefficient alpha summarize reliability across the score
+distribution? Behavior Research Methods, 57(3), 93.
+[doi:10.3758/s13428-025-02611-8](https://doi.org/10.3758/s13428-025-02611-8)

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,19 @@
       <small>Source: <a href="https://github.com/pgmj/easyRasch/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5" id="easyrasch-05-2026-02-26">easyRasch 0.5 (2026-02-26)<a class="anchor" aria-label="anchor" href="#easyrasch-05-2026-02-26"></a></h2>
+<ul><li>Added two functions for assessing item (and person) fit with Bayesian Rasch models (RM and PCM) output by the R package <code>brms</code>.
+<ul><li>
+<code><a href="../reference/fit_statistic_pcm.html">fit_statistic_pcm()</a></code> and <code><a href="../reference/fit_statistic_rm.html">fit_statistic_rm()</a></code>.</li>
+<li>Code based on <a href="http://doi.org/10.3390/jintelligence8010005" class="external-link">Bürkner, 2020</a>.</li>
+</ul></li>
+<li>
+<code><a href="../reference/infit_statistic.html">infit_statistic()</a></code> is a Bayesian version of conditional item infit for <code>brms</code> models.</li>
+<li>
+<code><a href="../reference/q3_statistic.html">q3_statistic()</a></code> is a Bayesian version of Yen’s Q3 residual correlations to evaluate local independence of item pairs for <code>brms</code> models.</li>
+<li>All new functions for this release are written with Claude Opus 4.6</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.3.2" id="easyrasch-0432-2026-02-17">easyRasch 0.4.3.2 (2026-02-17)<a class="anchor" aria-label="anchor" href="#easyrasch-0432-2026-02-17"></a></h2>
 <ul><li>Reset multicore/parallel processing to sequential processing before returning results from functions with multicore/parallel processing.

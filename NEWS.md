@@ -1,3 +1,12 @@
+# easyRasch 0.5 (2026-02-26)
+
+- Added two functions for assessing item (and person) fit with Bayesian Rasch models (RM and PCM) output by the R package `brms`.
+  - `fit_statistic_pcm()` and `fit_statistic_rm()`.
+  - Code based on [Bürkner, 2020](http://doi.org/10.3390/jintelligence8010005).
+- `infit_statistic()` is a Bayesian version of conditional item infit for `brms` models.
+- `q3_statistic()` is a Bayesian version of Yen's Q3 residual correlations to evaluate local independence of item pairs for `brms` models.
+- All new functions for this release are written with Claude Opus 4.6
+
 # easyRasch 0.4.3.2 (2026-02-17)
 
 - Reset multicore/parallel processing to sequential processing before returning results from functions with multicore/parallel processing.
