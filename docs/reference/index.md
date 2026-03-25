@@ -251,22 +251,8 @@
 - [`SimPolyItem()`](https://pgmj.github.io/easyRasch/reference/SimPolyItem.md)
   : Simulate polytomous Rasch model data for a single item
 
-- [`fit_statistic_pcm()`](https://pgmj.github.io/easyRasch/reference/fit_statistic_pcm.md)
-  : Posterior Predictive Item Fit Statistic for Bayesian IRT Models
-
-- [`fit_statistic_rm()`](https://pgmj.github.io/easyRasch/reference/fit_statistic_rm.md)
-  : Posterior Predictive Item Fit Statistic for Binary Bayesian IRT
-  Models
-
-- [`infit_statistic()`](https://pgmj.github.io/easyRasch/reference/infit_statistic.md)
-  : Posterior Predictive Infit Statistic for Bayesian IRT Models
-
 - [`kbl_rise()`](https://pgmj.github.io/easyRasch/reference/kbl_rise.md)
   : A kableExtra function to simplify table creation
-
-- [`q3_statistic()`](https://pgmj.github.io/easyRasch/reference/q3_statistic.md)
-  : Posterior Predictive Q3 Residual Correlations for Bayesian IRT
-  Models
 
 - [`theme_rise()`](https://pgmj.github.io/easyRasch/reference/theme_rise.md)
   : A simple ggplot theme for RISE formatting

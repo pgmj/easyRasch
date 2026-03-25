@@ -21,5 +21,6 @@ RIdifFigThresh(dfin, dif.var)
 ## Details
 
 NOTE: only works with PCM data where all variables have multiple
-thresholds, since the `threshpar()` function has problems when
-dichotomous data are included.
+thresholds, since the
+[`threshpar()`](https://rdrr.io/pkg/psychotools/man/threshpar.html)
+function has problems when dichotomous data are included.

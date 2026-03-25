@@ -351,7 +351,7 @@ RI_iarm_ICCplot <- function(data, itemnumber, pallete='Paired', xticks=1.0, ytic
     cend <- as.data.frame(cend)
     names(cend) <- c("score", "theta", "type", "ttsc")
     if ((maxr-minr)>1) {
-      ppar <- person_estimates(pcmo)
+      ppar <- RI_iarm_person_estimates(pcmo)
       psav <- ppar
       ppar <- ppar[2:(nrow(ppar)-1),3]
     } else {

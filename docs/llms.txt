@@ -22,6 +22,11 @@ provides easy creation of tables and figures with functions that have
 few options. The package has been tested on MacOS and Windows with R 4.1
 to 4.4.
 
+I have also created a package for Bayesian Rasch models, based on the
+[`brms`](https://paulbuerkner.com/brms/) package. You can find
+[`easyRaschBayes`](https://pgmj.github.io/easyRaschBayes/index.html) on
+[CRAN](https://cloud.r-project.org/web/packages/easyRaschBayes/index.html).
+
 **NOTE: this package was formerly known as `RISEkbmRasch`. The old
 GitHub page with code and commit history for `RISEkbmRasch` will remain
 available as a public archive in read-only state.**
@@ -47,7 +52,8 @@ robust under various conditions and enables “person-free assessment”.
 ## Installation
 
 **MacOS users NOTE: If you have MacOS Tahoe 26.1 or later, you may need
-to add the code below to your R script BEFORE loading easyRasch**
+to add the code below to your R script BEFORE loading the `iarm`
+package**
 
 ``` r
 options(rgl.useNULL = TRUE)
@@ -82,6 +88,15 @@ pak::pkg_install("pgmj/easyRasch")
 ```
 
 ## Using the package
+
+Load the package:
+
+``` r
+library(easyRasch)
+# if you have a modern Mac, running MacOS 26.1 or later, you need this next line
+options(rgl.useNULL = TRUE) # if you don't use MacOS, this line is not necessary
+library(iarm)
+```
 
 Most functions in this package are relatively simple wrappers that
 create outputs such as tables and figures to make the Rasch analysis
@@ -453,22 +468,8 @@ Department of Clinical Neuroscience, Center for Psychiatry Research.
 - [`SimPolyItem()`](https://pgmj.github.io/easyRasch/reference/SimPolyItem.md)
   : Simulate polytomous Rasch model data for a single item
 
-- [`fit_statistic_pcm()`](https://pgmj.github.io/easyRasch/reference/fit_statistic_pcm.md)
-  : Posterior Predictive Item Fit Statistic for Bayesian IRT Models
-
-- [`fit_statistic_rm()`](https://pgmj.github.io/easyRasch/reference/fit_statistic_rm.md)
-  : Posterior Predictive Item Fit Statistic for Binary Bayesian IRT
-  Models
-
-- [`infit_statistic()`](https://pgmj.github.io/easyRasch/reference/infit_statistic.md)
-  : Posterior Predictive Infit Statistic for Bayesian IRT Models
-
 - [`kbl_rise()`](https://pgmj.github.io/easyRasch/reference/kbl_rise.md)
   : A kableExtra function to simplify table creation
-
-- [`q3_statistic()`](https://pgmj.github.io/easyRasch/reference/q3_statistic.md)
-  : Posterior Predictive Q3 Residual Correlations for Bayesian IRT
-  Models
 
 - [`theme_rise()`](https://pgmj.github.io/easyRasch/reference/theme_rise.md)
   : A simple ggplot theme for RISE formatting

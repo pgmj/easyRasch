@@ -1,7 +1,8 @@
 # DIF PCM analysis with panel figure output for item thresholds
 
-Makes use of the eRm package function `LRtest()`. Outputs a panel of
-figures with item threshold locations and 95% confidence intervals.
+Makes use of the eRm package function
+[`LRtest()`](https://rdrr.io/pkg/eRm/man/LRtest.html). Outputs a panel
+of figures with item threshold locations and 95% confidence intervals.
 
 ## Usage
 

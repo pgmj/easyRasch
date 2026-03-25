@@ -1,5 +1,9 @@
 # easyRasch: Rasch analysis in R 
 
+<!-- badges: start -->
+<a href="https://www.buymeacoffee.com/pgmj" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+<!-- badges: end -->
+
 R package for Rasch Measurement Theory psychometrics, intended for use with [Quarto](https://quarto.org) for documentation and presentation of analysis process and results. 
 
 This package largely functions as a wrapper for other R packages for the Rasch analyses, 
@@ -11,6 +15,11 @@ If you use `easyRasch` for a publication, please also cite these packages. You c
 
 The package is intended to simplify the Rasch analysis process and provides easy creation of tables and figures with functions that have few options. The package has been tested on MacOS and Windows with R 4.1 to 4.4.
 
+I have also created a package for Bayesian Rasch models, based on the 
+[`brms`](https://paulbuerkner.com/brms/) package.
+You can find [`easyRaschBayes`](https://pgmj.github.io/easyRaschBayes/index.html) on 
+[CRAN](https://cloud.r-project.org/web/packages/easyRaschBayes/index.html).
+
 **NOTE: this package was formerly known as `RISEkbmRasch`. The old GitHub page with code and commit history for `RISEkbmRasch` will remain available as a public archive in read-only state.**
 
 Please regularly check the [Changelog](https://pgmj.github.io/easyRasch/news/index.html) for notes on updates.
@@ -21,10 +30,12 @@ Most functions have been developed for analysis of polytomous data (more than tw
 
 ## Installation
 
-**MacOS users NOTE: If you have MacOS Tahoe 26.1 or later, you may need to add the code below to your R script BEFORE loading easyRasch**
+**MacOS users NOTE: If you have MacOS Tahoe 26.1 or later, you may need to add the code below to your R script BEFORE loading the `iarm` package**
 ```r 
 options(rgl.useNULL = TRUE)
 ```
+
+Updating the package `vcdExtra` (which is a dependency of `iarm`) to version 0.9.3 seems to resolve this issue.
 
 First, install the [`pak`](https://pak.r-lib.org/) package:
 ```r
@@ -50,6 +61,15 @@ pak::pkg_install("pgmj/easyRasch")
 ```
 
 ## Using the package
+
+Load the package:
+
+``` r
+library(easyRasch)
+# if you have a modern Mac, running MacOS 26.1 or later, you need this next line
+options(rgl.useNULL = TRUE) # if you don't use MacOS, this line is not necessary
+library(iarm)
+```
 
 Most functions in this package are relatively simple wrappers that create outputs such as tables and figures to make the Rasch analysis process quick and visual. The primary introduction to using the package is the [vignette](https://pgmj.github.io/raschrvignette/RaschRvign.html).
 

@@ -29,10 +29,10 @@ RIestThetasOLD(data, itemParams, method = "WL", theta_range = c(-10, 10))
 
 ## Details
 
-Uses `thetaEst()` function from `catR` package to estimate person
-locations (thetas) for a dataframe with item data as columns and persons
-as rows. Defaults to use WL estimation (lower bias than ML, see Warm,
-1989).
+Uses [`thetaEst()`](https://rdrr.io/pkg/catR/man/thetaEst.html) function
+from `catR` package to estimate person locations (thetas) for a
+dataframe with item data as columns and persons as rows. Defaults to use
+WL estimation (lower bias than ML, see Warm, 1989).
 
 A version for multi-core processing is available as
 [`RIestThetasCATr()`](https://pgmj.github.io/easyRasch/reference/RIestThetasCATr.md).

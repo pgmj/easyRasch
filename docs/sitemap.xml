@@ -7,6 +7,7 @@
 <url><loc>https://pgmj.github.io/easyRasch/authors.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/index.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/news/index.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/reference/RI_iarm_ICCplot.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RI_iarm_person_estimates.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RI_iarm_persons_mle.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIallresp.html</loc></url>
@@ -20,6 +21,7 @@
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIcheckdata.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIciccPlot.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIcolorlistitems.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/reference/RIcrel.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIdemographics.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIdifFigThresh.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RIdifFigTime.html</loc></url>
@@ -75,12 +77,17 @@
 <url><loc>https://pgmj.github.io/easyRasch/reference/RItargeting.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RItif.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RItileplot.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/reference/RIu3poly.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RMUreliability.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/RelRep.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/SimPartialScore.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/SimPolyItem.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/reference/fit_statistic_pcm.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/reference/fit_statistic_rm.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/index.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/reference/infit_statistic.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/kbl_rise.html</loc></url>
+<url><loc>https://pgmj.github.io/easyRasch/reference/q3_statistic.html</loc></url>
 <url><loc>https://pgmj.github.io/easyRasch/reference/theme_rise.html</loc></url>
 </urlset>
 

@@ -1,3 +1,10 @@
+# easyRasch 0.5.1 (2026-03-25)
+
+- Bayesian/`brms`-related functions added in previous version are removed and now 
+reside in a new separate package, [`easyRaschBayes`](https://pgmj.github.io/easyRaschBayes/index.html), which is 
+available on CRAN: <https://cloud.r-project.org/web/packages/easyRaschBayes/index.html>
+- Minor fix for `RIciccplot()` that would surface if package `iarm` was not loaded.
+
 # easyRasch 0.5 (2026-02-26)
 
 - Added two functions for assessing item (and person) fit with Bayesian Rasch models (RM and PCM) output by the R package `brms`.

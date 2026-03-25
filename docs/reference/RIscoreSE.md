@@ -51,5 +51,6 @@ Automatically chooses PCM or RM depending on data structure.
 
 Optional figure or dataframe output.
 
-NOTE: the figure uses `coord_flip()`, take this into account if you wish
-to add theming.
+NOTE: the figure uses
+[`coord_flip()`](https://ggplot2.tidyverse.org/reference/coord_flip.html),
+take this into account if you wish to add theming.

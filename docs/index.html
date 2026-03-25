@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">easyRasch</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,10 +55,13 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="easyrasch-rasch-analysis-in-r">easyRasch: Rasch analysis in R<a class="anchor" aria-label="anchor" href="#easyrasch-rasch-analysis-in-r"></a>
 </h1></div>
+<!-- badges: start -->
+
 <p>R package for Rasch Measurement Theory psychometrics, intended for use with <a href="https://quarto.org" class="external-link">Quarto</a> for documentation and presentation of analysis process and results.</p>
 <p>This package largely functions as a wrapper for other R packages for the Rasch analyses, primarily <a href="https://cran.r-project.org/web/packages/eRm/" class="external-link">eRm</a>, <a href="https://cran.r-project.org/web/packages/mirt/" class="external-link">mirt</a>, <a href="https://cran.r-project.org/web/packages/psychotree/" class="external-link">psychotree</a>, <a href="https://cran.r-project.org/web/packages/iarm/" class="external-link">iarm</a>, <a href="https://cran.r-project.org/web/packages/catR/index.html" class="external-link">catR</a>, and <a href="https://cran.r-project.org/web/packages/TAM/index.html" class="external-link">TAM</a>.</p>
 <p>If you use <code>easyRasch</code> for a publication, please also cite these packages. You can find citation information in R by using <code>citation('packagename')</code>.</p>
 <p>The package is intended to simplify the Rasch analysis process and provides easy creation of tables and figures with functions that have few options. The package has been tested on MacOS and Windows with R 4.1 to 4.4.</p>
+<p>I have also created a package for Bayesian Rasch models, based on the <a href="https://paulbuerkner.com/brms/" class="external-link"><code>brms</code></a> package. You can find <a href="https://pgmj.github.io/easyRaschBayes/index.html"><code>easyRaschBayes</code></a> on <a href="https://cloud.r-project.org/web/packages/easyRaschBayes/index.html" class="external-link">CRAN</a>.</p>
 <p><strong>NOTE: this package was formerly known as <code>RISEkbmRasch</code>. The old GitHub page with code and commit history for <code>RISEkbmRasch</code> will remain available as a public archive in read-only state.</strong></p>
 <p>Please regularly check the <a href="https://pgmj.github.io/easyRasch/news/index.html">Changelog</a> for notes on updates.</p>
 <p>There is a <a href="https://pgmj.github.io/raschrvignette/RaschRvign.html" class="external-link">vignette</a> that is recommended reading after you skimmed this README. You will find a sample Rasch analysis in the vignette, with output from most of the package functions. The vignette is produced using Quarto, and its source code is of course also <a href="https://github.com/pgmj/pgmj.github.io/blob/main/raschrvignette/RaschRvign.qmd" class="external-link">available</a>.</p>
@@ -66,16 +69,17 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p><strong>MacOS users NOTE: If you have MacOS Tahoe 26.1 or later, you may need to add the code below to your R script BEFORE loading easyRasch</strong></p>
+<p><strong>MacOS users NOTE: If you have MacOS Tahoe 26.1 or later, you may need to add the code below to your R script BEFORE loading the <code>iarm</code> package</strong></p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>rgl.useNULL <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>Updating the package <code>vcdExtra</code> (which is a dependency of <code>iarm</code>) to version 0.9.3 seems to resolve this issue.</p>
 <p>First, install the <a href="https://pak.r-lib.org/" class="external-link"><code>pak</code></a> package:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'pak'</span><span class="op">)</span></span></code></pre></div>
 <p>(If you have the <code>devtools</code> package installed, you can instead use <code>devtools::install_github("pgmj/easyRasch")</code>)</p>
 <p>Then install the package and its dependencies:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu">pkg_install</span><span class="op">(</span><span class="st">"pgmj/easyRasch"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"pgmj/easyRasch"</span><span class="op">)</span></span></code></pre></div>
 <p>While not strictly necessary, it is highly recommended to install Quarto (and update your Rstudio and R installation if needed):</p>
 <ul>
 <li><a href="https://quarto.org/docs/get-started/" class="external-link uri">https://quarto.org/docs/get-started/</a></li>
@@ -86,12 +90,18 @@
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/detach.html" class="external-link">detach</a></span><span class="op">(</span><span class="st">"package:easyRasch"</span>, unload <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># not needed if you haven't loaded the package in your current session</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu">pkg_install</span><span class="op">(</span><span class="st">"pgmj/easyRasch"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"pgmj/easyRasch"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="using-the-package">Using the package<a class="anchor" aria-label="anchor" href="#using-the-package"></a>
 </h2>
+<p>Load the package:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pgmj/easyRasch" class="external-link">easyRasch</a></span><span class="op">)</span></span>
+<span><span class="co"># if you have a modern Mac, running MacOS 26.1 or later, you need this next line</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>rgl.useNULL <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># if you don't use MacOS, this line is not necessary</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">iarm</span><span class="op">)</span></span></code></pre></div>
 <p>Most functions in this package are relatively simple wrappers that create outputs such as tables and figures to make the Rasch analysis process quick and visual. The primary introduction to using the package is the <a href="https://pgmj.github.io/raschrvignette/RaschRvign.html" class="external-link">vignette</a>.</p>
 <p>There are two data structure requirements:</p>
 <ol style="list-style-type: decimal">
@@ -102,7 +112,7 @@
 <li>the <strong>second variable</strong> named <code>item</code>, containing either the questionnaire item or a description of it (or description of a task, etc)</li>
 </ul>
 <p>Sample code for four items:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">itemlabels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>itemnr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"q"</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span>,</span>
 <span>                         item <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Was the package easy to install?"</span>, </span>
 <span>                                  <span class="st">"Did you run in to any issues?"</span>, </span>
@@ -183,7 +193,12 @@
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://www.buymeacoffee.com/pgmj" target="_blank" class="external-link"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>

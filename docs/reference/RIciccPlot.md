@@ -35,7 +35,8 @@ RIciccPlot(data, class_intervals = 5, method = "cut", dif = "no", dif_var = NA)
 
 ## Details
 
-`+ plot_annotation(subtitle = "Some subtitle")`. See `?plot_annotation`
+`+ plot_annotation(subtitle = "Some subtitle")`. See
+[`?plot_annotation`](https://patchwork.data-imaginist.com/reference/plot_annotation.html)
 for more possibilities.
 
 A useful option is for DIF analysis, which requires two optional

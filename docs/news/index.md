@@ -1,19 +1,27 @@
 # Changelog
 
+## easyRasch 0.5.1 (2026-03-25)
+
+- Bayesian/`brms`-related functions added in previous version are
+  removed and now reside in a new separate package,
+  [`easyRaschBayes`](https://pgmj.github.io/easyRaschBayes/index.html),
+  which is available on CRAN:
+  <https://cloud.r-project.org/web/packages/easyRaschBayes/index.html>
+- Minor fix for `RIciccplot()` that would surface if package `iarm` was
+  not loaded.
+
 ## easyRasch 0.5 (2026-02-26)
 
 - Added two functions for assessing item (and person) fit with Bayesian
   Rasch models (RM and PCM) output by the R package `brms`.
-  - [`fit_statistic_pcm()`](https://pgmj.github.io/easyRasch/reference/fit_statistic_pcm.md)
-    and
-    [`fit_statistic_rm()`](https://pgmj.github.io/easyRasch/reference/fit_statistic_rm.md).
+  - `fit_statistic_pcm()` and `fit_statistic_rm()`.
   - Code based on [Bürkner,
     2020](http://doi.org/10.3390/jintelligence8010005).
-- [`infit_statistic()`](https://pgmj.github.io/easyRasch/reference/infit_statistic.md)
-  is a Bayesian version of conditional item infit for `brms` models.
-- [`q3_statistic()`](https://pgmj.github.io/easyRasch/reference/q3_statistic.md)
-  is a Bayesian version of Yen’s Q3 residual correlations to evaluate
-  local independence of item pairs for `brms` models.
+- `infit_statistic()` is a Bayesian version of conditional item infit
+  for `brms` models.
+- `q3_statistic()` is a Bayesian version of Yen’s Q3 residual
+  correlations to evaluate local independence of item pairs for `brms`
+  models.
 - All new functions for this release are written with Claude Opus 4.6
 
 ## easyRasch 0.4.3.2 (2026-02-17)
@@ -287,8 +295,10 @@
     or when to use it.
 - Slight speedup (~20%) for
   [`RIgetResidCor()`](https://pgmj.github.io/easyRasch/reference/RIgetResidCor.md)
-  by changing the accelerator used by `mirt()` to SQUAREM and avoiding
-  the use of [`sink()`](https://rdrr.io/r/base/sink.html).
+  by changing the accelerator used by
+  [`mirt()`](https://philchalmers.github.io/mirt/reference/mirt.html) to
+  SQUAREM and avoiding the use of
+  [`sink()`](https://rdrr.io/r/base/sink.html).
 
 ## easyRasch 0.3.6.2 (2025-04-30)
 
@@ -302,7 +312,8 @@
   to avoid namespace issues with package `ordinal`.
 - Bug fix in
   [`RIbootRestscore()`](https://pgmj.github.io/easyRasch/reference/RIbootRestscore.md)
-  where `count()` needed to be specified as
+  where [`count()`](https://rdrr.io/pkg/matrixStats/man/rowCounts.html)
+  needed to be specified as
   [`dplyr::count()`](https://dplyr.tidyverse.org/reference/count.html).
 
 ## easyRasch 0.3.6.1 (2025-03-20)

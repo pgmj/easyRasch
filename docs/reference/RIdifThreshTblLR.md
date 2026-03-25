@@ -1,7 +1,8 @@
 # DIF PCM analysis with table output for item thresholds
 
-Makes use of the eRm package function `LRtest()`. Outputs a table with
-item average locations, group differences, and standard errors.
+Makes use of the eRm package function
+[`LRtest()`](https://rdrr.io/pkg/eRm/man/LRtest.html). Outputs a table
+with item average locations, group differences, and standard errors.
 
 ## Usage
 
