@@ -1,5 +1,9 @@
 # Changelog
 
+## easyRasch 0.5.1.1 (2026-04-01)
+
+- Restructuring R/ folder to prepare for some structural changes.
+
 ## easyRasch 0.5.1 (2026-03-25)
 
 - Bayesian/`brms`-related functions added in previous version are

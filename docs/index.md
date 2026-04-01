@@ -59,6 +59,9 @@ package**
 options(rgl.useNULL = TRUE)
 ```
 
+Updating the package `vcdExtra` (which is a dependency of `iarm`) to
+version 0.9.3 seems to resolve this issue.
+
 First, install the [`pak`](https://pak.r-lib.org/) package:
 
 ``` r
