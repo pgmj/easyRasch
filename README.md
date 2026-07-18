@@ -4,6 +4,8 @@
 <a href="https://www.buymeacoffee.com/pgmj" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 <!-- badges: end -->
 
+**NOTE: this package has been superseded by the CRAN package [`easyRasch2`](https://cran.r-project.org/package=easyRasch2) and the companion [jamovi](https://jamovi.org) module (available from the jamovi library inside the application). Although `easyRasch` contains certain functions not yet ported to `easyRasch2`, I recommend migrating to the new package for your analyses. The jamovi module, `easyRasch2jmv` version 3.0.0, calls the `easyRasch2` R package directly, ensuring identical results between the R package and the jamovi interface.**
+
 R package for Rasch Measurement Theory psychometrics, intended for use with [Quarto](https://quarto.org) for documentation and presentation of analysis process and results. 
 
 This package largely functions as a wrapper for other R packages for the Rasch analyses, 
@@ -13,14 +15,14 @@ primarily [eRm](https://cran.r-project.org/web/packages/eRm/), [mirt](https://cr
 
 If you use `easyRasch` for a publication, please also cite these packages. You can find citation information in R by using `citation('packagename')`.
 
-The package is intended to simplify the Rasch analysis process and provides easy creation of tables and figures with functions that have few options. The package has been tested on MacOS and Windows with R 4.1 to 4.4.
+The package is intended to simplify the Rasch analysis process and provides easy creation of tables and figures with functions that have few options. The package has been tested on MacOS and Windows with R 4.1 to 4.5.
 
 I have also created a package for Bayesian Rasch models, based on the 
 [`brms`](https://paulbuerkner.com/brms/) package.
 You can find [`easyRaschBayes`](https://pgmj.github.io/easyRaschBayes/index.html) on 
 [CRAN](https://cloud.r-project.org/web/packages/easyRaschBayes/index.html).
 
-**NOTE: this package was formerly known as `RISEkbmRasch`. The old GitHub page with code and commit history for `RISEkbmRasch` will remain available as a public archive in read-only state.**
+**NOTE: this package was formerly known as `RISEkbmRasch`. The old GitHub page with code and commit history for [`RISEkbmRasch`](https://github.com/pgmj/RISEkbmRasch) will remain available as a public archive in read-only state.**
 
 Please regularly check the [Changelog](https://pgmj.github.io/easyRasch/news/index.html) for notes on updates.
 
